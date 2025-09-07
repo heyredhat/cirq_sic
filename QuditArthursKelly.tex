@@ -3,6 +3,8 @@
 \usepackage{amssymb,amsmath,amsthm,mathtools}
 \usepackage[english]{babel}
 
+\numberwithin{equation}{section}
+
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -25,11 +27,16 @@
 \begin{document}
 \maketitle
 
+\begin{abstract}
+In this note we adapt the Arthurs-Kelly procedure for realizing Weyl-Heisenberg (WH) covariant POVM's to finite dimensional quantum systems. To perform such a POVM on a $d$-dimensional system, one prepares two $d$-dimensional ancillary systems in a particular initial state; subsequently,  the ancillas are  shifted coherently conditional on the position and momenta of the system of interest, and then measured. We discuss how to prepare the proper initial state of the ancillas from desired WH fiducial state, and for $d=2^n$ dimensional systems, we provide a decomposition of the qudit Arthurs-Kelly procedure into one and two qubit gates. Indeed, we provide a construction of qudit clock and shift operators (and their controlled counterparts) in terms of qubit operations. In particular, we specialize to the implementation of a SIC-POVM in $d=4$, exploiting the ``monomial representation'' of the WH group to prepare the SIC fiducial. We implement our constructions using Google's \T{cirq} framework, and run it on a realistic simulation of their Willow quantum chip.
+\end{abstract}
+
+
 \section{Introduction}
 
 In 1965, Arthurs and Kelly \cite{ArthursKelly, PhysRevA.43.1153} proposed a realization of the canonical coherent state measurement using the following scheme. Two ancilla systems begin in Gaussian states centered at the origin of the infinite line; the ancillas are then coupled to a system of interest such that system's position drives translations of the first ancilla, and the system's momentum drives translations of the second ancilla. Upon position measurements of the two ancillas, by analyzing the resulting Kraus operators, it is possible to show that one ought to project the system state into a coherent state with the appropriate probability. Recall that the coherent states may be obtained as the orbit of the vacuum state under the Weyl-Heisenberg (WH) group. In fact, the Arthurs-Kelly procedure may realize more general WH-covariant measurements for different choices of initial states for the ancillas.
 
- In this note, we show how the Arthurs-Kelly measurement may be adapted to finite dimensional systems, or qudits. In the case that $d=2^n$, we provide a recipe for decomposing the required qudit operations into one and two qubit operations. One special class of finite-dimensional WH-covariant measurements are SIC-POVMs (symmetric informationally-complete) \cite{Renes_2004}: a SIC's $d^2$ rank-1 POVM elements may be rescaled into pure states which form a regular simplex inscribed in quantum state-space, and in all save one sporadic case, SICs are covariant under the discrete WH group \cite{Stacey2021}. We specialize to the implementation of a  SIC in dimension four.
+ In this note, we show how the Arthurs-Kelly measurement may be adapted to finite dimensional systems, or qudits. In the case that $d=2^n$, we provide a recipe for decomposing the required qudit operations into one and two qubit operations. One special class of finite-dimensional WH-covariant measurements are SIC-POVMs (symmetric informationally-complete) \cite{Renes_2004}: a SIC's $d^2$ rank-1 POVM elements may be rescaled into pure states which form a regular simplex inscribed in quantum state-space, and in all save one sporadic case, SICs are covariant under the discrete WH group \cite{Stacey2021}. In particular, we specialize to the implementation of a  SIC in dimension four.
 
 \section{Weyl-Heisenberg operators}
 
@@ -46,7 +53,7 @@ Some fundamental properties of these operators include
 D_\B{a}&=\omega^{-a_1a_2}Z^{a_2} X^{a_1} \\
 D_\B{a}^\dagger &= \omega^{a_1a_2}D_{-\B{a}}\\
 D_\B{a}D_\B{b}&=\omega^{a_2b_1}D_{\B{a}+\B{b}}\\
-D_{\B{b}}D_\B{a}D_{\B{b}}^\dagger &= \omega^{a_1b_2-a_2b_1}D_{\B{a}}\\
+D_{\B{b}}^\dagger D_\B{a}D_{\B{b}} &= \omega^{a_2b_1-a_1b_2}D_{\B{a}}\\
 \tr(D_{\B{a}}^\dagger D_\B{b})&=d\delta_{\B{a}\B{b}},
 \end{align}
 which may be confirmed by straightforward calculation.
@@ -66,7 +73,7 @@ A SIC is a set $\{\Pi_i\}_{i=1}^{d^2}$ of rank-1 projectors on $\mathcal{H}_{d}$
 \label{sic-condition}
 	\tr(\Pi_i\Pi_j)=\frac{d\delta_{ij}+1}{d+1}.
 \end{align}
-Such projectors may be rescaled as $E_i = \frac{1}{d}\Pi_i$ so that $\sum_i E_i=I$, thereby furnishing a generalized measurement or POVM---in fact, such a measurement will be informationally complete since the SIC projectors form a basis for operators on $\mathcal{H}_d$. One may consider the orbit of a generic fiducial state $\Pi$ under the WH group, $\Pi_\B{a}=D_\B{a}\Pi D_{\B{a}}^\dagger$, and obtain a WH-covariant POVM. Only for a very special choice of projector, however, will Eq.\! \ref{sic-condition} be satisfied, and the set be symmetric informationally-complete (SIC). 
+Such projectors may be rescaled as $E_i = \frac{1}{d}\Pi_i$ so that $\sum_i E_i=I$, thereby furnishing a generalized measurement or POVM---in fact, such a measurement will be informationally complete since the SIC projectors form a basis for operators on $\mathcal{H}_d$. One may consider the orbit of a generic fiducial state $\Pi$ under the WH group, $\Pi_\B{a}=D_\B{a}^\dagger \Pi D_{\B{a}}$, and obtain a WH-covariant POVM. Only for a very special choice of projector, however, will Eq.\! \ref{sic-condition} be satisfied, and the set be symmetric informationally-complete (SIC). 
 
 
 \section{Naimark dilation theorem}
@@ -83,50 +90,70 @@ where the $K_i$'s are Kraus operators acting on the system degrees of freedom on
 
 \section{Qudit Arthurs-Kelly}
 
-Suppose we have assigned a total Hilbert space  $\mathcal{H}_d \otimes \mathcal{H}_d \otimes \mathcal{H}_d$, where the first two tensor factors corresponds to two ancillas, and the third to the system of interest. After preparing the ancillas according to an initial state $|\gamma\rangle$, we perform two unitaries in sequence: 1) a shift of the first ancilla conditional on the discrete position of the system, 2) a shift on the second ancilla conditional on the discrete momentum of the system. In other words, 
+Suppose we have assigned a total Hilbert space  $\mathcal{H}_d \otimes \mathcal{H}_d \otimes \mathcal{H}_d$, where the first two tensor factors corresponds to two ancillas, and the third to the system of interest. After preparing the ancillas according to an initial state $|\gamma\rangle$, we perform two unitaries in sequence: 1) a (leftward) shift of the first ancilla conditional on the discrete position of the system, 2) a (leftward) shift on the second ancilla conditional on the discrete momentum of the system. In other words, 
 \begin{align}
-U &= \left(\sum_m I \otimes X^m \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^k \otimes I \otimes |k\rangle\langle k|\right)\\
-&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km} X^k \otimes X^m \otimes |m\rangle_p\langle k|.
+U &= \left(\sum_m I \otimes X^{-m} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right)\\
+&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km} X^{-k} \otimes X^{-m} \otimes |m\rangle_p\langle k|.
 \end{align}
-If we subsequently perform discrete position (computational basis) measurements on the two ancillas, we obtain Kraus operators
+If we subsequently perform discrete position  measurements on the two ancillas, we obtain Kraus operators
 \begin{align}
 K_{xy}&=	\Big(\langle x, y|\otimes I\Big)U\Big(|\gamma\rangle \otimes I\Big) \\
-&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle x, y|X^k\otimes X^m|\gamma \rangle \ |m\rangle_p\langle k|\\
-&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle x-k, y-m|\gamma \rangle \ |m\rangle_p\langle k|.
+&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle x, y|X^{-k}\otimes X^{-m}|\gamma \rangle \ |m\rangle_p\langle k|\\
+&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle x+k, y+m|\gamma \rangle \ |m\rangle_p\langle k|.
 \end{align}
 Let us examine in particular the Kraus operator corresponding to the outcome $x=y=0$,
 \begin{align}
-	K_{00}&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle -k,-m|\gamma\rangle \ |m\rangle_p\langle k|.
+	K_{00}&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle k,m|\gamma\rangle \ |m\rangle_p\langle k|.
 \end{align}
 If we conjugate $K_{00}$ by a WH displacement operator $D_\B{a}$, we find
 \begin{align}
-	D_\B{a}K_{00}D_\B{a}^\dagger &=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle -k,-m|\gamma\rangle \ D_\B{a}|m\rangle_p\langle k|D_\B{a}^\dagger.
+	D_\B{a}^\dagger K_{00}D_\B{a}&=\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle k,m|\gamma\rangle \ D_\B{a}^\dagger|m\rangle_p\langle k| D_\B{a}.
 \end{align}
-But letting $\B{a}=(x, y)$, we have
+Letting $\B{a}=(x, y)$, we have
 \begin{align}
-	D_\B{a}|m\rangle_p\langle k|D_\B{a}^\dagger &= X^xZ^y|m\rangle_p\langle k|\omega^{xy}X^{-x}Z^{-y}\\
-	&=\omega^{xy} X^x|m+y\rangle_p\langle k +x|Z^{-y}\\
-	&=\omega^{xy}\omega^{-x(m+y)}|m+y\rangle_p\langle k+x|\omega^{-y(k+x)}\\
-	&=\omega^{-xy-xm-yk}|m+y\rangle_p\langle k+x|,
+	D_\B{a}^\dagger |m\rangle_p\langle k|D_\B{a} &= \omega^{xy}X^{-x}Z^{-y}|m\rangle_p\langle k| X^xZ^y\\
+	&=\omega^{xy} X^{-x}|m-y\rangle_p\langle k -x|Z^{y}\\
+	&=\omega^{xy}\omega^{x(m-y)}|m-y\rangle_p\langle k-x|\omega^{y(k-x)}\\
+	&=\omega^{xy+xm-yx+yk-xy}|m-y\rangle_p\langle k-x|\\
+	&=\omega^{-xy+xm+yk}|m-y\rangle_p\langle k-x|,
 \end{align}
-so that subtituting $a=k+x$ and $b=m+y$, we find
+so that subtituting $a=k-x$ and $b=m-y$, we find
 \begin{align}
-D_\B{a}K_{00}D_\B{a}^\dagger&=	\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle -k,-m|\gamma\rangle \ \omega^{-xy-xm-yk}|m+y\rangle_p\langle k+x|\\
-&=\frac{1}{\sqrt{d}}\sum_{ab}\omega^{-(a-x)(b-y)}\langle x-a,y-b|\gamma\rangle \ \omega^{-xy-x(b-y)-y(a-x)}|b\rangle_p\langle a|\\
-&=\frac{1}{\sqrt{d}}\sum_{ab}\omega^{-ab}\langle x-a,y-b|\gamma\rangle \ |b\rangle_p\langle a|\\
+D_\B{a}^\dagger K_{00}D_\B{a}&=	\frac{1}{\sqrt{d}}\sum_{km}\omega^{-km}\langle k,m|\gamma\rangle \ \omega^{-xy+xm+yk}|m-y\rangle_p\langle k-x|\\
+&=\frac{1}{\sqrt{d}}\sum_{ab}\omega^{-(a+x)(b+y)}\langle x+a,y+b|\gamma\rangle \ \omega^{-xy+x(b+y)+y(a+x)}|b\rangle_p\langle a|\\
+&=\frac{1}{\sqrt{d}}\sum_{ab}\omega^{-ab}\langle x+a,y+b|\gamma\rangle \ |b\rangle_p\langle a|\\
 &= K_{xy}.
 \end{align}
-We conclude that we may obtain the whole set of Kraus operators by considering the orbit of $K_{00}$ under the WH group, and thus the corresponding measurement is a WH-covariant POVM. Which measurement is realized, however, depends on the initial state of the ancillas. Let $\Pi$ be a SIC fiducial. Since we'd like $E_\B{0}=\frac{1}{d}\Pi=K_\B{0}^\dagger K_\B{0}$, we must have
+We conclude that we may obtain the whole set of Kraus operators by considering the orbit of $K_{00}$ under the WH group, and thus the corresponding measurement is a WH-covariant POVM. Which measurement is realized, however, depends on the initial state of the ancillas. Let $\Pi$ be the desired fiducial state. Let us assume that it is a rank-1 projector, and that we want the post-measurement update to be a projection by this same projector. Since we require $E_{00}=K_{00}^\dagger K_{00}=\frac{1}{d}\Pi$, we must have
 \begin{align}
-\Pi = \sum_{km}\omega^{-km}\langle -k,-m|\gamma\rangle \ |m\rangle_p\langle k| = \sum_{km}\langle m|_p\Pi|k\rangle |m\rangle_p\langle k|,
+\Pi = \sum_{km}\omega^{-km}\langle k,m|\gamma\rangle \ |m\rangle_p\langle k| = \sum_{km}\langle m|_p\Pi|k\rangle \  |m\rangle_p\langle k|,
 \end{align}
 where on the RHS we've simply expanded the projector $\Pi$ by inserting the two resolutions of the identity provided by the position and momentum states in turn. Therefore the components of the ancillas in the position basis must be
 \begin{align}
 \label{ancilla}
-	\langle k,m|\gamma\rangle=\omega^{km}\langle -m|F^\dagger \Pi |-k\rangle.
+	\langle k,m|\gamma\rangle=\omega^{km}\langle m|F^\dagger \Pi |k\rangle.
 \end{align}
-For an alternate interpretation of this procedure, see appendix \ref{alt-interpretation}, and for a slight simplification see appendix \ref{slight-simplification}.
+ For an alternate interpretation of this procedure, see appendix \ref{alt-interpretation}, and for a slight simplification see appendix \ref{slight-simplification}.
 
+\subsection{Preparing the ancillas}
+
+Given a choice of fiducial state $\Pi$, Eq. \!\ref{ancilla} tells us what the initial state of the ancillas ought to be in order to realize the corresponding WH-covariant POVM. We now show how one can parlay the ability to prepare the fiducial state itself (and its complex conjugate) into the ability to appropriately prepare the ancillas. Suppose the desired fiducial is $\Pi = |\phi\rangle\langle \phi|$. Then: 1) the first ancilla is prepared according to $|\phi^*\rangle$ while the second is prepared according to $|\phi\rangle$; 2) the second ancilla is inverse Fourier transformed; 3) finally, the position of the first ancilla drives coherent rephasing of the second ancilla. Afterwards, the two ancillas will be in the desired initial state $|\gamma\rangle$ which realizes the WH-POVM  with fiducial $\Pi$. 
+\begin{align}
+\label{ancilla-prep}
+\langle k, m|\left(\sum_j |j\rangle\langle j|\otimes Z^j	\right)\Big(I \otimes F^\dagger\Big)\Big(|\phi^*\rangle \otimes |\phi\rangle\Big) &=\sum_j \langle k|j\rangle \langle j|\phi^*\rangle \langle m|Z^jF^\dagger|\phi\rangle\\
+&=\langle m|Z^k F^\dagger|\phi\rangle\langle \phi|k\rangle\\
+&=\omega^{km}\langle m|F^\dagger \Pi |k\rangle.
+\end{align}
+For further intuition as to why this works,  see appendix \ref{alt-interpretation}, which also suggests an application for testing a SIC fiducial itself. 
+
+\section{A $d=4$ SIC fiducial}
+
+According to \cite{monomial}, when $d=n^2$ is a square, an alternative representation of $X$ and $Z$ exists whereby not only elements of the Weyl-Heisenberg group, but also elements of its normalizer, the Clifford group, are represented by phase-permutation (or monomial) matrices. The transformation effecting the basis change from the standard basis to the ``monomial representation'' is simply $F_n \otimes I$, where $F_n$ is the $n\times n$ Fourier matrix. In particular, this representation often allows SIC fiducials to take unusually simple forms. When $d=4$, one simple example, adapted from Section 6 of \cite{monomial}, is as follows. Since $F_2=F_2^\dagger = H$ (the Hadamard transformation), one may check that
+\begin{align}
+\label{fiducial}
+|\phi\rangle = 	(H \otimes I)\begin{pmatrix}1 & 0 & 0 & 0\\ 0 & e^{i\pi(-1/4)} & 0 & 0 \\ 0 & 0 & e^{i\pi (1/4)} & 0 \\ 0 & 0 & 0 & e^{i\pi (1/2)}\end{pmatrix}\frac{1}{\sqrt{5+\sqrt{5}}}\begin{pmatrix} \sqrt{2+\sqrt{5}} \\ 1 \\ 1 \\ 1 \end{pmatrix}
+\end{align}
+is a SIC fiducial with respect to the standard representation of $X$ and $Z$. Notice that the only non-trivial number that appears in this expression is $\sqrt{2+\sqrt{5}}$. Finally, we note that the diagonal phase matrix used in this expression (call it $P$) is the only place that complex components appear so that $|\phi^*\rangle$ can be prepared by acting with $P^\dagger$.
 
 \section{Qubit implementation}
 
@@ -139,7 +166,7 @@ We now assume that $d=2^n$ for $n$ qubits. In order to realize the qudit Arthurs
 \end{align}
 We note that Google's \T{cirq} natively provides the  $\T{H}$ and $\T{SWAP}$ gates, and that $\T{R}(k)$ may be obtained from $\T{ZPowGate(exponent=}2^{1-k}\T{)}$,  its controlled counterpart being $\T{CZPowGate(exponent=}2^{1-k}\T{)}$.
 
-The first observation is that the qudit Fourier transform $\T{F}$ can be realized as a sequence of Hadamards and controlled phase shifts ($\T{CR}$), followed by a sequence of $\T{SWAP}$'s at the end which reverse the order of the qubits \cite{Nielsen_Chuang_2010}.
+The first observation is that the qudit Fourier transform $\T{F}$ can be realized as a sequence of Hadamards and controlled phase shifts ($\T{CR}$), followed by a sequence of $\T{SWAP}$'s at the end which reverse the order of the qubits \cite{Nielsen_Chuang_2010}:
 \begin{center}
 \includegraphics[scale=0.45]{img/qft.png}
 \end{center}
@@ -173,7 +200,7 @@ The full qudit-controlled $\T{Z}$ operator, which performs $Z^k$ conditional on 
 where the control qudit is realized by $n$ qubits indexed by $\{c_j\}_{j=0}^{n-1}$, and the target qudit is realized by $n$  qubits indexed by $\{t_j\}_{j=0}^{n-1}$.  For example, $\T{CZ}$, where the first three qubits constitute the target qudit, and the second three qubits constitute the control:\begin{center}
 \includegraphics[scale=0.8]{img/controlled_clock.pdf}
 \end{center}
-Again, the logic is easiest to see by examining a simple case. Let $n=3$, and take the first three qubits to be the target, and the second three to be the control. Denoting $|0\rangle\langle 0| \equiv 0$ and $|1\rangle\langle 1 | \equiv 1$ and suppressing the tensor product sign, e.g. $ZII1=Z \otimes I \otimes I \otimes |1\rangle\langle 1| $, where the first tensor factor is a $2^3=8$ dimensional qudit, and the latter three tensor factors are treated as qubits,
+Again, the logic is easiest to see by examining a simple case. Let $n=3$, and take the first three qubits to be the target, and the second three to be the control. Denoting $|0\rangle\langle 0| \equiv 0$ and $|1\rangle\langle 1 | \equiv 1$ and suppressing the tensor product sign, e.g. \!$ZII1=Z \otimes I \otimes I \otimes |1\rangle\langle 1| $, where the first tensor factor is a $2^3=8$ dimensional qudit, and the latter three tensor factors are treated as qubits,
 \begin{align}
 \T{CZ}_{c,t}&=\T{QCZ}^{2^2}_{0, t}\T{QCZ}^{2^1}_{1, t}\T{QCZ}^{2^0}_{2,t}\\
 &=\Big(I0 II + Z^41II\Big)\Big(II0I+Z^2I1I\Big)\Big(III0+ZII1\Big) \\
@@ -183,88 +210,96 @@ Again, the logic is easiest to see by examining a simple case. Let $n=3$, and ta
 \end{align}
 Finally, $\T{CX}$ can be constructed by first applying $\T{F}$ to the target qubits, then $\T{CZ}$, followed by $\T{F}^\dagger$ on the target qubits. The Arthurs-Kelly unitary can then be expressed,
 \begin{align}
-\T{AK}= \T{F}_c\T{CX}_{c, t^{(2)}}  \T{F}^\dagger_c \T{CX}_{c,t^{(1)}}, 
+\T{AK}= \T{F}_c\T{CX}_{c, t^{(2)}}^\dagger  \T{F}^\dagger_c \T{CX}^\dagger _{c,t^{(1)}}, 
 \end{align}
-where $c$ denotes the set of qubits realizing the qudit system of interest, and $t^{(1)}$ and $t^{(2)}$ are the two sets of qubits acting as ancillas. The first ancilla is shifted coherently conditional on the position of the system; then the second ancilla is shifted coherently conditional on the momentum of the system (hence the Fourier transforms). In circuit form, specializing the case that $n=2$, where the first qubit pair is ancilla 1, the second qubit pair is ancilla 2, and the third qubit pair is the system of interest, we have:
+where $c$ denotes the set of qubits realizing the qudit system of interest, and $t^{(1)}$ and $t^{(2)}$ are the two sets of qubits acting as ancillas. The first ancilla is shifted coherently (leftward) conditional on the position of the system; then the second ancilla is shifted coherently (leftward) conditional on the momentum of the system (hence the Fourier transforms). In circuit form, specializing to the case that $n=2$, where the first qubit pair is ancilla 1, the second qubit pair is ancilla 2, and the third qubit pair is the system of interest, we have:
 \begin{center}
 \includegraphics[scale=0.8]{img/ak.pdf}	
 \end{center}
-It then remains to prepare the initial state of the ancillas in order to realize the desired WH-POVM.
 
-
-\section{Preparing ancillas for a $d=4$ SIC}
-
-Following \cite{Scott_2010}, we will use the $4a$ fiducial whose components in the computational basis are 
+Finally, suppose that $\Pi = |\phi\rangle\langle \phi|$ is the WH fiducial state. Assuming that ancilla 1 ($t^{(1)}$) is prepared according to $|\phi^*\rangle$ and ancilla 2 ($t^{(2)}$) is prepared according to $|\phi\rangle$, following Eq. \!\ref{ancilla-prep}, we must apply the unitary
 \begin{align}
-|\phi\rangle =  \frac{1}{\sqrt{\left(2-\sqrt{2}\right) \left(5+\sqrt{5}\right)}}\left(
-\begin{array}{c}
-  1
-   \\
-   \left(\frac{1}{8}+\frac{i}{
-   8}\right)
-   \left(\sqrt{2}+(-1-i)\right)
-   \left(\left(1+\sqrt{5}\right)^{3/
-   2}+(2-2
-   i)\right)
-   \\
-i\left(\sqrt{2}-1\right)\\
-   \left(\frac{1}{8}+\frac{i}{
-   8}\right)
-   \left(\sqrt{2}+(-1-i)\right)
-   \left(\left(1+\sqrt{5}\right)^{3/
-   2}+(-2+2
-   i)\right)
-\end{array}
-\right)	.
+	\T{AP}= \T{CZ}_{t^{(1)}, t^{(2)}}\T{F}^\dagger_{t^{(2)}}
 \end{align}
-By Eq. \!\ref{ancilla}, the corresponding ancilla state is 
-\begin{align} |\gamma\rangle=\frac{1}{\left(2-\sqrt{2}\right) \left(5+\sqrt{5}\right)}
-\left(
-\begin{array}{c}
- \left(\frac{1}{8}+\frac{i}{8}\right)
-   \left(\sqrt{2}+(-1-i)\right) \left((2+2
-   i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right) \\
- 1 \\
- \left(-\frac{1}{8}-\frac{i}{8}\right)
-   \left(\sqrt{2}+(-1-i)\right) \left((-2-2
-   i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right) \\
- -i \left(\sqrt{2}-1\right) \\
- -\frac{1}{2} \left(\sqrt{2}-2\right)
-   \left(\sqrt{5}+(2-i)\right) \\
- \left(\frac{1}{8}+\frac{i}{8}\right)
-   \left(\sqrt{2}+(-1+i)\right) \left((-2-2
-   i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right) \\
- \left(\frac{1}{4}+\frac{i}{4}\right) \left(\sqrt{2}-2\right)
-   \left((-3+i)-(1-i)
-   \sqrt{5}+\left(1+\sqrt{5}\right)^{3/2}\right) \\
- \left(-\frac{1}{8}-\frac{i}{8}\right) \left((-1-3 i)+(1+2 i)
-   \sqrt{2}\right) \left((-2-2 i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right) \\
- \frac{1}{2} \left((-3-i)+(2+i) \sqrt{2}\right) \left(-1+i
-   \sqrt[4]{-9-4 \sqrt{5}}\right) \\
- i \left(\sqrt{2}-1\right) \\
- -\frac{1}{2} \left((-3-i)+(2+i) \sqrt{2}\right) \left(1+i
-   \sqrt[4]{-9-4 \sqrt{5}}\right) \\
- 3-2 \sqrt{2} \\
- \frac{1}{32} \left(\sqrt{2}+(-1-i)\right)
-   \left(\sqrt{2}+(-1+i)\right) \left((2+2
-   i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right)^2 \\
- \left(-\frac{1}{8}-\frac{i}{8}\right)
-   \left(\sqrt{2}+(-1+i)\right) \left((2+2
-   i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right) \\
- -\frac{1}{2} \left(\sqrt{2}-2\right)
-   \left(\sqrt{5}+(2-i)\right) \\
- \left(\frac{1}{8}+\frac{i}{8}\right) \left((-1-3 i)+(1+2 i)
-   \sqrt{2}\right) \left((2+2 i)+\sqrt{1+\sqrt{5}}+\sqrt{5
-   \left(1+\sqrt{5}\right)}\right) \\
-\end{array}
-\right).\end{align}
-It remains to be seen whether it is possible to construct an efficient preparation of this state, or whether one must string together an elaborate sequence of qubit $Z$ and $Y$ rotations interspersed with SWAP's to fit its $16-2=14$ parameters. One could hope that its \emph{algebraic number theoretic symmetries} lead to a clever method of preparation.
+to ready the ancillas for the Arthurs-Kelly procedure.
+
+\subsection{Preparing the $d=4$ fiducial}
+As we saw in Eq. \!\ref{fiducial}, an example of a SIC fiducial in $d=4$ is provided by 
+\begin{align}
+|\phi\rangle = 	(H \otimes I)\begin{pmatrix}1 & 0 & 0 & 0\\ 0 & e^{i\pi(-1/4)} & 0 & 0 \\ 0 & 0 & e^{i\pi (1/4)} & 0 \\ 0 & 0 & 0 & e^{i\pi (1/2)}\end{pmatrix}\frac{1}{\sqrt{5+\sqrt{5}}}\begin{pmatrix} \sqrt{2+\sqrt{5}} \\ 1 \\ 1 \\ 1 \end{pmatrix}.
+\end{align}
+In order to realize $|\phi\rangle$, we need the following gates:
+\begin{align}
+\T{Ry}(\theta)&= \begin{pmatrix}\cos (\theta/2) & -\sin(\theta/2) \\ \sin(\theta/2) & \cos (\theta/2) \end{pmatrix} && \T{Ph}(\theta)=\begin{pmatrix} 1 & 0 \\ 0 & e^{i \theta}\end{pmatrix}\\
+\T{Sx}&=\begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix} && \T{H}=\frac{1}{\sqrt{2}}\begin{pmatrix}1 & 1 \\ 1 & -1 \end{pmatrix} && \T{CNOT}=\begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 1 & 0 \end{pmatrix}.
+\end{align}
+We note that \T{cirq} provides $\T{Ry(rads=}\theta \T{)}$, $\T{Ph}(\theta)$ may be realized as $\T{ZPowGate(exponent=}\theta/\pi\T{)}$, $\T{Sx}$ as \T{cirq.X}, and \T{CNOT} is implemented directly. We will also need a controlled $y$-rotation, which according to a standard decomposition \cite{Nielsen_Chuang_2010}, may be constructed as
+\begin{align}
+	\T{CRy}(\theta) &= \T{CNOT} \cdot (\T{I} \otimes \T{Ry}(-\theta/2)) \cdot \T{CNOT} \cdot (\T{I} \otimes \T{Ry}(\theta/2)).
+\end{align}
+In order to prepare the almost flat state $\frac{1}{\sqrt{5+\sqrt{5}}}\begin{pmatrix} \sqrt{2+\sqrt{5}} & 1 & 1 & 1 \end{pmatrix}^T$ from $|0,0\rangle$, it suffices to perform
+\begin{align}
+\T{AF}=\T{CRy}(\theta_3)\cdot (\T{Sx}\otimes \T{I})\cdot \T{CRy}(\theta_2)\cdot (\T{Sx} \otimes \T{I}) \cdot (\T{Ry}(\theta_1)\otimes \T{I})	
+\end{align}
+where 
+\begin{align}
+\theta_1 &= 	2\cos^{-1}\left(\sqrt{\frac{5+\sqrt{5}}{10}}\right) && \theta_2=2\cos^{-1}\left(\frac{\sqrt{1+\sqrt{5}}}{2}\right) && \theta_3 = \pi/2.
+\end{align}
+Meanwhile, the diagonal rephasing unitary may be decomposed as
+\begin{align}
+\T{P} = (\T{Ph}(-\pi/2) \otimes \T{I}) \cdot \T{CNOT} \cdot (\T{I} \otimes \T{Ph}(3\pi/4)) \cdot \T{CNOT} \cdot (\T{I} \otimes \T{Ph}(\pi)),
+\end{align}
+ where we note that $\T{Ph}(\pi)=Z$ and $\T{Ph}(-\pi/2)=S^\dagger$, both of which are available in \T{cirq} as $\T{Z}$ and $\T{S}$. The final ingredient  is to apply the Hadamard gate to the first qubit $(\T{H}\otimes \T{I})$. We note again that $|\phi^*\rangle$ may be prepared by applying $\T{P}^\dagger$ instead of $\T{P}$. For more details regarding these decompositions, consult appendix \ref{fiducial-decomposition}.
+
+\section{Experiments on Google's Willow}
+
+To provide an initial test of the Arthurs-Kelly circuit, we used \T{cirq}'s simulator for \T{willow\_pink} which incorporates a noise model. Let $A=[(5,9), (6,9)], B=[(5,10), (6,10)], C=[(5,11), (6,11)]$ be three sets of qubits, specified by their coordinates on the device's grid. First, the conjugate fiducial is prepared on $A$ and the fiducial is prepared on $B$. Then the ancilla preparation procedure is applied to $A$ and $B$. Then $B$ is swapped with $C$: $A$ and $C$ will be ancillas 1 and 2, and $B$ will be the system of interest. In fact, $B$ is then prepared according to the fiducial itself, and finally the AK interaction is performed, after which the qubits in $A$ and $C$ are measured.
+
+ The circuit as given is not compatible with the connectivity graph of the device. In order to make it so, we apply the transformer \T{RouteCQC} which inserts the required \T{SWAP}'s. Finally, we used \T{cirq}'s \T{optimize\_for\_target\_gateset} to further decompose the gates in the circuit into the \T{willow\_pink} gate set. Running the simulator $N=50000$ times yields the results depicted below. In red is the theoretically calculated probabilities for the outcomes of a SIC measurement, given the SIC fiducial. In blue is the ``actual'' proportion of time those outcomes occured. 
+
+\begin{center}
+\includegraphics[scale=0.5]{img/willow_sim.png}	
+\end{center}
+
+\subsection{Gate counts}
+
+Before conforming the circuit to the device's topology and optimizing its gates, the gate count by type was:
+
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Gate Type} & \textbf{Count} \\
+\hline
+\texttt{Ry} & 15 \\
+\texttt{PauliX} & 6 \\
+\texttt{CXPowGate} & 18 \\
+\texttt{ZPowGate} & 9 \\
+\texttt{HPowGate} & 17 \\
+\texttt{SwapPowGate} & 9 \\
+\texttt{CZPowGate} & 25 \\
+\texttt{MeasurementGate} & 1 \\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent Afterwards, the actual gate counts run on the simulator were: 
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Gate Type} & \textbf{Count} \\
+\hline
+\texttt{PhasedXZGate} & 124 \\
+\texttt{CZPowGate} & 127 \\
+\texttt{PhasedXPowGate} & 159 \\
+\texttt{ZPowGate} & 9 \\
+\texttt{MeasurementGate} & 1 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Further work}
+
+
 
 \bibliographystyle{plain} 
 \bibliography{QuditArthursKelly}
@@ -274,50 +309,116 @@ It remains to be seen whether it is possible to construct an efficient preparati
 \section{An alternative interpretation}
 \label{alt-interpretation}
 
-An interaction with Hamiltonian $A\otimes B$ can be interpreted in two different ways,
+An interaction with Hamiltonian $A\otimes B$ can be interpreted in two alternative ways,
  \begin{align}
  	e^{i(A \otimes B)}=\sum_a|a\rangle\langle a| \otimes e^{iaB}=\sum_b e^{ibA}\otimes |b\rangle\langle b|,
  \end{align}
 where $A=\sum_a a|a\rangle\langle a|$, $B=\sum_b b|b\rangle\langle b|$ are spectral decompositions. In other words, the very same interaction can be interpreted as controlled-$B$ operation, conditional on the observable $A$, or as a controlled $A$-operation, conditional on the observable $B$. In light of this, we may reconsider our Arthurs-Kelly interaction, rewriting it as
 \begin{align}
-U &= \left(\sum_m I \otimes X^m \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^k \otimes I \otimes |k\rangle\langle k|\right)\\
-&=\left(\sum_m I \otimes e^{-imP} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k e^{-ikP} \otimes I \otimes |k\rangle\langle k|\right)\\
-&=e^{-i(I \otimes P \otimes P)}e^{-i(P \otimes I \otimes Q)}\\
-&= \left(\sum_m I \otimes |m\rangle_p\langle m|_p\otimes e^{-imP} \right)\left(\sum_k |k\rangle_p\langle k|_p \otimes I \otimes e^{-ikQ}\right)	\\
-&=\left(\sum_m I \otimes |m\rangle_p\langle m|_p\otimes X^m \right)\left(\sum_k |k\rangle_p\langle k|_p \otimes I \otimes Z^{-k}\right)\\
-&=\sum_{km}|k\rangle_p\langle k|_p \otimes |m\rangle_p\langle m|_p \otimes X^mZ^{-k}\\
-&=\sum_{km}|k\rangle_p\langle k|_p \otimes |m\rangle_p\langle m|_p \otimes D_{m,-k}.
+U &= \left(\sum_m I \otimes X^{-m} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right)\\
+&=\left(\sum_m I \otimes e^{imP} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k e^{ikP} \otimes I \otimes |k\rangle\langle k|\right)\\
+&=e^{i(I \otimes P \otimes P)}e^{i(P \otimes I \otimes Q)}\\
+&= \left(\sum_m I \otimes |m\rangle_p\langle m|_p\otimes e^{imP} \right)\left(\sum_k |k\rangle_p\langle k|_p \otimes I \otimes e^{ikQ}\right)	\\
+&=\left(\sum_m I \otimes |m\rangle_p\langle m|_p\otimes X^{-m} \right)\left(\sum_k |k\rangle_p\langle k|_p \otimes I \otimes Z^{k}\right)\\
+&=\sum_{km}|k\rangle_p\langle k|_p \otimes |m\rangle_p\langle m|_p \otimes X^{-m}Z^{k}\\
+&=\sum_{km}|k\rangle_p\langle k|_p \otimes |m\rangle_p\langle m|_p \otimes D_{-m,k}.
 \end{align}
 From this point of view, the Arthurs-Kelly procedure involves coherently applying a WH displacement \emph{on the system} conditional on the momenta of two ancillas. The Kraus operators may be expressed
 \begin{align}
 K_{xy} &= \Big(\langle x, y| \otimes I\Big)U	\Big(|\gamma\rangle \otimes I\Big)\\
-&=\sum_{km}\langle x|k\rangle_p \langle y|m\rangle_p \langle k, m|_p\gamma\rangle D_{m, -k}\\
-&=\frac{1}{d}\sum_{km}\omega^{xk+ym}\langle k, m|_p\gamma\rangle D_{m, -k}.
+&=\sum_{km}\langle x|k\rangle_p \langle y|m\rangle_p \langle k, m|_p\gamma\rangle D_{-m, k}\\
+&=\frac{1}{d}\sum_{km}\omega^{xk+ym}\langle k, m|_p\gamma\rangle D_{-m, k}.
 \end{align}
 As before, we consider
 \begin{align}
-K_{00}=	\frac{1}{d}\sum_{mk}\langle k,m|_p\gamma\rangle D_{m,-k},
+K_{00}=	\frac{1}{d}\sum_{mk}\langle k,m|_p\gamma\rangle D_{-m,k},
 \end{align}
-and then examine $D_\B{a} K_{00} D_\B{a}^\dagger$. Since $D_\B{a}D_{m,-k}D_\B{a}^\dagger = 	\omega^{my+kx}D_{m,-k}$, we have
+and then examine $ D_\B{a}^\dagger K_{00}D_\B{a}$. Since $D_\B{a}^\dagger D_{-m,k}D_\B{a} = 	\omega^{xk+ym}D_{-m,k}$, we have
 \begin{align}
-	D_\B{a} K_{00} D_\B{a}^\dagger &= 	\frac{1}{d}\sum_{mk}\langle k,m|_p\gamma\rangle \omega^{xk+ym}D_{m,-k}=K_{xy},
+	D_\B{a}^\dagger K_{00} D_\B{a} &= 	\frac{1}{d}\sum_{mk}\langle k,m|_p\gamma\rangle \omega^{xk+ym}D_{-m,k}=K_{xy},
 \end{align}
 which again shows that the measurement is WH-covariant. To find the initial state of the ancillas, we use the fact that the WH operators form a basis, so that we can identify
 \begin{align}
-	\langle k,m|_p\gamma\rangle =\frac{1}{\sqrt{d}}\tr(D_{m,-k}^\dagger \Pi),
+	\langle k,m|_p\gamma\rangle =\frac{1}{\sqrt{d}}\tr(D_{-m,k}^\dagger \Pi),
 \end{align}
 or in the discrete position basis
 \begin{align}
-\langle k, m|\gamma\rangle = 	d^{-3/2}\sum_{ab} \omega^{am-bk}\tr(D_{a,b}^\dagger \Pi).
+\label{alt-gamma-expr}
+\langle k, m|\gamma\rangle = 	d^{-3/2}\sum_{ab} \omega^{-am+bk}\tr(D_{a,b}^\dagger \Pi).
 \end{align}
+
+\subsection{An application to SIC fiducial testing}
+Note that Eq. \!\ref{alt-gamma-expr} implies that
+\begin{align}
+|\gamma\rangle = (F\otimes F^\dagger )\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle.
+\end{align}
+Morever as we saw in Eq. \!\ref{ancilla-prep}, the initial state of the ancillas can be prepared from the fiducial and its conjugate by acting with
+\begin{align}
+\left(\sum_j |j\rangle\langle j|\otimes Z^j	\right)\Big(I \otimes F^\dagger\Big).
+\end{align}
+Acting on the left with $F^\dagger \otimes F$, we conclude that the operator
+\begin{align}
+\mathcal{D}=(F^\dagger \otimes I)\left(\sum_j |j\rangle\langle j|\otimes X^{-j}	\right)
+\end{align}
+transforms $|\phi^*\rangle \otimes |\phi\rangle$ into the state $\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle$, whose components are proportional to the \emph{characteristic function} of the fiducial projector $\Pi$. If this state is measured in the computational basis, one ought to obtain outcomes with probabilities
+\begin{align}
+|\langle \phi |D_{a,b}^\dagger|\phi\rangle|^2 &= \frac{d\delta_{a,0}\delta_{b,0}+1}{d+1}
+\end{align}
+if and only if if $\Pi = |\phi\rangle\langle \phi|$ is a SIC fiducial, providing a way to test the preparation of the fiducial itself.
+
+To better understand the structure of $\mathcal{D}$, we can develop it into a more conspicuous form:
+\begin{align}
+( F^\dagger \otimes I )\left(\sum_m  |m\rangle\langle m|	\otimes X^{-m}\right)&=\sum_{lm}\left[\frac{1}{\sqrt{d}}\sum_{jk}\omega^{-jk}|k\rangle\langle j|\right]|m\rangle\langle m|\otimes |l-m\rangle\langle l| \\
+&=\frac{1}{\sqrt{d}}\sum_{lmk}\omega^{-mk}|k\rangle\langle m| \otimes |l-m\rangle\langle l|,
+\end{align}
+so that letting $a=l-m$ and $b=k$, we have
+\begin{align}
+&=\frac{1}{\sqrt{d}}\sum_{abm} \omega^{-mb}|b\rangle\langle m|\otimes |a\rangle\langle a+m|\\
+&=\frac{1}{\sqrt{d}}\sum_{abm}\omega^{ab} \omega^{-b(a+m)}|b,a\rangle \langle m, a+m|\\
+&=\frac{1}{\sqrt{d}}\sum_{abm}|b,a\rangle \langle m, m|(I \otimes \omega^{ab} X^{-a}Z^{-b})\\
+&=\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle \sum_m \langle m, m|(I \otimes D_{a,b}^\dagger)\\
+&=\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle (D_{a,b}|,
+\end{align}
+where $|D_{a,b})$ denotes the column vectorization of $D_{a,b}$, i.e.\! the column vector formed from concatenating the columns of $D_{a,b}$. Finally,
+\begin{align}
+	\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle (D_{a,b}|\Big(|\phi^*\rangle\otimes |\phi\rangle\Big)&=\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle \sum_i \langle i,i|(I\otimes D_{a,b}^\dagger)\Big(|\phi^*\rangle\otimes |\phi\rangle\Big)\\
+	&=\frac{1}{\sqrt{d}}\sum_{ab} |b,a\rangle\sum_i \langle i|\phi^*\rangle \langle i|D_{a,b}^\dagger |\phi\rangle\\
+	&=\frac{1}{\sqrt{d}}\sum_{ab} |b,a\rangle \sum_i\langle i|D_{a,b}^\dagger |\phi\rangle\langle \phi |i\rangle\\
+	&=\frac{1}{\sqrt{d}}\sum_{ab} \tr(D_{a,b}^\dagger \Pi) \ |b,a\rangle,
+\end{align}
+as desired.
 
 \section{A slight simplification}
 \label{slight-simplification}
-If we pull out Fourier transforms from the Arthurs-Kelly unitary
+Rewriting the Arthurs-Kelly unitary
 \begin{align}
-U &= \left(\sum_m I \otimes X^m \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^k \otimes I \otimes |k\rangle\langle k|\right)\\
-&=(I\otimes I\otimes F) \left(\sum_m I \otimes X^m \otimes |m\rangle\langle m|	\right)(I\otimes I \otimes F^\dagger)\left(\sum_k X^k \otimes I \otimes |k\rangle\langle k|\right),
+U &= \left(\sum_m I \otimes X^{-m} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right)\\
+&=(I\otimes I\otimes F) \left(\sum_m I \otimes X^{-m} \otimes |m\rangle\langle m|	\right)(I\otimes I \otimes F^\dagger)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right),
 \end{align}
 we notice that strictly speaking we need not apply the final Fourier transform. Indeed, since this operation acts only on the system, and we are measuring the ancillas, applying the final $F$ ought not to affect our probability assignments for the outcomes of the measurement. If we drop the final Fourier transform, we obtain an alternative set of Kraus operators $\{K_{\B{a}}^\prime\}$ such that $E_\B{a}=K_\B{a}^\dagger K_\B{a}=K_\B{a}^{\prime \dagger} K_\B{a}^\prime$. While this simplifies the procedure, the resulting Kraus update is not a L\"uders update, and the post-measurement states will not be proportional to SIC states. This removes some of the conceptual simplicity of the sky-ground set-up beloved by QBists.
 
+\section{Addendum on the fiducial preparation}
+\label{fiducial-decomposition}
+
+To understand how to prepare the almost flat state $\frac{1}{\sqrt{5+\sqrt{5}}}\begin{pmatrix} \sqrt{2+\sqrt{5}} & 1 & 1 & 1 \end{pmatrix}^T$ from $|0,0\rangle$, we may first rewrite it as
+\begin{align}
+&a|00\rangle + b|01\rangle + b|10\rangle + b|11\rangle\nonumber	\\
+&=|0\rangle\otimes \Big(a|0\rangle+b|1\rangle\Big)+|1\rangle\otimes \Big(b|0\rangle+b|1\rangle\Big)\\
+&=\sqrt{a^2+b^2}|0\rangle\otimes \left(\frac{a}{\sqrt{a^2+b^2}}|0\rangle+\frac{b}{\sqrt{a^2+b^2}}|1\rangle\right)+b\sqrt{2}|1\rangle\otimes \left(\frac{1}{\sqrt{2}}|0\rangle+\frac{1}{\sqrt{2}}|1\rangle\right),
+\end{align}
+for $a=\sqrt{\frac{2+\sqrt{5}}{5+\sqrt{5}}}$, and $b=\sqrt{\frac{1-a^2}{3}}$. We can read off from this expression that we  ought to first transform the first qubit as
+\begin{align}
+|0\rangle \rightarrow 	\sqrt{a^2+b^2}|0\rangle + b\sqrt{2}|1\rangle,
+\end{align}
+which, as one can see by matching matrix elements, can be realized by a $y$-rotation with $\theta_1=2\cos^{-1}\left(\sqrt{\frac{1+2a^2}{3}}\right)=2\cos^{-1}\left(\sqrt{\frac{5+\sqrt{5}}{10}}\right)$. In order to prepare the second qubit, we must perform two controlled operations. First, we need to effect the transformation
+\begin{align}
+|0\rangle \otimes |0\rangle &\rightarrow |0\rangle	\otimes \left(\frac{a}{\sqrt{a^2+b^2}}|0\rangle+\frac{b}{\sqrt{a^2+b^2}}|1\rangle\right),
+\end{align}
+in such a way that if the first qubit is $|1\rangle$, nothing happens. We may realize this with a controlled $y$-rotation with $\theta_2=2\cos^{-1}\left(\frac{a\sqrt{3}}{\sqrt{1+2a^2}}\right)=2\cos^{-1}\left(\frac{\sqrt{1+\sqrt{5}}}{2}\right)$, but since by convention the rotation is conditional on the control qubit being $|1\rangle$, we must first flip the control, and then flip it back with a Pauli $\sigma_x$ operation. Finally, in order to effect the transformation
+\begin{align}
+|1\rangle \otimes |0\rangle \rightarrow |1\rangle \otimes \left(\frac{1}{\sqrt{2}}|0\rangle+\frac{1}{\sqrt{2}}|1\rangle\right),
+\end{align}
+in such a way that if the first qubit is $|0\rangle$, nothing happens, we may use a controlled $y$-rotation with $\theta_3=\pi/2$, which amounts to a controlled-Hadamard transformation.
+
+Finally, we note that the decomposition of the diagonal phase operation $P$ was provided by Google's Gemini 2.5 Pro.
 \end{document}
