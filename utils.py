@@ -41,3 +41,10 @@ def get_gate_counts(circuit):
     print("--- Gate Counts (by type) ---")
     for gate_type, count in type_counts.items():
         print(f"{gate_type.__name__}: {count}")
+
+# If we have WH-POVM probabilities (a d^2 vector), reorder them
+# from the convention D^\dag \Pi D to D \Pi D^\dag (and vice versa)
+def change_conjugate_convention(p):
+    d = int(np.sqrt(p.shape[0]))
+    idx_order = [0] +list(range(1, d))[::-1]
+    return p.reshape(d,d)[np.ix_(idx_order, idx_order)].flatten()

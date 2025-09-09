@@ -127,3 +127,26 @@ def check_fiducial_preparation():
 
 	circ = cirq.Circuit(d4_fiducial(q, conjugate=True))
 	assert np.allclose(d4_fiducial_ket().conj(), cirq.unitary(circ)[:,0])
+
+def check_simple_wh(d):
+	WH = wh_operators(d)
+	X_, F_, D_ = WH["X"], WH["F"], WH["D"]
+
+	phi = rand_ket(d)
+	E = wh_povm(phi)
+
+	psi = rand_ket(d)
+	p = np.array([psi.conj() @ e @ psi for e in E]).real
+	p = change_conjugate_convention(p) # From D^\dag \Pi D to D \Pi D^\dag
+
+	CX_ = sum([np.kron(mpow(X_, -j), np.outer(np.eye(d)[j], np.eye(d)[j])) for j in range(d)])
+	V = np.kron(np.eye(d), F_.conj().T) @ CX_ 
+	state = V @ np.kron(psi, phi.conj())
+	p2 = abs(state)**2
+	assert np.allclose(p, p2)
+
+	V2 = sum([np.outer(np.kron(np.eye(d)[a], np.eye(d)[b]), D_[a,b].flatten().conj()) for a in range(d) for b in range(d)])/np.sqrt(d)
+	assert np.allclose(V, V2)
+
+	V3 = np.array([D_[a,b].flatten().conj() for a in range(d) for b in range(d)])/np.sqrt(d)
+	assert np.allclose(V, V3)

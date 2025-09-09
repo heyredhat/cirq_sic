@@ -28,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-In this note we adapt the Arthurs-Kelly procedure for realizing Weyl-Heisenberg (WH) covariant POVM's to finite dimensional quantum systems. To perform such a POVM on a $d$-dimensional system, one prepares two $d$-dimensional ancillary systems in a particular initial state; subsequently,  the ancillas are  shifted coherently conditional on the position and momenta of the system of interest, and then measured. We discuss how to prepare the proper initial state of the ancillas from desired WH fiducial state, and for $d=2^n$ dimensional systems, we provide a decomposition of the qudit Arthurs-Kelly procedure into one and two qubit gates. Indeed, we provide a construction of qudit clock and shift operators (and their controlled counterparts) in terms of qubit operations. In particular, we specialize to the implementation of a SIC-POVM in $d=4$, exploiting the ``monomial representation'' of the WH group to prepare the SIC fiducial. We implement our constructions using Google's \T{cirq} framework, and run it on a realistic simulation of their Willow quantum chip.
+In this note we adapt the Arthurs-Kelly procedure for realizing Weyl-Heisenberg (WH) covariant POVM's to finite dimensional quantum systems. To perform such a POVM on a $d$-dimensional system, one prepares two $d$-dimensional ancillary systems in a particular initial state; subsequently,  the ancillas are  shifted coherently conditional on the position and momenta of the system of interest, and then measured. We discuss how to prepare the proper initial state of the ancillas from desired WH fiducial state, and for $d=2^n$ dimensional systems, we provide a decomposition of the qudit Arthurs-Kelly procedure into one and two qubit gates. Indeed, we provide a construction of qudit clock and shift operators (and their controlled counterparts) in terms of qubit operations. In particular, we specialize to the implementation of a SIC-POVM in $d=4$, exploiting the ``monomial representation'' of the WH group to prepare the SIC fiducial. We implement our constructions using Google's \T{cirq} framework, and run it on a realistic simulation of their Willow quantum chip. Finally, using the same building blocks, we provide a dramatically simpler implementation of a WH-POVM using a single $d$-dimensional ancilla: the cost is that the system is projected into a computational basis state afterwards.
 \end{abstract}
 
 
@@ -144,7 +144,7 @@ Given a choice of fiducial state $\Pi$, Eq. \!\ref{ancilla} tells us what the in
 &=\langle m|Z^k F^\dagger|\phi\rangle\langle \phi|k\rangle\\
 &=\omega^{km}\langle m|F^\dagger \Pi |k\rangle.
 \end{align}
-For further intuition as to why this works,  see appendix \ref{alt-interpretation}, which also suggests an application for testing a SIC fiducial itself. 
+For further intuition as to why this works,  see appendix \ref{alt-interpretation}, as well as section \ref{simplifiedWH}, and appendix \ref{operatorD}.
 
 \section{A $d=4$ SIC fiducial}
 
@@ -261,7 +261,6 @@ To provide an initial test of the Arthurs-Kelly circuit, we used \T{cirq}'s simu
 \includegraphics[scale=0.5]{img/willow_sim.png}	
 \end{center}
 
-\subsection{Gate counts}
 
 Before conforming the circuit to the device's topology and optimizing its gates, the gate count by type was:
 
@@ -297,9 +296,97 @@ Before conforming the circuit to the device's topology and optimizing its gates,
 \end{tabular}
 \end{center}
 
-\section{Further work}
+\section{A simplified WH-POVM procedure}
+\label{simplifiedWH}
+We now show that a WH-covariant POVM can be realized in a dramatically simpler way, analogous to the two-step measurement construction of \cite{Kalev_2012, PhysRevA.85.052115}, using a single ancilla system in the spirit of \cite{PhysRevA.86.062107}. Besides requiring a  smaller gate-count than the Arthurs-Kelly procedure, one benefit of our construction over the implementations cited in particular is that it cleanly separates out the preparation of the fiducial from the interaction which realizes the POVM. The downside is that the system is not projected into a state proportional to a POVM element at the end of the measurement, as in the Arthurs-Kelly procedure. Instead, at the end the qudits are left in a computational basis state.
 
+To motivate the construction, we note that Eq. \!\ref{alt-gamma-expr} of Appendix \ref{alt-interpretation} shows that the initial state of the Arthurs-Kelly ancillas can be expressed
+\begin{align}
+\langle k, m|\gamma\rangle = 	d^{-3/2}\sum_{ab} \omega^{-am+bk}\tr(D_{a,b}^\dagger \Pi),
+\end{align}
+for desired fiducial $\Pi =|\phi\rangle\langle \phi|$. This implies that 
 
+\begin{align}
+|\gamma\rangle = (F\otimes F^\dagger )\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle.
+\end{align}
+Morever, we saw in Eq. \!\ref{ancilla-prep} that the initial state of the ancillas can be prepared from the fiducial by
+\begin{align}
+|\gamma\rangle=\left(\sum_j |j\rangle\langle j|\otimes Z^j	\right)\Big(I \otimes F^\dagger\Big)\Big(|\phi^*\rangle\otimes |\phi\rangle\Big).
+\end{align}
+Acting on the left of this expression with $F^\dagger \otimes F$, we conclude that \begin{align}
+(F^\dagger \otimes I)\left(\sum_j |j\rangle\langle j|\otimes X^{-j}	\right)\Big(|\phi^*\rangle\otimes |\phi\rangle\Big)=\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle:
+\end{align}
+ $|\phi^*\rangle \otimes |\phi\rangle$ is transformed into $\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle$, whose components are proportional to the \emph{characteristic function} of the fiducial projector $\Pi$.  
+ 
+ In fact, in preparing this state, we are effectively performing the WH-POVM itself. Re-aligning our conventions, let
+ \begin{align}
+ 	\mathcal{D} &=(I\otimes F^\dagger)\left(\sum_j X^{-j}\otimes |j\rangle\langle j|\right)
+ \end{align}
+so that for an arbitrary state $|\psi\rangle$ and conjugate fiducial $|\phi^*\rangle$, 
+\begin{align}
+\Big(\langle a| \otimes \langle b|\Big)\mathcal{D}\Big(|\psi\rangle \otimes |\phi^*\rangle	\Big) &= 
+\Big(\langle a| \otimes \langle b|\Big)(I\otimes F^\dagger)\left(\sum_j X^{-j}\otimes |j\rangle\langle j|\right)\Big(|\psi\rangle \otimes |\phi^*\rangle	\Big)\\
+&=\sum_j \langle a|X^{-j}|\psi\rangle \langle b|F^\dagger |j\rangle\langle j|\phi^*\rangle\\
+&=\sum_j \omega^{-bj}\langle\phi|j\rangle\langle j|X^{-a}|\psi\rangle \\
+&=\sum_j \langle\phi|j\rangle\langle j|Z^{-b}X^{-a}|\psi\rangle \\
+&=\langle \phi |D_{a,b}^\dagger |\psi\rangle
+\end{align}
+so that the computational basis probabilities after performing $\mathcal{D}$ are 
+\begin{align}
+P(a,b)=\left|\frac{1}{\sqrt{d}}\langle \phi |D_{a,b}^\dagger |\psi\rangle\right|^2&=\frac{1}{d}\langle \psi |D_{a,b}|\phi\rangle\langle \phi |D_{a,b}^\dagger |\psi\rangle\\
+&=\tr (E_{a,b}|\psi\rangle\langle \psi|),
+\end{align}
+where $E_{a,b}=\frac{1}{d}D_{a,b} \Pi D_{a,b}^\dagger$, where note for simplicity we are conjugating in the opposite direction than usual. 
+
+Moreover, suppose we prepare $|\psi\rangle \otimes |\psi^*\rangle$. Recall for any pure state $\Pi=|\psi\rangle\langle \psi|$,  the \emph{stabilizer entropy} of order $\alpha$ may be defined as the R\'enyi entropy of precisely the probability distribution $P(a,b)$,
+\begin{align}
+M_{\alpha}(|\phi\rangle)=\frac{1}{1-\alpha}\log \sum_{ab}P(a,b)^{\alpha} - \log d,
+\end{align}
+where $P(a,b) = \frac{1}{d}|\langle \psi|D_{a,b}^\dagger|\psi\rangle|^2$. 
+The stabilizer entropy is a measure of the \emph{magic} of a quantum state: it achieves its minimum on so-called stabilizer states, and its maximum on SIC states \cite{cuffaro2024quantumstatesmaximalmagic}. Our construction provides a simple means of estimating it. Finally, we note that
+\begin{align}
+\frac{1}{d}|\langle \psi |D_{a,b}^\dagger|\psi\rangle|^2 &= \frac{d\delta_{a,0}\delta_{b,0}+1}{d(d+1)}
+\end{align}
+if and only if  $\Pi = |\psi\rangle\langle \psi|$ is a SIC fiducial, so that we efficient means of of testing fiducial preparations before implementing the full Arthurs-Kelly procedure. For further intuition about the matrix $\mathcal{D}$, consult appendix \ref{operatorD}.
+
+\subsection{Comparison}
+
+We ran the simple WH-POVM circuit on the same noisy simulator, again performing a SIC-POVM on the $d=4$ SIC fiducial state.
+
+\begin{center}
+\includegraphics[scale=0.5]{img/willow_sim_simple_wh.png}	
+\end{center}
+The gate count (including the fiducial preparations) before optimization:
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Gate Type} & \textbf{Count} \\
+\hline
+\texttt{Ry} & 10 \\
+\texttt{PauliX} & 4 \\
+\texttt{CXPowGate} & 12 \\
+\texttt{ZPowGate} & 6 \\
+\texttt{HPowGate} & 8 \\
+\texttt{CZPowGate} & 9 \\
+\texttt{SwapPowGate} & 3 \\
+\texttt{MeasurementGate} & 1 \\
+\hline
+\end{tabular}
+\end{center}
+And after optimization:
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Gate Type} & \textbf{Count} \\
+\hline
+\texttt{PhasedXPowGate} & 31 \\
+\texttt{CZPowGate} & 23 \\
+\texttt{ZPowGate} & 3 \\
+\texttt{PhasedXZGate} & 21 \\
+\texttt{MeasurementGate} & 1 \\
+\hline
+\end{tabular}
+\end{center}
 
 \bibliographystyle{plain} 
 \bibliography{QuditArthursKelly}
@@ -347,47 +434,6 @@ or in the discrete position basis
 \langle k, m|\gamma\rangle = 	d^{-3/2}\sum_{ab} \omega^{-am+bk}\tr(D_{a,b}^\dagger \Pi).
 \end{align}
 
-\subsection{An application to SIC fiducial testing}
-Note that Eq. \!\ref{alt-gamma-expr} implies that
-\begin{align}
-|\gamma\rangle = (F\otimes F^\dagger )\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle.
-\end{align}
-Morever as we saw in Eq. \!\ref{ancilla-prep}, the initial state of the ancillas can be prepared from the fiducial and its conjugate by acting with
-\begin{align}
-\left(\sum_j |j\rangle\langle j|\otimes Z^j	\right)\Big(I \otimes F^\dagger\Big).
-\end{align}
-Acting on the left with $F^\dagger \otimes F$, we conclude that the operator
-\begin{align}
-\mathcal{D}=(F^\dagger \otimes I)\left(\sum_j |j\rangle\langle j|\otimes X^{-j}	\right)
-\end{align}
-transforms $|\phi^*\rangle \otimes |\phi\rangle$ into the state $\frac{1}{\sqrt{d}}\sum_{ab}\tr(D_{a,b}^\dagger \Pi)|b,a\rangle$, whose components are proportional to the \emph{characteristic function} of the fiducial projector $\Pi$. If this state is measured in the computational basis, one ought to obtain outcomes with probabilities
-\begin{align}
-|\langle \phi |D_{a,b}^\dagger|\phi\rangle|^2 &= \frac{d\delta_{a,0}\delta_{b,0}+1}{d+1}
-\end{align}
-if and only if if $\Pi = |\phi\rangle\langle \phi|$ is a SIC fiducial, providing a way to test the preparation of the fiducial itself.
-
-To better understand the structure of $\mathcal{D}$, we can develop it into a more conspicuous form:
-\begin{align}
-( F^\dagger \otimes I )\left(\sum_m  |m\rangle\langle m|	\otimes X^{-m}\right)&=\sum_{lm}\left[\frac{1}{\sqrt{d}}\sum_{jk}\omega^{-jk}|k\rangle\langle j|\right]|m\rangle\langle m|\otimes |l-m\rangle\langle l| \\
-&=\frac{1}{\sqrt{d}}\sum_{lmk}\omega^{-mk}|k\rangle\langle m| \otimes |l-m\rangle\langle l|,
-\end{align}
-so that letting $a=l-m$ and $b=k$, we have
-\begin{align}
-&=\frac{1}{\sqrt{d}}\sum_{abm} \omega^{-mb}|b\rangle\langle m|\otimes |a\rangle\langle a+m|\\
-&=\frac{1}{\sqrt{d}}\sum_{abm}\omega^{ab} \omega^{-b(a+m)}|b,a\rangle \langle m, a+m|\\
-&=\frac{1}{\sqrt{d}}\sum_{abm}|b,a\rangle \langle m, m|(I \otimes \omega^{ab} X^{-a}Z^{-b})\\
-&=\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle \sum_m \langle m, m|(I \otimes D_{a,b}^\dagger)\\
-&=\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle (D_{a,b}|,
-\end{align}
-where $|D_{a,b})$ denotes the column vectorization of $D_{a,b}$, i.e.\! the column vector formed from concatenating the columns of $D_{a,b}$. Finally,
-\begin{align}
-	\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle (D_{a,b}|\Big(|\phi^*\rangle\otimes |\phi\rangle\Big)&=\frac{1}{\sqrt{d}}\sum_{ab}|b,a\rangle \sum_i \langle i,i|(I\otimes D_{a,b}^\dagger)\Big(|\phi^*\rangle\otimes |\phi\rangle\Big)\\
-	&=\frac{1}{\sqrt{d}}\sum_{ab} |b,a\rangle\sum_i \langle i|\phi^*\rangle \langle i|D_{a,b}^\dagger |\phi\rangle\\
-	&=\frac{1}{\sqrt{d}}\sum_{ab} |b,a\rangle \sum_i\langle i|D_{a,b}^\dagger |\phi\rangle\langle \phi |i\rangle\\
-	&=\frac{1}{\sqrt{d}}\sum_{ab} \tr(D_{a,b}^\dagger \Pi) \ |b,a\rangle,
-\end{align}
-as desired. Indeed, $|\Pi)=(I\otimes \Pi)\sum_i |i,i\rangle=\sum_i|i\rangle \otimes |\phi\rangle\langle \phi |i\rangle=\sum_i \langle i|\phi^*\rangle |i\rangle \otimes |\phi\rangle=|\phi^*\rangle|\phi\rangle$, and it is a standard identity that $(D_{a,b}|\Pi)=\tr(D_{a,b}^\dagger \Pi)$.
-
 \section{A slight simplification}
 \label{slight-simplification}
 Rewriting the Arthurs-Kelly unitary
@@ -395,7 +441,7 @@ Rewriting the Arthurs-Kelly unitary
 U &= \left(\sum_m I \otimes X^{-m} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right)\\
 &=(I\otimes I\otimes F) \left(\sum_m I \otimes X^{-m} \otimes |m\rangle\langle m|	\right)(I\otimes I \otimes F^\dagger)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right),
 \end{align}
-we notice that strictly speaking we need not apply the final Fourier transform. Indeed, since this operation acts only on the system, and we are measuring the ancillas, applying the final $F$ ought not to affect our probability assignments for the outcomes of the measurement. If we drop the final Fourier transform, we obtain an alternative set of Kraus operators $\{K_{\B{a}}^\prime\}$ such that $E_\B{a}=K_\B{a}^\dagger K_\B{a}=K_\B{a}^{\prime \dagger} K_\B{a}^\prime$. While this simplifies the procedure, the resulting Kraus update is not a L\"uders update, and the post-measurement states will not be proportional to SIC states. This removes some of the conceptual simplicity of the sky-ground set-up beloved by QBists.
+we notice that strictly speaking we need not apply the final Fourier transform. Indeed, since this operation acts only on the system, and we are measuring the ancillas, applying the final $F$ ought not to affect our probability assignments for the outcomes of the measurement. If we drop the final Fourier transform, we obtain an alternative set of Kraus operators $\{K_{\B{a}}^\prime\}$ such that $E_\B{a}=K_\B{a}^\dagger K_\B{a}=K_\B{a}^{\prime \dagger} K_\B{a}^\prime$. While this simplifies the procedure, the resulting Kraus update is not a L\"uders update, and the post-measurement states will not be proportional to SIC states. 
 
 \section{Addendum on the fiducial preparation}
 \label{fiducial-decomposition}
@@ -421,4 +467,28 @@ in such a way that if the first qubit is $|1\rangle$, nothing happens. We may re
 in such a way that if the first qubit is $|0\rangle$, nothing happens, we may use a controlled $y$-rotation with $\theta_3=\pi/2$, which amounts to a controlled-Hadamard transformation.
 
 Finally, we note that the decomposition of the diagonal phase operation $P$ was provided by Google's Gemini 2.5 Pro.
+
+\section{The meaning of the operator $\B{D}$}
+\label{operatorD}
+
+To better understand the structure of $\mathcal{D}$, we can develop it into a more conspicuous form:
+\begin{align}
+\mathcal{D} &=(I\otimes F^\dagger )\left(\sum_j X^{-j}\otimes |j\rangle\langle j|\right)	\\
+&=\sum_j \left[\sum_m |m-j\rangle\langle m|\right]\otimes \left[\frac{1}{\sqrt{d}}\sum_{kl}\omega^{-kl}|k\rangle\langle l|\right]|j\rangle\langle j|\\
+&=\frac{1}{\sqrt{d}}\sum_{jkm} \omega^{-jk}|m-j,k\rangle\langle m,j|\\
+&=\frac{1}{\sqrt{d}}\sum_{jab} \omega^{-jb}|a,b\rangle\langle a+j,j|\\
+&=\frac{1}{\sqrt{d}}\sum_{jab} \omega^{-jb}|a,b\rangle\langle j,j|(X^{-a}\otimes I)\\
+&=\frac{1}{\sqrt{d}}\sum_{jab}|a,b\rangle\langle j,j|(Z^{-b}X^{-a}\otimes I)\\
+&=\frac{1}{\sqrt{d}}\sum_{ab}|a,b\rangle\sum_j\langle j,j|(D_{a,b}^\dagger\otimes I)\\
+&=\frac{1}{\sqrt{d}}\sum_{ab}|a,b\rangle(D_{a,b}|
+\end{align}
+where we let $a=m-j, b=k$, and $|D_{a,b})$ denotes the row vectorization of $D_{a,b}$. In other words, $\mathcal{D}$ as a matrix simply has $(D_{a,b}|$ as its rows. We then note that the row vectorization of $\Pi$ is precisely
+\begin{align} 
+|\Pi) &= (\Pi \otimes I)\sum_i |i,i\rangle=\sum_i |\phi\rangle\langle \phi |i\rangle\otimes |i\rangle= |\phi\rangle \otimes \sum_i \langle i|\phi^*\rangle |i\rangle=|\phi\rangle \otimes |\phi^*\rangle,
+\end{align}
+so that, by the standard vectorization identity $\tr(A^\dagger B) = (A|B)$, 
+\begin{align}
+	\mathcal{D}\Big(|\phi\rangle \otimes |\phi^*\rangle\Big)=\frac{1}{\sqrt{d}}\sum_{ab}|a,b\rangle (D_{a,b}|\Pi)=\frac{1}{\sqrt{d}}\sum_{ab} \tr(D_{a,b}^\dagger \Pi)|a,b\rangle ,
+\end{align}
+as desired.
 \end{document}
