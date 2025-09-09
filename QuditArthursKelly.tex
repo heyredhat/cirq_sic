@@ -249,7 +249,11 @@ Meanwhile, the diagonal rephasing unitary may be decomposed as
 \begin{align}
 \T{P} = (\T{Ph}(-\pi/2) \otimes \T{I}) \cdot \T{CNOT} \cdot (\T{I} \otimes \T{Ph}(3\pi/4)) \cdot \T{CNOT} \cdot (\T{I} \otimes \T{Ph}(\pi)),
 \end{align}
- where we note that $\T{Ph}(\pi)=Z$ and $\T{Ph}(-\pi/2)=S^\dagger$, both of which are available in \T{cirq} as $\T{Z}$ and $\T{S}$. The final ingredient  is to apply the Hadamard gate to the first qubit $(\T{H}\otimes \T{I})$. We note again that $|\phi^*\rangle$ may be prepared by applying $\T{P}^\dagger$ instead of $\T{P}$. For more details regarding these decompositions, consult appendix \ref{fiducial-decomposition}.
+ where we note that $\T{Ph}(\pi)=Z$ and $\T{Ph}(-\pi/2)=S^\dagger$, both of which are available in \T{cirq} as $\T{Z}$ and $\T{S}$. The final ingredient  is to apply the Hadamard gate to the first qubit $(\T{H}\otimes \T{I})$. We note again that $|\phi^*\rangle$ may be prepared by applying $\T{P}^\dagger$ instead of $\T{P}$. In total we have
+ \begin{align}
+ |\phi\rangle = 	(\T{H}\otimes \T{I})\cdot \T{P}\cdot \T{AF}
+ \end{align}
+For more details regarding these decompositions, consult appendix \ref{fiducial-decomposition}.
 
 \section{Experiments on Google's Willow}
 
@@ -329,14 +333,14 @@ so that for an arbitrary state $|\psi\rangle$ and conjugate fiducial $|\phi^*\ra
 &=\sum_j \langle a|X^{-j}|\psi\rangle \langle b|F^\dagger |j\rangle\langle j|\phi^*\rangle\\
 &=\sum_j \omega^{-bj}\langle\phi|j\rangle\langle j|X^{-a}|\psi\rangle \\
 &=\sum_j \langle\phi|j\rangle\langle j|Z^{-b}X^{-a}|\psi\rangle \\
-&=\langle \phi |D_{a,b}^\dagger |\psi\rangle
+&=\langle \phi |D_{a,b}^\dagger |\psi\rangle.
 \end{align}
-so that the computational basis probabilities after performing $\mathcal{D}$ are 
+It follows that the computational basis probabilities after performing $\mathcal{D}$ are 
 \begin{align}
 P(a,b)=\left|\frac{1}{\sqrt{d}}\langle \phi |D_{a,b}^\dagger |\psi\rangle\right|^2&=\frac{1}{d}\langle \psi |D_{a,b}|\phi\rangle\langle \phi |D_{a,b}^\dagger |\psi\rangle\\
 &=\tr (E_{a,b}|\psi\rangle\langle \psi|),
 \end{align}
-where $E_{a,b}=\frac{1}{d}D_{a,b} \Pi D_{a,b}^\dagger$, where note for simplicity we are conjugating in the opposite direction than usual. 
+where $E_{a,b}=\frac{1}{d}D_{a,b} \Pi D_{a,b}^\dagger$, and notice for simplicity we are conjugating in the opposite direction than usual. 
 
 Moreover, suppose we prepare $|\psi\rangle \otimes |\psi^*\rangle$. Recall for any pure state $\Pi=|\psi\rangle\langle \psi|$,  the \emph{stabilizer entropy} of order $\alpha$ may be defined as the R\'enyi entropy of precisely the probability distribution $P(a,b)$,
 \begin{align}
