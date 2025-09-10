@@ -1,6 +1,6 @@
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage{amssymb,amsmath,amsthm,mathtools}
+\usepackage{amssymb,amsmath,amsthm,mathtools,booktabs}
 \usepackage[english]{babel}
 
 \numberwithin{equation}{section}
@@ -255,6 +255,32 @@ Meanwhile, the diagonal rephasing unitary may be decomposed as
  \end{align}
 For more details regarding these decompositions, consult appendix \ref{fiducial-decomposition}.
 
+\subsection{Gate counts}
+
+\begin{table}[h!]
+\centering
+
+\begin{tabular}{lr lr lr}
+\toprule
+% Main headers spanning two columns each
+\multicolumn{2}{c}{\textbf{Fiducial preparation}} & 
+\multicolumn{2}{c}{\textbf{Ancilla preparation}} & 
+\multicolumn{2}{c}{\textbf{Arthurs-Kelly unitary}} \\
+\cmidrule(lr){1-2} \cmidrule(lr){3-4} \cmidrule(lr){5-6}
+% Sub-headers
+Gate type & Count & Gate type & Count & Gate type & Count \\
+\midrule
+% Data rows
+Ry          & 5 & SwapPowGate & 1 & HPowGate    & 12 \\
+PauliX      & 2 & HPowGate    & 2 & CZPowGate   & 18 \\
+CXPowGate   & 6 & CZPowGate   & 7 & SwapPowGate & 6  \\
+ZPowGate    & 3 &             &   &             &    \\
+HPowGate    & 1 &             &   &             &    \\
+\bottomrule
+\end{tabular}
+\label{tab:gate_counts}
+\end{table}
+
 \section{Experiments on Google's Willow}
 
 To provide an initial test of the Arthurs-Kelly circuit, we used \T{cirq}'s simulator for \T{willow\_pink} which incorporates a noise model. Let $A=[(5,9), (6,9)], B=[(5,10), (6,10)], C=[(5,11), (6,11)]$ be three sets of qubits, specified by their coordinates on the device's grid. First, the conjugate fiducial is prepared on $A$ and the fiducial is prepared on $B$. Then the ancilla preparation procedure is applied to $A$ and $B$. Then $B$ is swapped with $C$: $A$ and $C$ will be ancillas 1 and 2, and $B$ will be the system of interest. In fact, $B$ is then prepared according to the fiducial itself, and finally the AK interaction is performed, after which the qubits in $A$ and $C$ are measured.
@@ -266,39 +292,22 @@ To provide an initial test of the Arthurs-Kelly circuit, we used \T{cirq}'s simu
 \end{center}
 
 
-Before conforming the circuit to the device's topology and optimizing its gates, the gate count by type was:
-
-\begin{center}
-\begin{tabular}{|l|r|}
-\hline
+After conforming the circuit to the device's topology and optimizing it, the gate count by type for the full circuit, including the fiducial preparations, was:
+\begin{table}[h!]
+\centering
+\begin{tabular}{lr}
+\toprule
 \textbf{Gate Type} & \textbf{Count} \\
-\hline
-\texttt{Ry} & 15 \\
-\texttt{PauliX} & 6 \\
-\texttt{CXPowGate} & 18 \\
-\texttt{ZPowGate} & 9 \\
-\texttt{HPowGate} & 17 \\
-\texttt{SwapPowGate} & 9 \\
-\texttt{CZPowGate} & 25 \\
-\texttt{MeasurementGate} & 1 \\
-\hline
+\midrule
+PhasedXZGate    & 124 \\
+CZPowGate       & 127 \\
+PhasedXPowGate  & 159 \\
+ZPowGate        & 9 \\
+MeasurementGate & 1 \\
+\bottomrule
 \end{tabular}
-\end{center}
-
-\noindent Afterwards, the actual gate counts run on the simulator were: 
-\begin{center}
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Gate Type} & \textbf{Count} \\
-\hline
-\texttt{PhasedXZGate} & 124 \\
-\texttt{CZPowGate} & 127 \\
-\texttt{PhasedXPowGate} & 159 \\
-\texttt{ZPowGate} & 9 \\
-\texttt{MeasurementGate} & 1 \\
-\hline
-\end{tabular}
-\end{center}
+\label{tab:circuit_gate_counts}
+\end{table}
 
 \section{A simplified WH-POVM procedure}
 \label{simplifiedWH}
@@ -351,46 +360,48 @@ The stabilizer entropy is a measure of the \emph{magic} of a quantum state: it a
 \begin{align}
 \frac{1}{d}|\langle \psi |D_{a,b}^\dagger|\psi\rangle|^2 &= \frac{d\delta_{a,0}\delta_{b,0}+1}{d(d+1)}
 \end{align}
-if and only if  $\Pi = |\psi\rangle\langle \psi|$ is a SIC fiducial, so that we efficient means of of testing fiducial preparations before implementing the full Arthurs-Kelly procedure. For further intuition about the matrix $\mathcal{D}$, consult appendix \ref{operatorD}.
+if and only if  $\Pi = |\psi\rangle\langle \psi|$ is a SIC fiducial, so that we efficient means of of testing fiducial preparations before implementing the full Arthurs-Kelly procedure. For further intuition about the matrix $\mathcal{D}$, consult appendix \ref{operatorD}. Finally, the gate counts for this simplified procedure (not counting the fiducial preparation) are:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Gate Type} & \textbf{Count} \\
+\midrule
+HPowGate    & 6 \\
+CZPowGate   & 9 \\
+SwapPowGate & 3 \\
+\bottomrule
+\end{tabular}
+\label{tab:gate_counts_3}
+\end{table}
 
 \subsection{Comparison}
 
 We ran the simple WH-POVM circuit on the same noisy simulator, again performing a SIC-POVM on the $d=4$ SIC fiducial state.
 
+
 \begin{center}
-\includegraphics[scale=0.5]{img/willow_sim_simple_wh.png}	
+\includegraphics[scale=0.5]{img/willow_sim_simple_wh.png}
 \end{center}
-The gate count (including the fiducial preparations) before optimization:
-\begin{center}
-\begin{tabular}{|l|r|}
-\hline
+The full gate counts including the fiducial preparation and after conforming the circuit to the device's topology and optimizing it are:
+\begin{table}[h!]
+\centering
+\begin{tabular}{lr}
+\toprule
 \textbf{Gate Type} & \textbf{Count} \\
-\hline
-\texttt{Ry} & 10 \\
-\texttt{PauliX} & 4 \\
-\texttt{CXPowGate} & 12 \\
-\texttt{ZPowGate} & 6 \\
-\texttt{HPowGate} & 8 \\
-\texttt{CZPowGate} & 9 \\
-\texttt{SwapPowGate} & 3 \\
-\texttt{MeasurementGate} & 1 \\
-\hline
+\midrule
+PhasedXPowGate  & 31 \\
+CZPowGate       & 23 \\
+ZPowGate        & 3 \\
+PhasedXZGate    & 21 \\
+MeasurementGate & 1 \\
+\bottomrule
 \end{tabular}
-\end{center}
-And after optimization:
-\begin{center}
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Gate Type} & \textbf{Count} \\
-\hline
-\texttt{PhasedXPowGate} & 31 \\
-\texttt{CZPowGate} & 23 \\
-\texttt{ZPowGate} & 3 \\
-\texttt{PhasedXZGate} & 21 \\
-\texttt{MeasurementGate} & 1 \\
-\hline
-\end{tabular}
-\end{center}
+\label{tab:circuit_gate_counts_2}
+\end{table}
+
+\pagebreak
 
 \bibliographystyle{plain} 
 \bibliography{QuditArthursKelly}
