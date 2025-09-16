@@ -206,7 +206,7 @@ Again, the logic is easiest to see by examining a simple case. Let $n=3$, and ta
 &=\Big(I0 II + Z^41II\Big)\Big(II0I+Z^2I1I\Big)\Big(III0+ZII1\Big) \\
 &=\Big(I00I+Z^201I+Z^410I+Z^611I\Big)\Big(III0 + ZII 1\Big)\\
 &=I000+Z001+Z^2010+Z^3011+Z^4100+Z^5101+Z^6110+Z^7111\\
-&= \sum_{m=1}^{8}Z^m \otimes |m\rangle\langle m| .
+&= \sum_{m=0}^{7}Z^m \otimes |m\rangle\langle m| .
 \end{align}
 Finally, $\T{CX}$ can be constructed by first applying $\T{F}$ to the target qubits, then $\T{CZ}$, followed by $\T{F}^\dagger$ on the target qubits. The Arthurs-Kelly unitary can then be expressed,
 \begin{align}
@@ -340,9 +340,9 @@ so that for an arbitrary state $|\psi\rangle$ and conjugate fiducial $|\phi^*\ra
 \Big(\langle a| \otimes \langle b|\Big)\mathcal{D}\Big(|\psi\rangle \otimes |\phi^*\rangle	\Big) &= 
 \Big(\langle a| \otimes \langle b|\Big)(I\otimes F^\dagger)\left(\sum_j X^{-j}\otimes |j\rangle\langle j|\right)\Big(|\psi\rangle \otimes |\phi^*\rangle	\Big)\\
 &=\sum_j \langle a|X^{-j}|\psi\rangle \langle b|F^\dagger |j\rangle\langle j|\phi^*\rangle\\
-&=\sum_j \omega^{-bj}\langle\phi|j\rangle\langle j|X^{-a}|\psi\rangle \\
-&=\sum_j \langle\phi|j\rangle\langle j|Z^{-b}X^{-a}|\psi\rangle \\
-&=\langle \phi |D_{a,b}^\dagger |\psi\rangle.
+&=\frac{1}{\sqrt{d}}\sum_j \omega^{-bj}\langle\phi|j\rangle\langle j|X^{-a}|\psi\rangle \\
+&=\frac{1}{\sqrt{d}}\sum_j \langle\phi|j\rangle\langle j|Z^{-b}X^{-a}|\psi\rangle \\
+&=\frac{1}{\sqrt{d}}\langle \phi |D_{a,b}^\dagger |\psi\rangle.
 \end{align}
 It follows that the computational basis probabilities after performing $\mathcal{D}$ are 
 \begin{align}
