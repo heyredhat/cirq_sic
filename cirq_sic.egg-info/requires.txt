@@ -1,0 +1,8 @@
+numpy
+scipy
+matplotlib
+cirq
+cirq-google
+qsimcirq
+ipykernel
+pytest

@@ -1,7 +1,10 @@
-from utils import *
-from circuits import *
+from cirq_sic import *
+import numpy as np
 
-def check_wh_identities(d):
+d = 4
+n = 2
+
+def test_wh_identities(d=4):
 	WH = wh_operators(d)
 	D, w, X, Z = WH["D"], WH["w"], WH["X"], WH["Z"]
 	assert np.all([np.allclose(D[a], w**(-a[0]*a[1])*mpow(Z, a[1]) @ mpow(X, a[0])) for a in np.ndindex(d,d)])
@@ -10,7 +13,7 @@ def check_wh_identities(d):
 	assert np.all([np.allclose(D[b].conj().T @ D[a] @ D[b], w**(a[1]*b[0] - a[0]*b[1])*D[a]) for b in np.ndindex(d,d) for a in np.ndindex(d,d)])
 	assert np.allclose(np.array([[(D[a].conj().T @ D[b]).trace() for b in np.ndindex(d,d)] for a in np.ndindex(d,d)]), d*np.eye(d**2))
 
-def check_ak(d):
+def test_ak(d=4):
 	WH = wh_operators(d)
 	Z, X, F, D, w = WH["Z"], WH["X"], WH["F"], WH["D"], WH["w"]
 
@@ -71,14 +74,14 @@ def check_ak(d):
 	rho0_sans = rho0_sans/rho0_sans.trace()
 	assert not np.allclose(rho0, rho0_sans)
 
-def check_d4_fiducial_ket():
+def test_d4_fiducial_ket():
 	d = 4
 	E = wh_povm(d4_fiducial_ket())
 	P = np.array([[(a@b/b.trace()).trace() for b in E] for a in E]).real
 	P_SIC = np.array([[(d*(1 if i == j else 0) + 1)/(d*(d+1)) for j in range(d**2)] for i in range(d**2)]).real
 	assert np.allclose(P, P_SIC)
 
-def check_characteristic_state(d):
+def test_characteristic_state(d=4):
     WH = wh_operators(d)
     D, X, F = WH["D"], WH["X"], WH["F"]
     Pi_pos = np.array([np.diag(np.eye(d)[i]) for i in range(d)])
@@ -89,7 +92,7 @@ def check_characteristic_state(d):
     char_ket2 = sum([(D[a,b].conj().T @ Pi).trace()*np.kron(np.eye(d)[b], np.eye(d)[a]) for a in range(d) for b in range(d)])/np.sqrt(d)
     assert np.allclose(char_ket1, char_ket2)
 	
-def check_qft(n):
+def test_qft(n=2):
 	q = cirq.LineQubit.range(n)
 	circuit = cirq.Circuit(F(q))
 	s = cirq.Simulator()
@@ -97,7 +100,7 @@ def check_qft(n):
 	final_ket = s.simulate(circuit, initial_state=ket).final_state_vector
 	assert np.allclose(final_ket, wh_operators(2**n)["F"] @ ket)
 
-def check_shift(n):
+def test_shift(n=2):
 	q = cirq.LineQubit.range(n)
 	circuit = cirq.Circuit(X(q))
 	s = cirq.Simulator()
@@ -105,7 +108,7 @@ def check_shift(n):
 	final_ket = s.simulate(circuit, initial_state=ket).final_state_vector
 	assert np.allclose(final_ket, wh_operators(2**n)["X"] @ ket)
 
-def check_controlled_shift(n):
+def test_controlled_shift(n=2):
 	d = 2**n
 	t = cirq.LineQubit.range(n)
 	c = cirq.LineQubit.range(n, 2*n)
@@ -119,7 +122,7 @@ def check_controlled_shift(n):
 	CX_ = sum([kron(mpow(X_, k), np.outer(np.eye(d)[k], np.eye(d)[k])) for k in range(d)])
 	assert np.allclose(final_ket, CX_ @ ket)
 
-def check_fiducial_preparation():
+def test_fiducial_preparation():
 	n = 2
 	q = cirq.LineQubit.range(n)
 	circ = cirq.Circuit(d4_fiducial(q))
@@ -128,7 +131,7 @@ def check_fiducial_preparation():
 	circ = cirq.Circuit(d4_fiducial(q, conjugate=True))
 	assert np.allclose(d4_fiducial_ket().conj(), cirq.unitary(circ)[:,0])
 
-def check_simple_wh(d):
+def test_simple_wh(d=4):
 	WH = wh_operators(d)
 	X_, F_, D_ = WH["X"], WH["F"], WH["D"]
 

@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+setup.py
+cirq_sic/circuits.py
+cirq_sic/tests.py
+cirq_sic/utils.py
+cirq_sic.egg-info/PKG-INFO
+cirq_sic.egg-info/SOURCES.txt
+cirq_sic.egg-info/dependency_links.txt
+cirq_sic.egg-info/requires.txt
+cirq_sic.egg-info/top_level.txt
