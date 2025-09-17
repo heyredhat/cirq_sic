@@ -1,2 +1,3 @@
-# cirq_sic
-Implementing SICs in cirq
+## circ_sic
+
+Implementing SIC's in cirq.
