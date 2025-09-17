@@ -76,7 +76,7 @@ def test_ak(d=4):
 
 def test_d4_fiducial_ket():
 	d = 4
-	E = wh_povm(d4_fiducial_ket())
+	E = wh_povm(d4_sic_fiducial_ket())
 	P = np.array([[(a@b/b.trace()).trace() for b in E] for a in E]).real
 	P_SIC = np.array([[(d*(1 if i == j else 0) + 1)/(d*(d+1)) for j in range(d**2)] for i in range(d**2)]).real
 	assert np.allclose(P, P_SIC)
@@ -125,11 +125,11 @@ def test_controlled_shift(n=2):
 def test_fiducial_preparation():
 	n = 2
 	q = cirq.LineQubit.range(n)
-	circ = cirq.Circuit(d4_fiducial(q))
-	assert np.allclose(d4_fiducial_ket(), cirq.unitary(circ)[:,0])
+	circ = cirq.Circuit(d4_sic_fiducial(q))
+	assert np.allclose(d4_sic_fiducial_ket(), cirq.unitary(circ)[:,0])
 
-	circ = cirq.Circuit(d4_fiducial(q, conjugate=True))
-	assert np.allclose(d4_fiducial_ket().conj(), cirq.unitary(circ)[:,0])
+	circ = cirq.Circuit(d4_sic_fiducial(q, conjugate=True))
+	assert np.allclose(d4_sic_fiducial_ket().conj(), cirq.unitary(circ)[:,0])
 
 def test_simple_wh(d=4):
 	WH = wh_operators(d)

@@ -7,5 +7,7 @@ Requires-Dist: matplotlib
 Requires-Dist: cirq
 Requires-Dist: cirq-google
 Requires-Dist: qsimcirq
+Requires-Dist: recirq@ git+https://github.com/quantumlib/ReCirq
 Requires-Dist: ipykernel
 Requires-Dist: pytest
+Requires-Dist: sympy

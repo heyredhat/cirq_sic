@@ -1,50 +1,60 @@
 import collections
 from functools import reduce
-
 import numpy as np
-from numpy.linalg import matrix_power as mpow
 
-np.set_printoptions(precision=3, suppress=True)
+import cirq 
+import cirq_google
+import qsimcirq
 
 def kron(*A):
+    """Tensor lots of things together."""
     return reduce(np.kron, A)
 
 def rand_ket(d):
+    """Random d-dimensional normalized complex vector."""
     ket = np.random.randn(d) + 1j*np.random.randn(d)
     return ket/np.linalg.norm(ket)
 
-# Construct WH operators
-def wh_operators(d):
-    w = np.exp(2*np.pi*1j/d)
-    Z = np.diag(np.array([w**i for i in range(d)]))
-    F = np.array([[w**(i*j) for j in range(d)] for i in range(d)])/np.sqrt(d)
-    X = F.conj().T @ Z @ F
-    D = np.array([[mpow(X, i) @ mpow(Z, j)  for j in range(d)] for i in range(d)])
-    return locals()
-
-# Generate WH-POVM elements from a fiducial ket
-def wh_povm(phi):
-	d = phi.shape[0]
-	D = wh_operators(d)["D"]
-	Pi = np.outer(phi, phi.conj())
-	return np.array([D[a].conj().T @ Pi @ D[a] for a in np.ndindex(d,d)])/d
-
-# Construct a d=4 SIC fiducial ket
-def d4_fiducial_ket():
-    H = np.array([[1,1],[1,-1]])/np.sqrt(2)
-    P = np.diag([1, np.exp(1j*np.pi*(-1/4)), np.exp(1j*np.pi*(1/4)), np.exp(1j*np.pi*(1/2))]) 
-    return np.kron(H, np.eye(2)) @ P @ (np.array([np.sqrt(2 + np.sqrt(5)), 1, 1, 1])/np.sqrt(5 + np.sqrt(5)))
-
 def get_gate_counts(circuit):
+    """Get gate counts for a cirq circuit."""
     all_gate_types = [type(op.gate) for op in circuit.all_operations()]
     type_counts = collections.Counter(all_gate_types)
     print("--- Gate Counts (by type) ---")
     for gate_type, count in type_counts.items():
         print(f"{gate_type.__name__}: {count}")
 
-# If we have WH-POVM probabilities (a d^2 vector), reorder them
-# from the convention D^\dag \Pi D to D \Pi D^\dag (and vice versa)
-def change_conjugate_convention(p):
-    d = int(np.sqrt(p.shape[0]))
-    idx_order = [0] +list(range(1, d))[::-1]
-    return p.reshape(d,d)[np.ix_(idx_order, idx_order)].flatten()
+def process_circuit(circuit, connectivity_graph, gateset):
+    """Conform the circuit to device topology and gateset."""
+    router = cirq.RouteCQC(connectivity_graph)
+    routed_circuit, initial_map, final_map = router.route_circuit(circuit)
+    optimized_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
+                                context=cirq.TransformerContext(deep=True), gateset=gateset)
+    return optimized_circuit
+
+def get_device_data(processor_id, run_type="noisy"):
+    device = cirq_google.engine.create_device_from_processor_id(processor_id)
+    gateset = device.metadata.compilation_target_gatesets[0]
+    connectivity_graph = device.metadata.nx_graph
+
+    if run_type == "noisy":
+        noise_props = cirq_google.engine.load_device_noise_properties(processor_id)
+        noise_model = cirq_google.NoiseModelFromGoogleNoiseProperties(noise_props)
+        sim = qsimcirq.QSimSimulator(noise=noise_model)
+    else:
+        sim = qsimcirq.QSimSimulator()
+        
+    cal = cirq_google.engine.load_median_device_calibration(processor_id)
+    sim_processor = cirq_google.engine.SimulatedLocalProcessor(
+        processor_id=processor_id, sampler=sim, device=device, calibrations={cal.timestamp // 1000: cal})
+    sim_engine = cirq_google.engine.SimulatedLocalEngine([sim_processor])
+    sampler = sim_engine.get_sampler(processor_id)
+    return locals()
+
+def get_freqs(samples, n_outcomes, n_shots):
+    counts = samples.histogram(key="result")
+    for i in range(n_outcomes):
+        if i not in counts:
+                counts[i] = 0
+    noisy_freqs = np.array([v for k, v in sorted(counts.items())])/n_shots
+    return noisy_freqs
+

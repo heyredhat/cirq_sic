@@ -4,5 +4,7 @@ matplotlib
 cirq
 cirq-google
 qsimcirq
+recirq@ git+https://github.com/quantumlib/ReCirq
 ipykernel
 pytest
+sympy
