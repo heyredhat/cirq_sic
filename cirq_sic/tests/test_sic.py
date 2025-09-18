@@ -153,3 +153,12 @@ def test_simple_wh(d=4):
 
 	V3 = np.array([D_[a,b].flatten().conj() for a in range(d) for b in range(d)])/np.sqrt(d)
 	assert np.allclose(V, V3)
+
+def test_qudit_basis_state():
+	n = 3
+	d = 2**n
+	q = cirq.LineQubit.range(n)
+	for i in range(d):
+		circ = cirq.Circuit((qudit_basis_state(q, i)))
+		ket = cirq.Simulator().simulate(circ, qubit_order=q).final_state_vector
+		assert np.allclose(ket, np.eye(d)[i])

@@ -3,12 +3,15 @@ pyproject.toml
 setup.py
 cirq_sic/__init__.py
 cirq_sic/circuits.py
-cirq_sic/experiment.py
 cirq_sic/sic.py
-cirq_sic/tests.py
 cirq_sic/utils.py
 cirq_sic.egg-info/PKG-INFO
 cirq_sic.egg-info/SOURCES.txt
 cirq_sic.egg-info/dependency_links.txt
 cirq_sic.egg-info/requires.txt
 cirq_sic.egg-info/top_level.txt
+cirq_sic/experiments/__init__.py
+cirq_sic/experiments/experiment_utils.py
+cirq_sic/experiments/run_sky_ground.py
+cirq_sic/experiments/simple_sic_on_sic.py
+cirq_sic/tests/test_sic.py

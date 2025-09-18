@@ -22,7 +22,7 @@ def wh_povm(phi):
 	return np.array([D[a].conj().T @ Pi @ D[a] for a in np.ndindex(d,d)])/d
 
 def change_conjugate_convention(p):
-    """If we have WH-POVM probabilities (a d^2 vector), reorder them from the convention D^\dag \Pi D to D \Pi D^\dag (and vice versa)."""
+    r"""If we have WH-POVM probabilities (a d^2 vector), reorder them from the convention $D^\dag \Pi D to D \Pi D^\dag (and vice versa)."""
     d = int(np.sqrt(p.shape[0]))
     idx_order = [0] +list(range(1, d))[::-1]
     return p.reshape(d,d)[np.ix_(idx_order, idx_order)].flatten()

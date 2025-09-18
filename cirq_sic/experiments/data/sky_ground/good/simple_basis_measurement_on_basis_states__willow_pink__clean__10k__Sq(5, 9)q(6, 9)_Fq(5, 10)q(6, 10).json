@@ -1,0 +1,67 @@
+{
+  "timestamp": "2025-09-17T23:12:11.245874",
+  "task": {
+    "cirq_type": "recirq.simple_ak.SimpleAKTask",
+    "dataset_id": "good",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "n_shots": 10000,
+    "state_qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 9
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 9
+      }
+    ],
+    "fiducial_qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 10
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 10
+      }
+    ],
+    "desc": "basis_measurement_on_basis_states"
+  },
+  "m": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "q": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}

@@ -3,8 +3,6 @@ from functools import reduce
 import numpy as np
 
 import cirq 
-import cirq_google
-import qsimcirq
 
 def kron(*A):
     """Tensor lots of things together."""
@@ -23,38 +21,16 @@ def get_gate_counts(circuit):
     for gate_type, count in type_counts.items():
         print(f"{gate_type.__name__}: {count}")
 
-def process_circuit(circuit, connectivity_graph, gateset):
-    """Conform the circuit to device topology and gateset."""
-    router = cirq.RouteCQC(connectivity_graph)
-    routed_circuit, initial_map, final_map = router.route_circuit(circuit)
-    optimized_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
-                                context=cirq.TransformerContext(deep=True), gateset=gateset)
-    return optimized_circuit
+def symmetrize(M, T=100):
+    """Obtain a stochastic symmetric matrix by a variant of Sinkhorn's algorithm."""
+    for t in range(T):
+        M = (M + M.T)/2
+        M = M/np.sum(M, axis=0)
+    return M
 
-def get_device_data(processor_id, run_type="noisy"):
-    device = cirq_google.engine.create_device_from_processor_id(processor_id)
-    gateset = device.metadata.compilation_target_gatesets[0]
-    connectivity_graph = device.metadata.nx_graph
-
-    if run_type == "noisy":
-        noise_props = cirq_google.engine.load_device_noise_properties(processor_id)
-        noise_model = cirq_google.NoiseModelFromGoogleNoiseProperties(noise_props)
-        sim = qsimcirq.QSimSimulator(noise=noise_model)
-    else:
-        sim = qsimcirq.QSimSimulator()
-        
-    cal = cirq_google.engine.load_median_device_calibration(processor_id)
-    sim_processor = cirq_google.engine.SimulatedLocalProcessor(
-        processor_id=processor_id, sampler=sim, device=device, calibrations={cal.timestamp // 1000: cal})
-    sim_engine = cirq_google.engine.SimulatedLocalEngine([sim_processor])
-    sampler = sim_engine.get_sampler(processor_id)
-    return locals()
-
-def get_freqs(samples, n_outcomes, n_shots):
-    counts = samples.histogram(key="result")
-    for i in range(n_outcomes):
-        if i not in counts:
-                counts[i] = 0
-    noisy_freqs = np.array([v for k, v in sorted(counts.items())])/n_shots
-    return noisy_freqs
-
+def nonneg_projection(p):
+    """Project a vector to the probability simplex by setting negatives to zero and renormalizing."""
+    p_fixed = p[:]
+    p_fixed[p < 0] = 0
+    p_fixed = p_fixed/sum(p_fixed)
+    return p_fixed

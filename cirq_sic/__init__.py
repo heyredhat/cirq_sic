@@ -1,7 +1,7 @@
 from .utils import *
 from .sic import *
 from .circuits import *
-from .experiment import *
+from .experiments import *
 
 import numpy as np
 from numpy.linalg import matrix_power as mpow

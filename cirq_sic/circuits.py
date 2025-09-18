@@ -46,6 +46,11 @@ def displace(q, a1, a2):
     for j in range(a1):
         yield X(q)
 
+def wh_state(q, a1, a2, fiducial_prep):
+    """Prepare the WH state D(a1,a2)|fiducial>"""
+    yield fiducial_prep(q)
+    yield displace(q, a1, a2)
+
 def QCZ(c, t):
     """Qubit controlled clock"""
     n = len(t)
@@ -136,3 +141,10 @@ def d4_sic_fiducial(q, conjugate=False):
 		  cirq.inverse(list(d4_monomial_rephasing(q)))
 	yield H(q[0])
      
+def qudit_basis_state(q, m):
+    """Prepares the qudit basis state |m> on the qubits q."""
+    n = len(q)
+    bitstr = bin(m)[2:].zfill(n)
+    for i, b in enumerate(bitstr):
+        if b == '1':
+            yield Sx(q[i])
