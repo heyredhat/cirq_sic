@@ -92,16 +92,18 @@ def AK(c, t1, t2, measure=True):
     if measure:
         yield cirq.measure(*[t1+t2], key="result")
 
-def qudit_arthurs_kelly(c, t1, t2, prepare_fiducial, measure=True):
+def qudit_arthurs_kelly(c, t1, t2, prepare_fiducial=None, measure=True):
     """Qudit Arthurs-Kelly with fiducial preparation"""
-    yield prepare_fiducial(t1, conjugate=True)
-    yield prepare_fiducial(t2)
+    if prepare_fiducial is not None:
+        yield prepare_fiducial(t1, conjugate=True)
+        yield prepare_fiducial(t2)
     yield AP(t1, t2)
     yield AK(c, t1, t2, measure=measure)
 
-def simple_wh_povm(q, f, prepare_fiducial, measure=True):
+def simple_wh_povm(q, f, prepare_fiducial=None, measure=True):
     """Simple WH-POVM"""
-    yield prepare_fiducial(f, conjugate=True)
+    if prepare_fiducial is not None:
+        yield prepare_fiducial(f, conjugate=True)
     yield CXdag(f, q)
     yield Fdag(f)
     if measure:
