@@ -104,7 +104,6 @@ def deep_match(obj, criteria):
                 return True
     return False
 
-
 def query_records(records, query):
     """Yields records that satisfy the query function."""
     return [record for record in records if deep_match(record, query)]
