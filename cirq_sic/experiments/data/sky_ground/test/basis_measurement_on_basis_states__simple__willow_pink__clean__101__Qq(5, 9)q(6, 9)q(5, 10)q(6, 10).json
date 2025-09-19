@@ -1,12 +1,14 @@
 {
-  "timestamp": "2025-09-17T23:12:11.245874",
+  "timestamp": "2025-09-18T19:57:12.971423",
   "task": {
-    "cirq_type": "recirq.simple_ak.SimpleAKTask",
-    "dataset_id": "good",
+    "cirq_type": "recirq.sky_ground.WHSkyGroundTask",
+    "dataset_id": "test",
     "processor_id": "willow_pink",
     "run_type": "clean",
-    "n_shots": 10000,
-    "state_qubits": [
+    "wh_implementation": "simple",
+    "description": "basis_measurement_on_basis_states",
+    "n_shots": 101,
+    "qubits": [
       {
         "cirq_type": "GridQubit",
         "row": 5,
@@ -16,9 +18,7 @@
         "cirq_type": "GridQubit",
         "row": 6,
         "col": 9
-      }
-    ],
-    "fiducial_qubits": [
+      },
       {
         "cirq_type": "GridQubit",
         "row": 5,
@@ -30,7 +30,7 @@
         "col": 10
       }
     ],
-    "desc": "basis_measurement_on_basis_states"
+    "d": 4
   },
   "m": [
     0,

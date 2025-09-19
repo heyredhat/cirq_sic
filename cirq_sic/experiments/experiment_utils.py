@@ -35,10 +35,11 @@ def get_device_data(processor_id, run_type="noisy", PROJECT_ID=""):
     connectivity_graph = device.metadata.nx_graph
     return locals()
 
-def process_circuit(circuit, connectivity_graph, gateset):
+def process_circuit(circuit, connectivity_graph, gateset, qubits):
     """Conform the circuit to device topology and gateset."""
+    mapping = dict([(q,q) for q in qubits])
     router = cirq.RouteCQC(connectivity_graph)
-    routed_circuit, initial_map, final_map = router.route_circuit(circuit)
+    routed_circuit, initial_map, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
     optimized_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
                                 context=cirq.TransformerContext(deep=True), gateset=gateset)
     return optimized_circuit
@@ -61,18 +62,49 @@ def abbrev_n_shots(n_shots):
     return str(n_shots)
 
 class TaskProgram:
-    desc: str
+    description: str
 
     @classmethod
-    def create_circuits(cls, task):
-        """Takes a task, and returns circuits and context dictionary."""
+    def create_circuits(cls, task, *args, **kwargs):
+        """Takes a task, and returns circuits and context dictionary.""" 
         pass
 
     @classmethod
-    def process_results(cls, task, result):
+    def process_results(cls, task, *args, **kwargs):
         """Takes a task and a reslt, and returns processed data dictionary."""
         pass
 
+def deep_match(obj, criteria):
+    """Recursively checks if obj matches all key-value pairs in criteria at any depth."""
+    # Check if obj matches criteria at current level
+    if isinstance(obj, dict):
+        if all(
+            (deep_match(obj.get(k, None), v) if isinstance(v, dict) else obj.get(k, None) == v)
+            for k, v in criteria.items()
+        ):
+            return True
+        # Search deeper in all values
+        for v in obj.values():
+            if deep_match(v, criteria):
+                return True
+    elif hasattr(obj, '__dict__'):
+        attrs = vars(obj)
+        if all(
+            (deep_match(getattr(obj, k, None), v) if isinstance(v, dict) else getattr(obj, k, None) == v)
+            for k, v in criteria.items()
+        ):
+            return True
+        # Search deeper in all attributes
+        for v in attrs.values():
+            if deep_match(v, criteria):
+                return True
+    elif isinstance(obj, (list, tuple)):
+        for v in obj:
+            if deep_match(v, criteria):
+                return True
+    return False
+
+
 def query_records(records, query):
     """Yields records that satisfy the query function."""
-    return [record for record in records if query(record)]
+    return [record for record in records if deep_match(record, query)]

@@ -46,9 +46,9 @@ def displace(q, a1, a2):
     for j in range(a1):
         yield X(q)
 
-def wh_state(q, a1, a2, fiducial_prep):
+def wh_state(q, prepare_fiducial, a1, a2):
     """Prepare the WH state D(a1,a2)|fiducial>"""
-    yield fiducial_prep(q)
+    yield prepare_fiducial(q)
     yield displace(q, a1, a2)
 
 def QCZ(c, t):
@@ -92,12 +92,20 @@ def AK(c, t1, t2, measure=True):
     if measure:
         yield cirq.measure(*[t1+t2], key="result")
 
-def simple_AK(q, conj_fiducial, measure=True):
-    """Simple Arthurs-Kelly"""
-    yield CXdag(conj_fiducial, q)
-    yield Fdag(conj_fiducial)
+def qudit_arthurs_kelly(c, t1, t2, prepare_fiducial, measure=True):
+    """Qudit Arthurs-Kelly with fiducial preparation"""
+    yield prepare_fiducial(t1, conjugate=True)
+    yield prepare_fiducial(t2)
+    yield AP(t1, t2)
+    yield AK(c, t1, t2, measure=measure)
+
+def simple_wh_povm(q, f, prepare_fiducial, measure=True):
+    """Simple WH-POVM"""
+    yield prepare_fiducial(f, conjugate=True)
+    yield CXdag(f, q)
+    yield Fdag(f)
     if measure:
-        yield cirq.measure(*(q+conj_fiducial), key="result")
+        yield cirq.measure(*(q+f), key="result")
 
 Ry = lambda t: cirq.Ry(rads=t)
 Sx = cirq.X
