@@ -3,6 +3,7 @@ import cirq_google
 import qsimcirq
 import recirq
 
+from ..sic import *
 from ..circuits import *
 from ..utils import *
 from .experiment_utils import *
@@ -145,3 +146,58 @@ class BasisMeasurementOnBasisStates(TaskProgram):
         return {"q": q}
     
 sky_ground_programs = [CharacterizeWHReferenceDevice, WHPOVMOnBasisStates, BasisMeasurementOnWHStates, BasisMeasurementOnBasisStates]
+
+def calculate_sky_ground_metrics(P, p, C, q, verbose=False):
+    d = int(np.sqrt(P.shape[0]))
+    Phi = np.linalg.inv(P)
+    q_ = C @ Phi @ p
+    P_sic = SIC_P(d)
+    Phi_sic = np.linalg.inv(P_sic)
+
+    P_err = np.linalg.norm(P - P_sic)
+    Phi_err = np.linalg.norm(Phi - Phi_sic)
+    quantumness = np.linalg.norm(np.eye(d**2) - Phi)
+    quantumness_sic = np.linalg.norm(np.eye(d**2) - Phi_sic)
+    q_err = np.linalg.norm(np.eye(d) - q)
+    sg_q_err = np.linalg.norm(q - q_)
+    
+    if verbose:
+        print("Sky/Ground Metrics:")
+        print(f"|P - P_SIC| = {P_err}")
+        print(f"|Phi - Phi_SIC| = {Phi_err}")
+        print(f"|I - Phi| = {quantumness}")
+        print(f"|I - Phi_SIC| = {quantumness_sic}")
+        print(f"|I - q| = {q_err}")
+        print(f"|q - C Phi p| = {sg_q_err}")
+    return locals()
+
+def results_to_sky_ground_metrics(results):
+    n_shots_list = []
+    Ps = {}
+    for result in results["characterize_wh_reference_device"]:
+        n_shots = result["task"].n_shots
+        P = np.array(result["P"])
+        Ps[n_shots] = change_conjugate_convention(P) if result["task"].wh_implementation == "ak" else P
+        n_shots_list.append(n_shots)
+
+    ps = {}
+    for result in results["wh_povm_on_basis_states"]:
+        n_shots = result["task"].n_shots
+        ps[result["task"].n_shots] = np.array(result["p"])
+
+    Cs = {}
+    for result in results["basis_measurement_on_wh_states"]:
+        n_shots = result["task"].n_shots
+        C = np.array(result["C"])
+        Cs[n_shots] = change_conjugate_convention(C) if result["task"].wh_implementation == "ak" else C
+        
+    qs = {}
+    for result in results["basis_measurement_on_basis_states"]:
+        n_shots = result["task"].n_shots
+        qs[result["task"].n_shots] = np.array(result["q"])
+
+    n_shots_list = list(set(n_shots_list))
+    metrics = {}
+    for n_shots in n_shots_list:
+        metrics[n_shots] = calculate_sky_ground_metrics(Ps[n_shots], ps[n_shots], Cs[n_shots], qs[n_shots])
+    return metrics

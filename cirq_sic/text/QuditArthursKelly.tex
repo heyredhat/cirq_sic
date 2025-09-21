@@ -285,29 +285,40 @@ HPowGate    & 1 &             &   &             &    \\
 
 To provide an initial test of the Arthurs-Kelly circuit, we used \T{cirq}'s simulator for \T{willow\_pink} which incorporates a noise model. Let $A=[(5,9), (6,9)], B=[(5,10), (6,10)], C=[(5,11), (6,11)]$ be three sets of qubits, specified by their coordinates on the device's grid. First, the conjugate fiducial is prepared on $A$ and the fiducial is prepared on $B$. Then the ancilla preparation procedure is applied to $A$ and $B$. Then $B$ is swapped with $C$: $A$ and $C$ will be ancillas 1 and 2, and $B$ will be the system of interest. In fact, $B$ is then prepared according to the fiducial itself, and finally the AK interaction is performed, after which the qubits in $A$ and $C$ are measured.
 
- The circuit as given is not compatible with the connectivity graph of the device. In order to make it so, we apply the transformer \T{RouteCQC} which inserts the required \T{SWAP}'s. Finally, we used \T{cirq}'s \T{optimize\_for\_target\_gateset} to further decompose the gates in the circuit into the \T{willow\_pink} gate set. Running the simulator $N=50000$ times yields the results depicted below. In red is the theoretically calculated probabilities for the outcomes of a SIC measurement, given the SIC fiducial. In blue is the ``actual'' proportion of time those outcomes occured. 
+ The circuit as given is not compatible with the connectivity graph of the device. In order to make it so, we apply the transformer \T{RouteCQC} which inserts the required \T{SWAP}'s. Finally, we used \T{cirq}'s \T{optimize\_for\_target\_gateset} to further decompose the gates in the circuit into the \T{willow\_pink} gate set. Running the simulator $N=50000$ times yields the results depicted below. In red is the theoretically calculated probabilities for the outcomes of a SIC measurement, given the SIC fiducial. In blue is the  proportion of time those outcomes occurred in an exact simulation, and finally in green, is the frequency in the noisy simulation. 
 
 \begin{center}
-\includegraphics[scale=0.5]{img/willow_sim.png}	
+\includegraphics[scale=0.5]{img/ak_theory_vs_experiment}	
 \end{center}
 
 
-After conforming the circuit to the device's topology and optimizing it, the gate count by type for the full circuit, including the fiducial preparations, was:
+After conforming the circuit to the device's topology and optimizing it, the gate count by type for the full circuit, including the fiducial preparations, was
 \begin{table}[h!]
 \centering
 \begin{tabular}{lr}
 \toprule
 \textbf{Gate Type} & \textbf{Count} \\
 \midrule
-PhasedXZGate    & 124 \\
-CZPowGate       & 127 \\
-PhasedXPowGate  & 159 \\
-ZPowGate        & 9 \\
+PhasedXZGate    & 67 \\
+CZPowGate       & 84 \\
+PhasedXPowGate  & 99 \\
+ZPowGate        & 10 \\
 MeasurementGate & 1 \\
 \bottomrule
 \end{tabular}
 \label{tab:circuit_gate_counts}
 \end{table}
+
+
+\noindent with a total of 153 moments. Below for 100,000 shots, we show on the left the exact conditional probability matrix 
+\begin{align}
+P(i,j)&= \frac{d\delta_{ij}+1}{d(d+1)}	
+\end{align}
+for a SIC outcome $i$ given a SIC state preparation $j$, in the middle the frequencies obtained from the noisy simulation, and on the right, the difference between the two. The Frobenius distance between them is $\lVert P_{\text{SIC}}-P\rVert \approx 0.3225$.
+\begin{center}
+\includegraphics[scale=0.5]{img/P_noisy_ak_100000}	
+\end{center}
+
 
 \section{A simplified WH-POVM procedure}
 \label{simplifiedWH}
@@ -382,26 +393,89 @@ We ran the simple WH-POVM circuit on the same noisy simulator, again performing 
 
 
 \begin{center}
-\includegraphics[scale=0.5]{img/willow_sim_simple_wh.png}
+\includegraphics[scale=0.5]{img/simple_theory_vs_experiment}
 \end{center}
-The full gate counts including the fiducial preparation and after conforming the circuit to the device's topology and optimizing it are:
+
+The full gate counts including the fiducial preparation and after conforming the circuit to the device's topology and optimizing it are
 \begin{table}[h!]
 \centering
 \begin{tabular}{lr}
 \toprule
 \textbf{Gate Type} & \textbf{Count} \\
 \midrule
-PhasedXPowGate  & 31 \\
-CZPowGate       & 23 \\
-ZPowGate        & 3 \\
-PhasedXZGate    & 21 \\
+PhasedXPowGate  & 30 \\
+CZPowGate       & 25 \\
+PhasedXZGate    & 20 \\
 MeasurementGate & 1 \\
 \bottomrule
 \end{tabular}
 \label{tab:circuit_gate_counts_2}
 \end{table}
 
+\noindent with a total of 41 moments. For 100,000 shots, again we plot the frequencies for SIC outcomes given SIC states. Here $\lVert P_{\text{SIC}}-P\rVert|=0.2126$.
+\begin{center}
+\includegraphics[scale=0.5]{img/P_noisy_simple_100000.pdf}	
+\end{center}
+
+
 \pagebreak
+
+\section{The sky/ground scenario}
+
+ 
+Fixing a Hilbert space dimension $d$, we call a \emph{reference device} a procedure which first performs an informationally complete measurement $\{R_i\}$, and then prepares one of a set of informationally complete states $\{\sigma_i\}$. Informational completeness means that the POVM elements (states, resp.) span the space of operators on $\mathcal{H}_d$: it follows that the reference measurement suffices to characterize an arbitrary state, and the reference states suffice to characterize an arbitrary measurement. The Born rule can then be re-expressed as a consistency condition across several experiments. Consider first preparing a quantum system according to $\rho$. We then send system into a reference device $\{R_i, \sigma_i\}$ that can be turned on or off. Afterwards, the system is sent into an arbitrary measurement $\{E_j\}$. 
+\begin{center}
+\includegraphics[scale=0.8]{img/sky_ground}	
+\end{center}
+In the first case, it is not hard to show that one's probability assignments ought to be related by the law of total probability,
+\begin{align}
+P(E_j)&=\sum_i P(E_j|R_i)P(R_i)	.
+\end{align}
+In the second case, when the reference device is turned off, by the Born rule we have
+\begin{align}
+Q(E_j)	&= \tr(E_j\rho).
+\end{align}
+But by informational-completeness, we ought to be able to rewrite this probability in terms of reference probabilities. Let us see how this can be done in a special case.
+
+If the number of reference outcomes is $d^2$, the corresponding POVM elements must in fact form a linearly independent basis for the operator space. Let $|A)$ denote the vectorization of the matrix $A$, and recall that $\tr(B^\dagger A)= (B|A)$. Let $\B{R}_{ij}=(R_i|j)$ be the matrix whose rows are $(R_i|$ and and $\B{S}_{ij}=(i|S_j)$ be the matrix whose columns are $|\sigma_i)$. These are both $d^2 \times d^2$ matrices and by informational-completeness, $\B{R}$ and $\B{S}$  will in fact be invertible. Thus
+\begin{align}
+	Q(E_j)&=(E_j|\rho)=(E_j|\B{S}\B{S}^{-1}\B{R}^{-1}\B{R}|\rho)=(E_j|\B{S}(\B{RS})^{-1}\B{R}|\rho).
+\end{align}
+To interpret this expression, we note that $(E_j|\B{S}$ is the row vector of conditional probabilities $P(E_j|R_i)$, that $\B{R}|\rho)$ is the column vector of probabilities $P(R_i)$, and $\B{RS}=P$, the matrix of probabilities $P_{ij}=(R_i|\sigma_j)=P(R_i|R_j)$ for getting a reference outcome, given a reference state. Calling $\Phi \equiv P^{-1}$ the Born matrix, we've shown that
+\begin{align}
+Q(E_j)=\sum_{ik} P(E_j|R_i)\Phi_{ik}P(R_j).
+\end{align}
+In this way, the Born rule appears as a \emph{deformation} of the law of total probability by the operator $\Phi$, which is the inverse of the matrix $P$ which characterizes the reference device itself. In \cite{PhysRevResearch.2.013074}, the authors introduced as a measure of this deformation $||I-\Phi||$ with respect to any unitarily invariant norm, and proved that among all reference devices with $d^2$ outcomes,  $||I-\Phi||$ attains its minimum if and only if the reference measurement is a SIC and the reference states are proportional to its POVM elements. In this case, the expression for the Born rule simplifies to
+\begin{align}
+Q(E_j)=\sum_i P(E_j|R_i)\left[(d+1)P(R_i)-\frac{1}{d}\right]	.
+\end{align}
+
+In particular, let us consider the following set of experiments:
+\begin{enumerate}
+\item Preparing each of the SIC states $\Pi_\alpha$ in turn, and then performing a SIC measurement. We can gather this data into a matrix of frequencies $P_{ij}=f(R_i|R_j)$.
+\item Preparing each of the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then performing a SIC measurement. We can gather the frequencies into a matrix $p_{ij} = f(R_j|\Pi_i)$.
+\item Preparing each of the SIC states, and performing a computational basis measurement, yielding a matrix of frequencies $C_{ij}=f(\Pi_i|R_j)$.
+\item Preparing each of the computational basis states, and performing a computational basis measurement, yielding frequencies $q_{ij}=f(\Pi_i|\Pi_j)$.
+\end{enumerate}
+Letting $\Phi=P^{-1}$, the Born rule then demands the following consistency criterion,
+\begin{align}
+q = C\Phi p.	
+\end{align}
+In order to measure the extent to which our matrices violate this criterion, we could consider several metrics. In order to evaluate the implementation of the SIC itself, we could consider $\lVert P-P_{\text{SIC}}\rVert$, where $P_{\text{SIC}}$ are the exact probabilities, using the Frobenius norm. Alternatively, we could consider $\lVert \Phi -\Phi_{\text{SIC}}\rVert$, or even $\lVert I - \Phi \rVert$, since the latter is known to be minimized for SIC's alone. 
+\begin{center}
+\includegraphics[scale=0.55]{img/sic_metrics}	
+\end{center}
+Above we plot these three metrics as functions of the number of repetitions of the experiment. In blue, we plot the error for the Arthurs-Kelly implementation of a SIC in the presence of simulated noise. In orange, the same for the simpler WH-POVM implementation. The error for simulations without noise are in green and red. Clearly, in the latter case, as the number of samples increases, the error approaches zero. For the noisy simulations, however, the error plateaus, and the simpler algorithm decisively outperforms the full Arthurs-Kelly procedure.
+
+We could also consider the metrics which account for the whole Born rule itself. First, we consider $\lVert I - q\rVert$. Recall that $q_{ij}$ is the frequency with which we obtained computational basis outcome $i$, given that we prepared computational basis $j$. Clearly, this ought to be the $d\times d$ identity matrix. We see, however, that in the presence of noise, this is not true. Next, we consider $\lVert q-C\Phi p\rVert$, which quantifies the error in the Born rule itself. Again, in the presence of noise, after decreasing initially, the error plateaus.
+\begin{center}
+\includegraphics[scale=0.55]{img/sg_metrics}	
+\end{center}
+To better visualize this, we plot the elements of these matrices after 100,000 shots.
+\begin{center}
+\includegraphics[scale=0.4]{img/q_noisy_simple_100000}\includegraphics[scale=0.4]{img/q_noisy_ak_100000}	
+\end{center}
+On the left is the results for the simple WH-POVM implementation, and on the right the same for the Arthurs-Kelly. For both, $\lVert I - q\rVert \approx 0.056$, which shows that even in the simplest scenario of a computational basis preparation, and a computational basis measurement, there is considerable noise. Meanwhile, for the former, $\lVert q - C \Phi p\rVert \approx 0.2271$, and for the latter, $\lVert q - C \Phi p\rVert \approx 0.2618$. 
 
 \bibliographystyle{plain} 
 \bibliography{QuditArthursKelly}
@@ -506,4 +580,36 @@ so that, by the standard vectorization identity $\tr(A^\dagger B) = (A|B)$,
 	\mathcal{D}\Big(|\phi\rangle \otimes |\phi^*\rangle\Big)=\frac{1}{\sqrt{d}}\sum_{ab}|a,b\rangle (D_{a,b}|\Pi)=\frac{1}{\sqrt{d}}\sum_{ab} \tr(D_{a,b}^\dagger \Pi)|a,b\rangle ,
 \end{align}
 as desired.
+
+\section{Effect of depolarizing noise on $\Phi_{\text{SIC}}$}
+
+Let $P =  \frac{1}{d+1}\left(I + \frac{1}{d}J\right)$. Then $\Phi=(d+1)-\frac{1}{d}J$. Depolarizing noise leads to
+\begin{align}
+P_\alpha &= (1-\alpha) P + \frac{\alpha}{d^2}J	\\
+&= \frac{1-\alpha}{d+1}\left(I + \frac{1}{d}J\right)+\frac{\alpha}{d^2}J	\\
+&= \frac{1-\alpha}{d+1}I + \frac{\alpha +d }{d^2(d+1)}J.
+\end{align}
+In the limit of maximum depolarizing noise
+\begin{align}
+\lim_{\alpha\rightarrow 1} P_\alpha = \frac{1}{d^2}J.	
+\end{align}
+Up until that point, the reference device is still informationally complete.
+Now an $n\times n$ matrix of the form
+\begin{align}
+M = a I + bJ	
+\end{align}
+for $a\neq 0$ has an inverse
+\begin{align}
+M^{-1} = a^{-1}I + n^{-1}((a+nb)^{-1} - a^{-1})J	.
+\end{align}
+Thus
+\begin{align}
+\Phi_\alpha = P^{-1}_{\alpha}=\left(\frac{d+1}{1-\alpha}\right)I + \left(1-\frac{d+1}{1-\alpha}\right)\frac{1}{d^2}J.	
+\end{align}
+In the limit of maximum depolarizing noise, $\Phi_\alpha$ is no longer invertible. From the formula for the inverse, we can see that as $\alpha$ approaches 1, 
+\begin{align}
+	\lim_{\alpha\rightarrow 1}\left(\frac{d+1}{1-\alpha}\right) = \infty && \lim_{\alpha\rightarrow 1} \left(1-\frac{d+1}{1-\alpha}\right)=-\infty,	\end{align}
+that is, the diagonal entries diverge in the positive direction, and the off-diagonal in the negative.
+
+
 \end{document}

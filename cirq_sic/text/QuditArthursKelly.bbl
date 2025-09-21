@@ -1,0 +1,62 @@
+\begin{thebibliography}{10}
+
+\bibitem{monomial}
+D.~M. Appleby, Ingemar Bengtsson, Stephen Brierley, Markus Grassl, David Gross, and Jan-\r{A}ke Larsson.
+\newblock {The monomial representations of the Clifford group}.
+\newblock {\em Quantum Info. Comput.}, 12(5–6):404–431, May 2012.
+
+\bibitem{ArthursKelly}
+E.~Arthurs and J.~L. Kelly~Jr.
+\newblock {On the Simultaneous Measurement of a Pair of Conjugate Observables}.
+\newblock {\em Bell System Technical Journal}, 44(4):725--729, 1965.
+
+\bibitem{PhysRevA.43.1153}
+Samuel~L. Braunstein, Carlton~M. Caves, and G.~J. Milburn.
+\newblock {Interpretation for a positive $P$ representation}.
+\newblock {\em Phys. Rev. A}, 43:1153--1159, Feb 1991.
+
+\bibitem{cuffaro2024quantumstatesmaximalmagic}
+Gianluca Cuffaro and Christopher~A. Fuchs.
+\newblock {Quantum States with Maximal Magic}, 2024.
+
+\bibitem{PhysRevResearch.2.013074}
+John~B. DeBrota, Christopher~A. Fuchs, and Blake~C. Stacey.
+\newblock Symmetric informationally complete measurements identify the irreducible difference between classical and quantum systems.
+\newblock {\em Phys. Rev. Res.}, 2:013074, Jan 2020.
+
+\bibitem{Gross_2021}
+David Gross, Sepehr Nezami, and Michael Walter.
+\newblock {Schur–Weyl Duality for the Clifford Group with Applications: Property Testing, a Robust Hudson Theorem, and de Finetti Representations}.
+\newblock {\em Communications in Mathematical Physics}, 385(3):1325–1393, June 2021.
+
+\bibitem{PhysRevA.85.052115}
+Amir Kalev, Jiangwei Shang, and Berthold-Georg Englert.
+\newblock Experimental proposal for symmetric minimal two-qubit state tomography.
+\newblock {\em Phys. Rev. A}, 85:052115, May 2012.
+
+\bibitem{Kalev_2012}
+Amir Kalev, Jiangwei Shang, and Berthold-Georg Englert.
+\newblock Symmetric minimal quantum tomography by successive measurements.
+\newblock {\em Physical Review A}, 85(5), May 2012.
+
+\bibitem{Nielsen_Chuang_2010}
+Michael~A. Nielsen and Isaac~L. Chuang.
+\newblock {\em {Quantum Computation and Quantum Information: 10th Anniversary Edition}}.
+\newblock Cambridge University Press, 2010.
+
+\bibitem{Renes_2004}
+Joseph~M. Renes, Robin Blume-Kohout, A.~J. Scott, and Carlton~M. Caves.
+\newblock {Symmetric informationally complete quantum measurements}.
+\newblock {\em Journal of Mathematical Physics}, 45(6):2171–2180, June 2004.
+
+\bibitem{Stacey2021}
+Blake~C. Stacey.
+\newblock {\em {A First Course in the Sporadic SICs}}.
+\newblock Springer International Publishing, 2021.
+
+\bibitem{PhysRevA.86.062107}
+Gelo Noel~M. Tabia.
+\newblock Experimental scheme for qubit and qutrit symmetric informationally complete positive operator-valued measurements using multiport devices.
+\newblock {\em Phys. Rev. A}, 86:062107, Dec 2012.
+
+\end{thebibliography}
