@@ -153,9 +153,9 @@ HPowGate    & 1 &             &   &             &    \\
 \end{frame}
 
 \begin{frame}
-\frametitle{On Willow: SIC measurement on SIC fiducial}
+\frametitle{On Willow: SIC measurement on SIC fiducial (AK)}
 \begin{center}
-\includegraphics[scale=0.34]{img/willow_sim.png}	
+\includegraphics[scale=0.34]{img/ak_theory_vs_experiment}	
 \end{center}
 
 \begin{tiny}
@@ -165,10 +165,10 @@ HPowGate    & 1 &             &   &             &    \\
 \toprule
 \textbf{Gate Type} & \textbf{Count} \\
 \midrule
-PhasedXZGate    & 124 \\
-CZPowGate       & 127 \\
-PhasedXPowGate  & 159 \\
-ZPowGate        & 9 \\
+PhasedXZGate    & 67 \\
+CZPowGate       & 84 \\
+PhasedXPowGate  & 99 \\
+ZPowGate        & 10 \\
 MeasurementGate & 1 \\
 \bottomrule
 \end{tabular}
@@ -176,6 +176,14 @@ MeasurementGate & 1 \\
 \end{table}
 \end{tiny}
 \end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[scale=0.3]{img/P_noisy_ak_100000}	
+$\lVert P_{\text{SIC}}-P\rVert \approx 0.3225$.
+\end{center}	
+\end{frame}
+
 
 \begin{frame}
 	\frametitle{A simplification}
@@ -202,9 +210,9 @@ SwapPowGate & 3 \\
 
 
 \begin{frame}
-\frametitle{On Willow II: SIC measurement on SIC fiducial}
+\frametitle{On Willow: SIC measurement on SIC fiducial (simple)}
 \begin{center}
-\includegraphics[scale=0.34]{img/willow_sim_simple_wh.png}
+\includegraphics[scale=0.34]{img/simple_theory_vs_experiment}
 \end{center}	
 \begin{tiny}
 \begin{table}[h!]
@@ -213,10 +221,9 @@ SwapPowGate & 3 \\
 \toprule
 \textbf{Gate Type} & \textbf{Count} \\
 \midrule
-PhasedXPowGate  & 31 \\
-CZPowGate       & 23 \\
-ZPowGate        & 3 \\
-PhasedXZGate    & 21 \\
+PhasedXPowGate  & 30 \\
+CZPowGate       & 25 \\
+PhasedXZGate    & 20 \\
 MeasurementGate & 1 \\
 \bottomrule
 \end{tabular}
@@ -226,15 +233,13 @@ MeasurementGate & 1 \\
 \end{frame}
 
 \begin{frame}
-\frametitle{Outlook}
-\begin{itemize}
-\item Circuit simplifications?
-\item Handle grid structure natively?
-\item Qubit picking? Calibration?
-\item Alternative methods entirely.
-\item The Born rule...
-\end{itemize}
+\begin{center}
+\includegraphics[scale=0.3]{img/P_noisy_simple_100000.pdf}	
+ $\lVert P_{\text{SIC}}-P\rVert|=0.2126$.
+\end{center}
+	
 \end{frame}
+
 
 \begin{frame}
 \frametitle{The Born Rule}
@@ -251,6 +256,41 @@ Q(E_j) &= \sum_{ik} P(E_j|R_i)\Phi_{ik}P(R_k)\\
 \end{align}
 where $\Phi = P(R|R)^{-1}$.
 \end{small}
+\end{frame}
+
+\begin{frame}
+\frametitle{Consistency}
+Let us consider the following set of experiments:
+\begin{enumerate}
+\item Preparing the SIC states in turn, and then a SIC measurement. Yields matrix of probabilities $P_{ij}=f(R_i|R_j)$.
+\item Prepare the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then performing a SIC. Yields probabilities $p_{ij} = f(R_j|\Pi_i)$.
+\item Prepare the SIC states, and a computational basis measurement: $C_{ij}=f(\Pi_i|R_j)$.
+\item Prepare the computational basis states, and then a computational basis measurement: $q_{ij}=f(\Pi_i|\Pi_j)$.
+\end{enumerate}
+	Letting $\Phi=P^{-1}$, the Born rule then demands the following consistency criterion,
+\begin{align}
+q = C\Phi p.	
+\end{align}
+\end{frame}
+
+\begin{frame}
+\frametitle{Errors}
+\begin{center}
+\includegraphics[scale=0.36]{img/sic_metrics}	
+\includegraphics[scale=0.36]{img/sg_metrics}	
+\end{center}	
+\end{frame}
+
+\begin{frame}
+\frametitle{Errors}
+\begin{center}
+\includegraphics[scale=0.25]{img/q_noisy_simple_100000}\includegraphics[scale=0.25]{img/q_noisy_ak_100000}	$\lVert I - q\rVert \approx 0.056$
+
+$\lVert q - C \Phi p\rVert_{\text{simple}} \approx 0.2271$
+
+$\lVert q - C \Phi p\rVert_{\text{ak}} \approx 0.2618$
+
+\end{center}	
 \end{frame}
 
 

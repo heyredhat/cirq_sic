@@ -452,10 +452,10 @@ Q(E_j)=\sum_i P(E_j|R_i)\left[(d+1)P(R_i)-\frac{1}{d}\right]	.
 
 In particular, let us consider the following set of experiments:
 \begin{enumerate}
-\item Preparing each of the SIC states $\Pi_\alpha$ in turn, and then performing a SIC measurement. We can gather this data into a matrix of frequencies $P_{ij}=f(R_i|R_j)$.
-\item Preparing each of the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then performing a SIC measurement. We can gather the frequencies into a matrix $p_{ij} = f(R_j|\Pi_i)$.
-\item Preparing each of the SIC states, and performing a computational basis measurement, yielding a matrix of frequencies $C_{ij}=f(\Pi_i|R_j)$.
-\item Preparing each of the computational basis states, and performing a computational basis measurement, yielding frequencies $q_{ij}=f(\Pi_i|\Pi_j)$.
+\item Preparing each of the SIC states in turn, and then performing a SIC measurement. We can gather this data into a matrix of probabilities $P_{ij}=f(R_i|R_j)$.
+\item Preparing each of the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then performing a SIC measurement. We can gather the probabilities into a matrix $p_{ij} = f(R_j|\Pi_i)$.
+\item Preparing each of the SIC states, and performing a computational basis measurement, yielding a matrix of probabilities $C_{ij}=f(\Pi_i|R_j)$.
+\item Preparing each of the computational basis states, and performing a computational basis measurement, yielding probabilities $q_{ij}=f(\Pi_i|\Pi_j)$.
 \end{enumerate}
 Letting $\Phi=P^{-1}$, the Born rule then demands the following consistency criterion,
 \begin{align}
@@ -467,7 +467,7 @@ In order to measure the extent to which our matrices violate this criterion, we 
 \end{center}
 Above we plot these three metrics as functions of the number of repetitions of the experiment. In blue, we plot the error for the Arthurs-Kelly implementation of a SIC in the presence of simulated noise. In orange, the same for the simpler WH-POVM implementation. The error for simulations without noise are in green and red. Clearly, in the latter case, as the number of samples increases, the error approaches zero. For the noisy simulations, however, the error plateaus, and the simpler algorithm decisively outperforms the full Arthurs-Kelly procedure.
 
-We could also consider the metrics which account for the whole Born rule itself. First, we consider $\lVert I - q\rVert$. Recall that $q_{ij}$ is the frequency with which we obtained computational basis outcome $i$, given that we prepared computational basis $j$. Clearly, this ought to be the $d\times d$ identity matrix. We see, however, that in the presence of noise, this is not true. Next, we consider $\lVert q-C\Phi p\rVert$, which quantifies the error in the Born rule itself. Again, in the presence of noise, after decreasing initially, the error plateaus.
+We could also consider the metrics which account for the whole Born rule itself. First, we consider $\lVert I - q\rVert$. Recall that $q_{ij}$ is the probability with which we obtain a computational basis outcome $i$, given that we prepared computational basis $j$. Clearly, this ought to be the $d\times d$ identity matrix. We see, however, that in the presence of noise, this is not true! Next, we consider $\lVert q-C\Phi p\rVert$, which quantifies the error in the Born rule itself. Again, in the presence of noise, after decreasing initially, the error plateaus.
 \begin{center}
 \includegraphics[scale=0.55]{img/sg_metrics}	
 \end{center}
