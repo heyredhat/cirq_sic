@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cirq_sic"
 version = "0.1.0"
-dependencies = ["numpy", "scipy", "matplotlib", "cirq", "cirq-google", "qsimcirq", "recirq @ git+https://github.com/quantumlib/ReCirq", "ipykernel", "pytest", "sympy"]
+dependencies = ["numpy", "scipy", "matplotlib", "cirq", "cirq-google", "qsimcirq", "recirq @ git+https://github.com/quantumlib/ReCirq", "ipykernel", "pytest", "jax"]
 
 [pytest]
 testpaths = "tests/"

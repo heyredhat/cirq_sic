@@ -1,0 +1,3 @@
+include README.md
+recursive-exclude * __pycache__
+recursive-include cirq_sic/sic_povms *

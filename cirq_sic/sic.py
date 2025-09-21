@@ -1,3 +1,4 @@
+import pkg_resources
 import numpy as np
 from numpy.linalg import matrix_power as mpow
 
@@ -34,3 +35,16 @@ def d4_sic_fiducial_ket():
     H = np.array([[1,1],[1,-1]])/np.sqrt(2)
     P = np.diag([1, np.exp(1j*np.pi*(-1/4)), np.exp(1j*np.pi*(1/4)), np.exp(1j*np.pi*(1/2))]) 
     return np.kron(H, np.eye(2)) @ P @ (np.array([np.sqrt(2 + np.sqrt(5)), 1, 1, 1])/np.sqrt(5 + np.sqrt(5)))
+
+def load_sic_fiducial(d):
+    r"""
+    Loads a Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$ from the repository provided here: http://www.physics.umb.edu/Research/QBism/solutions.html.
+    """
+    f = pkg_resources.resource_stream(__name__, "sic_povms/d%d.txt" % d)
+    fiducial = []
+    for line in f:
+        if line.strip() != "":
+            re, im = [float(v) for v in line.split()]
+            fiducial.append(re + 1j*im)
+    fiducial = np.array(fiducial)
+    return fiducial/np.linalg.norm(fiducial)

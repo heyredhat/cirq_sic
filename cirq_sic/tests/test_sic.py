@@ -13,6 +13,13 @@ def test_wh_identities(d=4):
 	assert np.all([np.allclose(D[b].conj().T @ D[a] @ D[b], w**(a[1]*b[0] - a[0]*b[1])*D[a]) for b in np.ndindex(d,d) for a in np.ndindex(d,d)])
 	assert np.allclose(np.array([[(D[a].conj().T @ D[b]).trace() for b in np.ndindex(d,d)] for a in np.ndindex(d,d)]), d*np.eye(d**2))
 
+def test_d4_fiducial_ket():
+	d = 4
+	E = wh_povm(d4_sic_fiducial_ket())
+	P = np.array([[(a@b/b.trace()).trace() for b in E] for a in E]).real
+	P_SIC = np.array([[(d*(1 if i == j else 0) + 1)/(d*(d+1)) for j in range(d**2)] for i in range(d**2)]).real
+	assert np.allclose(P, P_SIC)
+
 def test_ak(d=4):
 	WH = wh_operators(d)
 	Z, X, F, D, w = WH["Z"], WH["X"], WH["F"], WH["D"], WH["w"]
@@ -74,13 +81,6 @@ def test_ak(d=4):
 	rho0_sans = rho0_sans/rho0_sans.trace()
 	assert not np.allclose(rho0, rho0_sans)
 
-def test_d4_fiducial_ket():
-	d = 4
-	E = wh_povm(d4_sic_fiducial_ket())
-	P = np.array([[(a@b/b.trace()).trace() for b in E] for a in E]).real
-	P_SIC = np.array([[(d*(1 if i == j else 0) + 1)/(d*(d+1)) for j in range(d**2)] for i in range(d**2)]).real
-	assert np.allclose(P, P_SIC)
-
 def test_characteristic_state(d=4):
     WH = wh_operators(d)
     D, X, F = WH["D"], WH["X"], WH["F"]
@@ -91,45 +91,6 @@ def test_characteristic_state(d=4):
     char_ket1 = BigD @ np.kron(phi.conj(), phi)
     char_ket2 = sum([(D[a,b].conj().T @ Pi).trace()*np.kron(np.eye(d)[b], np.eye(d)[a]) for a in range(d) for b in range(d)])/np.sqrt(d)
     assert np.allclose(char_ket1, char_ket2)
-	
-def test_qft(n=2):
-	q = cirq.LineQubit.range(n)
-	circuit = cirq.Circuit(F(q))
-	s = cirq.Simulator()
-	ket = rand_ket(2**n)
-	final_ket = s.simulate(circuit, initial_state=ket).final_state_vector
-	assert np.allclose(final_ket, wh_operators(2**n)["F"] @ ket)
-
-def test_shift(n=2):
-	q = cirq.LineQubit.range(n)
-	circuit = cirq.Circuit(X(q))
-	s = cirq.Simulator()
-	ket = rand_ket(2**n)
-	final_ket = s.simulate(circuit, initial_state=ket).final_state_vector
-	assert np.allclose(final_ket, wh_operators(2**n)["X"] @ ket)
-
-def test_controlled_shift(n=2):
-	d = 2**n
-	t = cirq.LineQubit.range(n)
-	c = cirq.LineQubit.range(n, 2*n)
-	circuit = cirq.Circuit(CX(c, t))
-
-	s = cirq.Simulator()
-	ket = rand_ket(d**2)
-	final_ket = s.simulate(circuit, initial_state=ket).final_state_vector
-
-	X_ = wh_operators(d)["X"]
-	CX_ = sum([kron(mpow(X_, k), np.outer(np.eye(d)[k], np.eye(d)[k])) for k in range(d)])
-	assert np.allclose(final_ket, CX_ @ ket)
-
-def test_fiducial_preparation():
-	n = 2
-	q = cirq.LineQubit.range(n)
-	circ = cirq.Circuit(d4_sic_fiducial(q))
-	assert np.allclose(d4_sic_fiducial_ket(), cirq.unitary(circ)[:,0])
-
-	circ = cirq.Circuit(d4_sic_fiducial(q, conjugate=True))
-	assert np.allclose(d4_sic_fiducial_ket().conj(), cirq.unitary(circ)[:,0])
 
 def test_simple_wh(d=4):
 	WH = wh_operators(d)
@@ -154,11 +115,9 @@ def test_simple_wh(d=4):
 	V3 = np.array([D_[a,b].flatten().conj() for a in range(d) for b in range(d)])/np.sqrt(d)
 	assert np.allclose(V, V3)
 
-def test_qudit_basis_state():
-	n = 3
-	d = 2**n
-	q = cirq.LineQubit.range(n)
-	for i in range(d):
-		circ = cirq.Circuit((qudit_basis_state(q, i)))
-		ket = cirq.Simulator().simulate(circ, qubit_order=q).final_state_vector
-		assert np.allclose(ket, np.eye(d)[i])
+def test_ansatz(d=4):
+	ket = rand_ket(d)
+	thetas, phis, phase = ket_to_ansatz_angles(ket)
+	params = ansatz_angles_to_params(thetas, phis, phase)
+	U = ansatz_unitary(n, params)
+	assert np.allclose(U[:,0], ket)

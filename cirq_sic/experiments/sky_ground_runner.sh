@@ -7,7 +7,7 @@ ARGS_FILE=${1:-"sky_ground_args.txt"}
 
 # The Python script to execute.
 # Fallback to "znorm_search.py" if no second argument is provided.
-PYTHON_SCRIPT=${2:-"run_sky_ground.py"}
+PYTHON_SCRIPT=${2:-"sky_ground_run.py"}
 
 # --- Pre-flight Checks ---
 # Check if the arguments file exists

@@ -4,6 +4,10 @@ import numpy as np
 
 import cirq 
 
+sigma_x = np.array([[0,1], [1,0]])
+sigma_y = np.array([[0,-1j], [1j, 0]]) 
+sigma_z = np.array([[1,0], [0,-1]])
+
 def kron(*A):
     """Tensor lots of things together."""
     return reduce(np.kron, A)
@@ -34,3 +38,4 @@ def nonneg_projection(p):
     p_fixed[p < 0] = 0
     p_fixed = p_fixed/sum(p_fixed)
     return p_fixed
+

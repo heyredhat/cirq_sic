@@ -4,7 +4,7 @@ Implementing SIC's in cirq.
 
 After installing `pip install -e`, to perform a battery of sky/ground experiments using the $d=4$ SIC fiducial, run
 
-```python run_sky_ground.py -dataset_id example -run_type clean/noisy/real -wh_implementation ak/simple -n_shots 10000```
+```python sky_ground_run.py -dataset_id example -run_type clean/noisy/real -wh_implementation ak/simple -n_shots 10000```
 
 `clean` means a noiseless simulation, `noisy` uses a noise simulator, `real` should run it on `willow` itself.  
 
