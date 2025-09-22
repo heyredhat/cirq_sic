@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex QuditArthursKelly"] 1758429901.8942 "QuditArthursKelly.aux" "QuditArthursKelly.bbl" "QuditArthursKelly" 1758429903.67588 0
-  "./QuditArthursKelly.bib" 1758405051.75699 6493 04d0eaf2addf35510c6093d76af4a446 ""
+["bibtex QuditArthursKelly"] 1758523079.74358 "QuditArthursKelly.aux" "QuditArthursKelly.bbl" "QuditArthursKelly" 1758523079.93157 0
+  "./QuditArthursKelly.bib" 1758523079.48913 10296 b8e62ee10864a7c5fecfd1735cd25a22 ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/base/plain.bst" 1292289607 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "QuditArthursKelly.aux" 1758429903.16028 3711 93f17d32ba701ed51f438e236bda4702 "pdflatex"
+  "QuditArthursKelly.aux" 1758495209.49835 3711 93f17d32ba701ed51f438e236bda4702 "pdflatex"
   (generated)
   "QuditArthursKelly.bbl"
   "QuditArthursKelly.blg"
   (rewritten before read)
-["pdflatex"] 1758429902.10465 "/Users/heyredhat/Desktop/UMASS SEASON 9/QuditArthursKelly/cirq_sic/cirq_sic/text/QuditArthursKelly.tex" "QuditArthursKelly.pdf" "QuditArthursKelly" 1758429903.67619 0
-  "/Users/heyredhat/Desktop/UMASS SEASON 9/QuditArthursKelly/cirq_sic/cirq_sic/text/QuditArthursKelly.tex" 1758429900.02244 47792 ab52c5d761c56dd72f604f0f9c0c1797 ""
+["pdflatex"] 1758495208.53783 "/Users/heyredhat/Desktop/UMASS SEASON 9/QuditArthursKelly/cirq_sic/cirq_sic/text/QuditArthursKelly.tex" "QuditArthursKelly.pdf" "QuditArthursKelly" 1758523079.93171 0
+  "/Users/heyredhat/Desktop/UMASS SEASON 9/QuditArthursKelly/cirq_sic/cirq_sic/text/QuditArthursKelly.tex" 1758495278.61484 47791 07cbc1fc7d3b3c0753b7d89dfe1084f6 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -95,9 +95,9 @@
   "/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1729132549.99241 5467645 128b85b7cde5f5edc5cb7f1dd7ff8736 ""
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1729132525 8221434 600ea537a8cc3962b6f0c802d767e491 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
-  "QuditArthursKelly.aux" 1758429903.16028 3711 93f17d32ba701ed51f438e236bda4702 "pdflatex"
-  "QuditArthursKelly.bbl" 1758429902.09815 2716 67c00fb09ef5adf5d6e520e66531a517 "bibtex QuditArthursKelly"
-  "QuditArthursKelly.tex" 1758429900.02244 47792 ab52c5d761c56dd72f604f0f9c0c1797 ""
+  "QuditArthursKelly.aux" 1758495209.49835 3711 93f17d32ba701ed51f438e236bda4702 "pdflatex"
+  "QuditArthursKelly.bbl" 1758523079.91435 2716 67c00fb09ef5adf5d6e520e66531a517 "bibtex QuditArthursKelly"
+  "QuditArthursKelly.tex" 1758495278.61484 47791 07cbc1fc7d3b3c0753b7d89dfe1084f6 ""
   "img/P_noisy_ak_100000.pdf" 1758419874.04358 26794 7aef05f1b62e0a4de5897549c80077e9 ""
   "img/P_noisy_simple_100000.pdf" 1758419887.33878 26506 f36cf4bf6210a6777fae58e6e091ac12 ""
   "img/ak.pdf" 1756531188.16896 5891 5ca15e087c23e9ddf03ceabcfc32c111 ""

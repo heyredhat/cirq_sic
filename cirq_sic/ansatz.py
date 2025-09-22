@@ -40,7 +40,9 @@ def ket_to_ansatz_angles(ket):
         current_thetas, current_phis, current_zs = [], [], []
         for i in range(0, len(kets[-1]), 2):
             qubit = kets[-1][i:i+2]
-            normalized_qubit = np.exp(-1j*np.angle(qubit[0]))*qubit/np.linalg.norm(qubit)
+            nrm = np.linalg.norm(qubit)
+            normalized_qubit = np.exp(-1j*np.angle(qubit[0]))*qubit*\
+                    (1/nrm if not np.isclose(nrm, 0) else 1)
             theta = float(2*np.arccos(normalized_qubit[0]).real)
             phi = float(np.angle(normalized_qubit[1]))
             U = sc.linalg.expm(-1j*sigma_z*phi/2) @ sc.linalg.expm(-1j*sigma_y*theta/2)
