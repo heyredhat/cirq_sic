@@ -17,6 +17,9 @@ def rand_ket(d):
     ket = np.random.randn(d) + 1j*np.random.randn(d)
     return ket/np.linalg.norm(ket)
 
+def pad(x, d):
+    return np.concatenate([x, np.zeros(d-len(x))])
+
 def get_gate_counts(circuit):
     """Get gate counts for a cirq circuit."""
     all_gate_types = [type(op.gate) for op in circuit.all_operations()]
@@ -39,3 +42,13 @@ def nonneg_projection(p):
     p_fixed = p_fixed/sum(p_fixed)
     return p_fixed
 
+def dirac(state_vector):
+    """n qubit state vector in Dirac notation."""
+    n = int(np.log2(len(state_vector)))
+    basis_states = []
+    for i, amp in enumerate(state_vector):
+        if abs(amp) > 0.001:
+            bin_str = format(i, f'0{n}b')
+            print("%s: %.2f+%.2fj: %.3f" % (bin_str, amp.real, amp.imag, abs(amp)**2))
+            basis_states.append((bin_str, amp))
+    return basis_states

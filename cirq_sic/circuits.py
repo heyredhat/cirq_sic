@@ -1,160 +1,172 @@
 import cirq 
 import numpy as np
 
-H = cirq.H
-R = lambda k: cirq.ZPowGate(exponent=2**(1-k))
-CR = lambda k: cirq.CZPowGate(exponent=2**(1-k))
-SWAP = cirq.SWAP
+from .ansatz import *
 
-def F(q):
-    """Qudit Fourier transform"""
-    n = len(q)
+def qudit_basis_state(qubits, m):
+    """Prepares the qudit basis state |m> on the qubits q."""
+    n = len(qubits)
+    bitstr = bin(m)[2:].zfill(n)
+    for i, b in enumerate(bitstr):
+        if b == '1':
+            yield cirq.X(qubits[i])
+
+def qft(qubits, inverse=False):
+    """Qudit Fourier transform on n qubits."""
+    if inverse:
+        yield from cirq.inverse(list(qft(qubits)))
+        return
+    n = len(qubits)
     for i in range(n):
-        yield H(q[i])
+        yield cirq.H(qubits[i])
         for j in range(i + 1, n):
-            yield CR(j - i + 1)(q[j], q[i])
+            yield cirq.CZPowGate(exponent=2**(i-j))(qubits[j], qubits[i])
     for i in range(n // 2):
-        yield SWAP(q[i], q[n - 1 - i])
+        yield cirq.SWAP(qubits[i], qubits[n - 1 - i])
 
-def Fdag(q):
-    """Qudit inverse Fourier transform"""
-    yield cirq.inverse(list(F(q)))
+def Z(qubits, k=1):
+    """Qudit shift on n qubits."""
+    for j, qubit in enumerate(qubits):
+        angle = k * np.pi / (2**j)
+        if angle != 0:
+            yield cirq.ZPowGate(exponent=angle/np.pi)(qubits[j])
 
-def Z(q):
-    """Qudit clock"""
-    for i in range(len(q)):
-        yield R(i+1)(q[i])
+def X(qubits, k=1):
+    """Qudit shift on n qubits."""
+    yield from qft(qubits)
+    yield from Z(qubits, k=k)
+    yield from qft(qubits, inverse=True)
 
-def Zdag(q):
-     """Qudit inverse clock"""
-     yield cirq.inverse(list(Z(q)))
+def displace(qubits, a1, a2):
+    """Qudit displacement operator on n qudits with indices (a1, a2)."""
+    yield from Z(qubits, a2)
+    yield from X(qubits, a1)
 
-def X(q):
-    """Qudit shift"""
-    yield F(q)
-    yield Z(q)
-    yield Fdag(q)
+def wh_state(qubits, prepare_fiducial, a1, a2):
+    """Prepare the WH state D(a1,a2)|fiducial> on n qubits."""
+    yield from prepare_fiducial(qubits)
+    yield from displace(qubits, a1, a2)
 
-def Xdag(q):
-     """Qudit inverse shift"""
-     yield cirq.inverse(list(X(q)))
+def QCZ(control_qubit, target_qubits, k=1):
+    """Qubit controlled clock on n qubits."""
+    for j, target_qubit in enumerate(target_qubits):
+        angle = k * np.pi / (2**j)
+        if angle != 0:
+            yield cirq.CZPowGate(exponent=angle/np.pi)(control_qubit, target_qubit)
 
-def displace(q, a1, a2):
-    """Act with WH operator with indices (a1, a2)."""
-    for i in range(a2):
-        yield Z(q)
-    for j in range(a1):
-        yield X(q)
-
-def wh_state(q, prepare_fiducial, a1, a2):
-    """Prepare the WH state D(a1,a2)|fiducial>"""
-    yield prepare_fiducial(q)
-    yield displace(q, a1, a2)
-
-def QCZ(c, t):
-    """Qubit controlled clock"""
-    n = len(t)
+def CZ(control_qubits, target_qubits, inverse=False):
+    """Qudit controlled clock on n control qubit and n target qubits."""
+    if inverse:
+        yield from cirq.inverse(list(CZ(control_qubits, target_qubits)))
+        return 
+    n = len(control_qubits)
     for j in range(n):
-        yield CR(j+1)(c, t[j])
+        yield from QCZ(control_qubits[n-j-1], target_qubits, 2**j)
 
-def CZ(c, t):
-    """Qudit controlled clock"""
-    n = len(c)
-    for j in range(n):
-        for k in range(2**j):
-            yield QCZ(c[n-j-1], t)
+def CX(control_qubits, target_qubits, inverse=False):
+    """Qudit controlled shift on n control qubits and n target qubits."""
+    yield from qft(target_qubits)
+    yield from CZ(control_qubits, target_qubits, inverse=inverse)
+    yield from qft(target_qubits, inverse=True)
 
-def CZdag(c, t):
-    """Qudit inverse controlled clock"""
-    yield cirq.inverse(list(CZ(c, t)))
+####################################################################################
 
-def CX(c, t):
-    """Qudit controlled shift"""
-    yield F(t)
-    yield CZ(c, t)
-    yield Fdag(t)
+def ready_arthurs_kelly_ancillas(ancilla1_qubits, ancilla2_qubits):
+    """Prepare Arthurs-Kelly ancillas."""
+    yield from qft(ancilla2_qubits, inverse=True)
+    yield from CZ(ancilla1_qubits, ancilla2_qubits)
 
-def CXdag(c, t):
-    """Qudit inverse controlled shift"""
-    yield cirq.inverse(list(CX(c, t)))
+def arthurs_kelly_coupling(system_qubits, ancilla1_qubits, ancilla2_qubits):
+    """Qudit Arthurs-Kelly coupling."""
+    yield from CX(system_qubits, ancilla1_qubits, inverse=True)
+    yield from qft(system_qubits, inverse=True)
+    yield from CX(system_qubits, ancilla2_qubits, inverse=True)
+    yield from qft(system_qubits)
 
-def AP(t1, t2):
-    """Prepare Arthurs-Kelly ancillas"""
-    yield Fdag(t2)
-    yield CZ(t1, t2)
-
-def AK(c, t1, t2, measure=True):
-    """Qudit Arthurs-Kelly """
-    yield CXdag(c, t1)
-    yield Fdag(c)
-    yield CXdag(c, t2)
-    yield F(c)
-    if measure:
-        yield cirq.measure(*[t1+t2], key="result")
-
-def qudit_arthurs_kelly(c, t1, t2, prepare_fiducial=None, measure=True):
-    """Qudit Arthurs-Kelly with fiducial preparation"""
+def arthurs_kelly(system_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=None, prepare_ancillas=None, measure=True):
+    """Qudit Arthurs-Kelly on n qubits with two n qubit ancillas."""
     if prepare_fiducial is not None:
-        yield prepare_fiducial(t1, conjugate=True)
-        yield prepare_fiducial(t2)
-    yield AP(t1, t2)
-    yield AK(c, t1, t2, measure=measure)
-
-def simple_wh_povm(q, f, prepare_fiducial=None, measure=True):
-    """Simple WH-POVM"""
-    if prepare_fiducial is not None:
-        yield prepare_fiducial(f, conjugate=True)
-    yield CXdag(f, q)
-    yield Fdag(f)
+        yield from prepare_fiducial(ancilla1_qubits, conjugate=True)
+        yield from prepare_fiducial(ancilla2_qubits)
+        yield from ready_arthurs_kelly_ancillas(ancilla1_qubits, ancilla2_qubits)
+    if prepare_ancillas is not None:
+        yield from prepare_ancillas(ancilla1_qubits, ancilla2_qubits)
+    yield from arthurs_kelly_coupling(system_qubits, ancilla1_qubits, ancilla2_qubits)
     if measure:
-        yield cirq.measure(*(q+f), key="result")
+        yield cirq.measure(*[ancilla1_qubits+ancilla2_qubits], key="result")
 
-Ry = lambda t: cirq.Ry(rads=t)
-Sx = cirq.X
-H = cirq.H
-Ph = lambda t: cirq.ZPowGate(exponent=t/np.pi)
-CNOT = cirq.CNOT
+####################################################################################
+
+def simple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None, measure=True):
+    """Simple WH-POVM on n qubits with n qubit ancilla."""
+    if prepare_fiducial is not None:
+        yield prepare_fiducial(ancilla_qubits, conjugate=True)
+    yield CX(ancilla_qubits, system_qubits, inverse=True)
+    yield qft(ancilla_qubits, inverse=True)
+    if measure:
+        yield cirq.measure(*(system_qubits+ancilla_qubits), key="result")
+
+####################################################################################
 
 def CRy(theta):
-	"""Controlled y-rotation"""
-	def __CRy__(c, t):
-		yield Ry(theta/2)(t)
-		yield CNOT(c, t)
-		yield Ry(-theta/2)(t)
-		yield CNOT(c, t)
+	"""Controlled y-rotation."""
+	def __CRy__(control, target):
+		yield cirq.Ry(rads=theta/2)(target)
+		yield cirq.CNOT(control, target)
+		yield cirq.Ry(rads=-theta/2)(target)
+		yield cirq.CNOT(control, target)
 	return __CRy__
 
-def d4_sic_monomial_fiducial(q):
-    """Prepare an almost flat d=4 monomial SIC fiducial"""
+def d4_sic_monomial_fiducial(qubits):
+    """Prepare an almost flat d=4 monomial SIC fiducial."""
     theta1 = 2*np.arccos(np.sqrt((5+np.sqrt(5))/10))
     theta2 = 2*np.arccos(np.sqrt(1+np.sqrt(5))/2)
     theta3 = np.pi/2
 
-    yield Ry(theta1)(q[0])
-    yield Sx(q[0])
-    yield CRy(theta2)(q[0], q[1])
-    yield Sx(q[0])
-    yield CRy(theta3)(q[0], q[1])
+    yield cirq.Ry(rads=theta1)(qubits[0])
+    yield cirq.X(qubits[0])
+    yield CRy(theta2)(qubits[0], qubits[1])
+    yield cirq.X(qubits[0])
+    yield CRy(theta3)(qubits[0], qubits[1])
 
-def d4_monomial_rephasing(q):
-    """Rephase the d=4 monomial basis"""
-    yield Ph(np.pi)(q[1])
-    yield CNOT(q[0], q[1])
-    yield Ph(3*np.pi/4)(q[1])
-    yield CNOT(q[0], q[1])
-    yield Ph(-np.pi/2)(q[0])
+def d4_monomial_rephasing(qubits):
+    """Rephase the d=4 monomial basis."""
+    yield cirq.ZPowGate(exponent=1)(qubits[1])
+    yield cirq.CNOT(qubits[0], qubits[1])
+    yield cirq.ZPowGate(exponent=3/4)(qubits[1])
+    yield cirq.CNOT(qubits[0], qubits[1])
+    yield cirq.ZPowGate(exponent=-1/2)(qubits[0])
 
-def d4_sic_fiducial(q, conjugate=False):
-	"""Prepare a d=4 SIC fiducial (or its conjugate)"""
-	yield d4_sic_monomial_fiducial(q)
-	yield d4_monomial_rephasing(q) if not conjugate else \
-		  cirq.inverse(list(d4_monomial_rephasing(q)))
-	yield H(q[0])
+def d4_sic_fiducial(qubits, conjugate=False):
+	"""Prepare a d=4 SIC fiducial (or its conjugate)."""
+	yield from d4_sic_monomial_fiducial(qubits)
+	yield from d4_monomial_rephasing(qubits) if not conjugate else \
+		  cirq.inverse(list(d4_monomial_rephasing(qubits)))
+	yield cirq.H(qubits[0])
      
-def qudit_basis_state(q, m):
-    """Prepares the qudit basis state |m> on the qubits q."""
+####################################################################################
+
+def __ansatz_circuit__(q, params, conjugate=False):
     n = len(q)
-    bitstr = bin(m)[2:].zfill(n)
-    for i, b in enumerate(bitstr):
-        if b == '1':
-            yield Sx(q[i])
+    targeting_data = [grey_data(i) for i in range(n)]
+    sign = -1 if conjugate else 1
+    thetas, phis, phase = ansatz_params_to_angles(n, params, sign=sign)
+    
+    yield cirq.Rz(rads=-2*sign*phase)(q[0])
+    yield cirq.Ry(rads=thetas[0][0])(q[0])
+    yield cirq.Rz(rads=phis[0][0])(q[0])
+    for i in range(1, len(thetas)):
+        current_q = q[:i+1]
+        M, targets = targeting_data[i]
+        for j, theta in enumerate(M @ thetas[i]):
+            yield cirq.Ry(rads=theta)(current_q[-1])
+            yield cirq.CNOT(current_q[targets[j]], current_q[-1])
+        for j, phi in enumerate(M @ phis[i]):
+            yield cirq.Rz(rads=phi)(current_q[-1])
+            yield cirq.CNOT(current_q[targets[j]], current_q[-1])
+
+def ansatz_circuit(ket):
+    params = ansatz_angles_to_params(*ket_to_ansatz_angles(ket))
+    def __ansatz__(q, conjugate=False):
+        yield __ansatz_circuit__(q, params, conjugate=conjugate)
+    return __ansatz__

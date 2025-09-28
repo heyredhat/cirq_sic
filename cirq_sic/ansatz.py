@@ -1,17 +1,21 @@
-import numpy as np
 from itertools import product
 from functools import reduce
+import numpy as np
 import scipy as sc
 
 from .utils import *
 
+####################################################################################
+
 def grey(n):
+    """Grey code helper function for ansatz."""
     L = [[0],[1]]
     while len(L) < 2**n:
         L = [[0]+_ for _ in L] + [[1]+_ for _ in L[::-1]]
     return np.array(L)
 
 def grey_data(k):
+    """Grey code helper function for ansatz."""
     if k == 0:
         return None
     B, G = np.array(list(product([0,1], repeat=k))), grey(k)
@@ -66,28 +70,3 @@ def ansatz_unitary(n, params):
                                          sc.linalg.expm(-1j*sigma_y*T[i][j]/2)\
                                                 for j in range(len(T[i]))]),\
                                          np.eye(2**i)) for i in range(len(T))]+[np.kron(sc.linalg.expm(1j*sigma_z*phase), np.eye(2**(n-1)))])
-
-def __ansatz_circuit__(q, params, conjugate=False):
-    n = len(q)
-    targeting_data = [grey_data(i) for i in range(n)]
-    sign = -1 if conjugate else 1
-    thetas, phis, phase = ansatz_params_to_angles(n, params, sign=sign)
-    
-    yield cirq.Rz(rads=-2*sign*phase)(q[0])
-    yield cirq.Ry(rads=thetas[0][0])(q[0])
-    yield cirq.Rz(rads=phis[0][0])(q[0])
-    for i in range(1, len(thetas)):
-        current_q = q[:i+1]
-        M, targets = targeting_data[i]
-        for j, theta in enumerate(M @ thetas[i]):
-            yield cirq.Ry(rads=theta)(current_q[-1])
-            yield cirq.CNOT(current_q[targets[j]], current_q[-1])
-        for j, phi in enumerate(M @ phis[i]):
-            yield cirq.Rz(rads=phi)(current_q[-1])
-            yield cirq.CNOT(current_q[targets[j]], current_q[-1])
-
-def ansatz_circuit(ket):
-    params = ansatz_angles_to_params(*ket_to_ansatz_angles(ket))
-    def __ansatz__(q, conjugate=False):
-        yield __ansatz_circuit__(q, params, conjugate=conjugate)
-    return __ansatz__

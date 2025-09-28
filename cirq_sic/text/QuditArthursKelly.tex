@@ -583,6 +583,7 @@ as desired.
 
 \section{Effect of depolarizing noise on $\Phi_{\text{SIC}}$}
 
+\subsection{Take 1}
 Let $P =  \frac{1}{d+1}\left(I + \frac{1}{d}J\right)$. Then $\Phi=(d+1)-\frac{1}{d}J$. Depolarizing noise leads to
 \begin{align}
 P_\alpha &= (1-\alpha) P + \frac{\alpha}{d^2}J	\\
@@ -610,6 +611,60 @@ In the limit of maximum depolarizing noise, $\Phi_\alpha$ is no longer invertibl
 \begin{align}
 	\lim_{\alpha\rightarrow 1}\left(\frac{d+1}{1-\alpha}\right) = \infty && \lim_{\alpha\rightarrow 1} \left(1-\frac{d+1}{1-\alpha}\right)=-\infty,	\end{align}
 that is, the diagonal entries diverge in the positive direction, and the off-diagonal in the negative.
+
+\pagebreak
+\subsection{Take 2}
+
+For simplicity, let us assume depolarization (with parameter $0 \leq \alpha\leq 1 $) of just the SIC measurement itself. The  POVM elements become
+\begin{align}
+R_i^{(a)}= (1-\alpha)	R_i + \alpha I/d^2,
+\end{align}
+and 
+\begin{align}
+P(R_i^{(a)}) = (1-\alpha) P(R_i) + \alpha\left(\frac{1}{d^2}\right):
+\end{align}
+we simply mix the original probabilities with the flat distribution. If we plug this into the Urgleichung,
+\begin{align}
+Q(E_i) &= \sum_j P(E_i|R_j)\left[(d+1)P(R_i^{(a)}) - \frac{1}{d}\right]\\
+&=\sum_j P(E_i|R_j)\left[(d+1)(1-\alpha) P(R_i) + \alpha\left(\frac{d+1}{d^2}\right) -\frac{1}{d}\right],
+\end{align}
+we see that if we take the depolarization parameter to be
+\begin{align}
+\alpha &= 1-\frac{1}{d+1}=\frac{d}{d+1}, 
+\end{align}
+then
+\begin{align}
+Q(E_i) &= \sum_j P(E_i|R_j)P(R_j):
+\end{align}
+the LTP is recovered in the presence of noise. Notice that the most negative a SIC quasiprobability can be is $-\frac{1}{d}$. When $\alpha=\frac{d}{d+1}$, the smallest value a quasiprobability can take is exactly 0. After that point, the quasiprobabilities are just probabilities, as $\alpha$ increases, approaching the flat distribution. Of course, depolarizing noise is picked out as special since the SIC channel is depolarizing, and the map to quasiprobabilities is precisely the inverse of this depolarizing channel. Normally applying this inverse takes you out of the $[0,1]$ range, but if you have enough extra depolarization, you can stay inside it. 
+
+Although only when $\alpha = d/(d+1)$ do we recover the exact LTP, we could say that for $d/(d+1) \leq \alpha \leq 1$, the Urgleichung reduces to a classically explicable expression. But there's a kind of theoretical assumption here: when the LTP is ``recovered,'' we arrive at an expression containing $P(R_j)$, the ideal probabilities, whereas the sky path probabilities themselves ought to be
+\begin{align}
+	P(E_i) = \sum_j P(E_i|R_j) P(R_j^{(\alpha)}),
+\end{align}
+ that is, more depolarized.
+
+\subsection{}
+\begin{align}
+\rho^{(\alpha)}=(1-\alpha)\rho + \alpha I/d.	
+\end{align}
+
+\begin{align}
+\lVert \rho^{(\alpha)}\rVert	&= \lVert (1-\alpha)\rho + \alpha I/d\rVert\\
+&=\sqrt{\tr\left[\Big((1-\alpha)\rho + \alpha I/d\Big)\Big((1-\alpha)\rho + \alpha I/d\Big)\right]}\\
+&=\sqrt{(1-\alpha)^2\tr(\rho^2)+ \frac{2(1-\alpha)\alpha}{d}+\frac{\alpha^2}{d}}\\
+&=\sqrt{(1-\alpha)^2\tr(\rho^2)- \frac{\alpha(\alpha-2)}{d}}
+\end{align}
+Suppose $\rho$ is pure. Then:
+\begin{align}
+\lVert \rho^{(\alpha)}\rVert	&= \sqrt{(1-\alpha)^2- \frac{\alpha(\alpha-2)}{d}}\\
+&=\sqrt{1+\frac{1}{d}(d-1)(\alpha-2)\alpha}.
+\end{align}
+If $\alpha=\frac{d}{d+1}$, this becomes
+\begin{align}
+	\lVert \rho^{(\alpha)}\rVert	&= \frac{\sqrt{d+3}}{d+1}.
+\end{align}
+
 
 
 \end{document}

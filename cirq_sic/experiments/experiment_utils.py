@@ -8,6 +8,8 @@ import recirq
 from ..utils import *
 from ..circuits import *
 
+####################################################################################
+
 def get_device_data(processor_id, run_type="noisy", PROJECT_ID=""):
     """Returns the device, gateset, connectivity graph, and sampler as a dictionary.
         run_type='clean' gives an exact simulator.
@@ -44,6 +46,8 @@ def process_circuit(circuit, connectivity_graph, gateset, qubits):
                                 context=cirq.TransformerContext(deep=True), gateset=gateset)
     return optimized_circuit
 
+####################################################################################
+
 def get_freqs(samples):
     """From a Result, calculate the frequencies of the outcomes."""
     n_shots = samples.repetitions
@@ -54,6 +58,8 @@ def get_freqs(samples):
             counts[i] = 0
     freqs = np.array([v for k, v in sorted(counts.items())])/n_shots
     return freqs
+
+####################################################################################
 
 def abbrev_n_shots(n_shots):
     """Shorter n_shots component of a filename"""
@@ -74,27 +80,20 @@ class TaskProgram:
         """Takes a task and a reslt, and returns processed data dictionary."""
         pass
 
+####################################################################################
+
 def deep_match(obj, criteria):
     """Recursively checks if obj matches all key-value pairs in criteria at any depth."""
-    # Check if obj matches criteria at current level
     if isinstance(obj, dict):
-        if all(
-            (deep_match(obj.get(k, None), v) if isinstance(v, dict) else obj.get(k, None) == v)
-            for k, v in criteria.items()
-        ):
+        if all((deep_match(obj.get(k, None), v) if isinstance(v, dict) else obj.get(k, None) == v) for k, v in criteria.items()):
             return True
-        # Search deeper in all values
         for v in obj.values():
             if deep_match(v, criteria):
                 return True
     elif hasattr(obj, '__dict__'):
         attrs = vars(obj)
-        if all(
-            (deep_match(getattr(obj, k, None), v) if isinstance(v, dict) else getattr(obj, k, None) == v)
-            for k, v in criteria.items()
-        ):
+        if all((deep_match(getattr(obj, k, None), v) if isinstance(v, dict) else getattr(obj, k, None) == v) for k, v in criteria.items()):
             return True
-        # Search deeper in all attributes
         for v in attrs.values():
             if deep_match(v, criteria):
                 return True
@@ -107,3 +106,13 @@ def deep_match(obj, criteria):
 def query_records(records, query):
     """Yields records that satisfy the query function."""
     return [record for record in records if deep_match(record, query)]
+
+def program_results_by_nshots(results, programs):
+    """Returns a dictionary of program results by n_shots."""
+    results_by_nshots = {}
+    for program, data_label in programs:
+        current_results = {}
+        for result in results[program.__name__]:
+            current_results[result["task"].n_shots] = np.array(result[data_label])
+        results_by_nshots[data_label] = current_results
+    return results_by_nshots

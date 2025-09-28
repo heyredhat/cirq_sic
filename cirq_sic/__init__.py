@@ -1,9 +1,9 @@
-from .utils import *
-from .sic import *
-from .circuits import *
-from .experiments import *
 from .ansatz import *
-from .designs import *
+from .circuits import *
+from .sics import *
+from .utils import *
+from .wh import *
+from .experiments import *
 
 import numpy as np
 from numpy.linalg import matrix_power as mpow
