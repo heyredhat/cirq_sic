@@ -54,7 +54,7 @@ class WHSkyGroundTask:
         print(f"Sampling...")
         sampler = device_data["sampler"]
         results = sampler.run_batch(programs=optimized_circuits, repetitions=self.n_shots)
-        data = {**context, **program.process_results(self, results)}
+        data = {**context, "data": results}
         if base_dir is not None:
             print(f"Saving...")
             recirq.save(task=self, data=data, base_dir=base_dir)
@@ -89,8 +89,8 @@ class CharacterizeWHReferenceDevice(TaskProgram):
         return circuits, {"a": a}
 
     @classmethod
-    def process_results(cls, task, results):
-        P = np.array([get_freqs(r[0]) for r in results])
+    def process_results(cls, task, results, **kwargs):
+        P = np.array([get_freqs(r[0], **kwargs) for r in results])
         if task.wh_implementation == "ak":
             P = change_conjugate_convention(P)
         return {"P": P}
@@ -119,8 +119,8 @@ class WHPOVMOnBasisStates(TaskProgram):
         return circuits, {"m": m}
 
     @classmethod
-    def process_results(cls, task, results):
-        p = np.array([get_freqs(r[0]) for r in results])
+    def process_results(cls, task, results, **kwargs):
+        p = np.array([get_freqs(r[0], **kwargs) for r in results])
         if task.wh_implementation == "ak":
             p = change_conjugate_convention(p)
         return {"p": p}
@@ -139,8 +139,8 @@ class BasisMeasurementOnWHStates(TaskProgram):
         return circuits, {"a": a}
 
     @classmethod
-    def process_results(cls, task, results):
-        C = np.array([get_freqs(r[0]) for r in results]).T
+    def process_results(cls, task, results, **kwargs):
+        C = np.array([get_freqs(r[0], **kwargs) for r in results]).T
         if task.wh_implementation == "ak":
             C = change_conjugate_convention(C)
         return {"C": C}
@@ -157,8 +157,8 @@ class BasisMeasurementOnBasisStates(TaskProgram):
         return circuits, {"m": m}
 
     @classmethod
-    def process_results(cls, task, results):
-        q = np.array([get_freqs(r[0]) for r in results]).T
+    def process_results(cls, task, results, **kwargs):
+        q = np.array([get_freqs(r[0], **kwargs) for r in results]).T
         return {"q": q}
     
 sky_ground_programs = [(CharacterizeWHReferenceDevice, "P"),\

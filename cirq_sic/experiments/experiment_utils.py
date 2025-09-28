@@ -4,6 +4,7 @@ import cirq
 import cirq_google
 import qsimcirq
 import recirq
+from cirq.value import big_endian_bits_to_int
 
 from ..utils import *
 from ..circuits import *
@@ -48,15 +49,20 @@ def process_circuit(circuit, connectivity_graph, gateset, qubits):
 
 ####################################################################################
 
-def get_freqs(samples):
+def get_freqs(samples, n_shots=None):
     """From a Result, calculate the frequencies of the outcomes."""
-    n_shots = samples.repetitions
+    rng = np.random.default_rng()
+    n_shots = samples.repetitions if n_shots is None else n_shots
     n_outcomes = 2**samples.measurements["result"][0].shape[0]
-    counts = samples.histogram(key="result")
+    measurements = samples.measurements["result"].copy()
+    shuffled_measurements = rng.permutation(measurements)
+    shuffled_measurements = shuffled_measurements[:n_shots,:]
+    int_outcomes = [big_endian_bits_to_int(bits) for bits in shuffled_measurements]
+    counts = collections.Counter(int_outcomes)
     for i in range(n_outcomes):
         if i not in counts:
             counts[i] = 0
-    freqs = np.array([v for k, v in sorted(counts.items())])/n_shots
+    freqs = np.array([v for k, v in sorted(counts.items())])/counts.total()
     return freqs
 
 ####################################################################################
@@ -106,13 +112,3 @@ def deep_match(obj, criteria):
 def query_records(records, query):
     """Yields records that satisfy the query function."""
     return [record for record in records if deep_match(record, query)]
-
-def program_results_by_nshots(results, programs):
-    """Returns a dictionary of program results by n_shots."""
-    results_by_nshots = {}
-    for program, data_label in programs:
-        current_results = {}
-        for result in results[program.__name__]:
-            current_results[result["task"].n_shots] = np.array(result[data_label])
-        results_by_nshots[data_label] = current_results
-    return results_by_nshots

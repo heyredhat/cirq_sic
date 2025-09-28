@@ -1,0 +1,150 @@
+{
+  "timestamp": "2025-09-28T02:18:55.705843",
+  "task": {
+    "cirq_type": "recirq.sky_ground.WHSkyGroundTask",
+    "dataset_id": "test",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "wh_implementation": "simple",
+    "description": "CharacterizeWHReferenceDevice",
+    "n_shots": 1000,
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      }
+    ],
+    "d": 2,
+    "flag": "numerical_sic"
+  },
+  "a": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "data": [
+    [
+      {
+        "cirq_type": "cirq.google.EngineResult",
+        "params": {
+          "cirq_type": "ParamResolver",
+          "param_dict": []
+        },
+        "records": {
+          "result": {
+            "packed_digits": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001555555555555555555555555555555555555555555555555555555555555555555555555555555555555aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "binary": true,
+            "dtype": "int64",
+            "shape": [
+              1000,
+              1,
+              2
+            ]
+          }
+        },
+        "job_id": "projects/fake_project/processors/willow_pink/job/2",
+        "job_finished_time": {
+          "cirq_type": "datetime.datetime",
+          "timestamp": 1759040335.700494
+        }
+      }
+    ],
+    [
+      {
+        "cirq_type": "cirq.google.EngineResult",
+        "params": {
+          "cirq_type": "ParamResolver",
+          "param_dict": []
+        },
+        "records": {
+          "result": {
+            "packed_digits": "000000000000000000000000000000000000000000000000000000000000000000000005555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555556aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "binary": true,
+            "dtype": "int64",
+            "shape": [
+              1000,
+              1,
+              2
+            ]
+          }
+        },
+        "job_id": "projects/fake_project/processors/willow_pink/job/4",
+        "job_finished_time": {
+          "cirq_type": "datetime.datetime",
+          "timestamp": 1759040335.702385
+        }
+      }
+    ],
+    [
+      {
+        "cirq_type": "cirq.google.EngineResult",
+        "params": {
+          "cirq_type": "ParamResolver",
+          "param_dict": []
+        },
+        "records": {
+          "result": {
+            "packed_digits": "00000000000000000000000000000000000000000000000000000000000000000000000000015555555555555555555555555555555555555555555555555555555555555555555555555555555555555555556aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "binary": true,
+            "dtype": "int64",
+            "shape": [
+              1000,
+              1,
+              2
+            ]
+          }
+        },
+        "job_id": "projects/fake_project/processors/willow_pink/job/6",
+        "job_finished_time": {
+          "cirq_type": "datetime.datetime",
+          "timestamp": 1759040335.704081
+        }
+      }
+    ],
+    [
+      {
+        "cirq_type": "cirq.google.EngineResult",
+        "params": {
+          "cirq_type": "ParamResolver",
+          "param_dict": []
+        },
+        "records": {
+          "result": {
+            "packed_digits": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000155555555555555555555555555555555555555555555555555555555555555555555555555555555555555556aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "binary": true,
+            "dtype": "int64",
+            "shape": [
+              1000,
+              1,
+              2
+            ]
+          }
+        },
+        "job_id": "projects/fake_project/processors/willow_pink/job/8",
+        "job_finished_time": {
+          "cirq_type": "datetime.datetime",
+          "timestamp": 1759040335.705699
+        }
+      }
+    ]
+  ]
+}
