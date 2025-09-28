@@ -1,9 +1,9 @@
-import argparse
-
 import cirq
 import cirq_google
 import qsimcirq
 import recirq
+
+import numpy as np
 
 from ..wh import *
 from ..sics import *
@@ -26,13 +26,14 @@ class WHSkyGroundTask:
     n_shots: int
     qubits: list
     d: int
+    flag: str
 
     @property
     def fn(self):
         """Filename for this task."""
         n_shots = f'{self.n_shots // 1000}k' if self.n_shots % 1000 == 0 else str(self.n_shots)
         qubits_str = f"Q{"".join([str(q) for q in self.qubits])}"
-        return (f'{self.dataset_id}/'f'{self.description}__d{self.d}__{self.wh_implementation}__'
+        return (f'{self.dataset_id}/'f'{self.description}_{self.flag}__d{self.d}__{self.wh_implementation}__'
                 f'{self.processor_id}__{self.run_type}__{n_shots}__{qubits_str}')
     
     def __str__(self):
@@ -119,7 +120,7 @@ class WHPOVMOnBasisStates(TaskProgram):
 
     @classmethod
     def process_results(cls, task, results):
-        p = np.array([get_freqs(r[0]) for r in results]).T
+        p = np.array([get_freqs(r[0]) for r in results])
         if task.wh_implementation == "ak":
             p = change_conjugate_convention(p)
         return {"p": p}
@@ -191,39 +192,3 @@ def calculate_sky_ground_metrics(P, p, C, q, verbose=False):
         print(f"|q - C Phi p| = {sg_q_err}")
     return locals()
 
-####################################################################################
-
-EXPERIMENT_NAME = "sky_ground"
-BASE_DIR = f'data/{EXPERIMENT_NAME}'
-
-####################################################################################
-
-def main():
-    parser = argparse.ArgumentParser(prog="sky_ground")
-    parser.add_argument("-dataset_id", type=str, required=True)
-    parser.add_argument("-run_type", type=str, required=True)
-    parser.add_argument("-wh_implementation", type=str, required=True)
-    parser.add_argument("-n_shots", type=int, required=True)
-    parser.add_argument("-d", type=int, required=True)
-    parser.add_argument("-flags", nargs='*', required=False)
-    params = vars(parser.parse_args())
-    globals().update(params)
-
-    params["processor_id"] = "willow_pink"
-
-    n = int(np.log2(d))
-    cols = 2 if wh_implementation == "simple" else 3
-    params["qubits"] = cirq.GridQubit.rect(cols, n, top=4, left=2)
-
-    if flags == "d4_monomial":
-        prepare_fiducial = d4_sic_fiducial
-    elif flags == "numerical_sic":
-        phi = load_sic_fiducial(d)
-        prepare_fiducial = ansatz_circuit(phi)
-
-    for program, data_label in sky_ground_programs:
-        task = WHSkyGroundTask(**{**params, "description": program.__name__+"_%s" % flags})
-        task.run(program, prepare_fiducial=prepare_fiducial, base_dir=BASE_DIR)
-
-if __name__ == "__main__":
-    main()
