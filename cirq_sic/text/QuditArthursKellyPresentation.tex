@@ -179,7 +179,7 @@ MeasurementGate & 1 \\
 
 \begin{frame}
 \begin{center}
-\includegraphics[scale=0.3]{img/P_noisy_ak_100000}	
+\includegraphics[scale=0.3]{img/P_d4_d4_monomial_noisy_ak_n100000}	
 $\lVert P_{\text{SIC}}-P\rVert \approx 0.3225$.
 \end{center}	
 \end{frame}
@@ -234,7 +234,7 @@ MeasurementGate & 1 \\
 
 \begin{frame}
 \begin{center}
-\includegraphics[scale=0.3]{img/P_noisy_simple_100000.pdf}	
+\includegraphics[scale=0.3]{img/P_d4_d4_monomial_noisy_simple_n100000}	
  $\lVert P_{\text{SIC}}-P\rVert|=0.2126$.
 \end{center}
 	
@@ -262,7 +262,7 @@ where $\Phi = P(R|R)^{-1}$.
 \frametitle{Consistency}
 Let us consider the following set of experiments:
 \begin{enumerate}
-\item Preparing the SIC states in turn, and then a SIC measurement. Yields matrix of probabilities $P_{ij}=P(R_i|R_j)$.
+\item Prepare the SIC states in turn, and then a SIC measurement. Yields matrix of probabilities $P_{ij}=P(R_i|R_j)$.
 \item Prepare the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then performing a SIC. Yields probabilities $p_{ij} = P(R_j|\Pi_i)$.
 \item Prepare the SIC states, and a computational basis measurement: $C_{ij}=P(\Pi_i|R_j)$.
 \item Prepare the computational basis states, and then a computational basis measurement: $q_{ij}=P(\Pi_i|\Pi_j)$.
@@ -276,21 +276,96 @@ q = C\Phi p.
 \begin{frame}
 \frametitle{Errors}
 \begin{center}
-\includegraphics[scale=0.36]{img/sic_metrics}	
-\includegraphics[scale=0.36]{img/sg_metrics}	
+\includegraphics[scale=0.36]{img/sic_metrics_d4_d4_monomial}	
+\includegraphics[scale=0.36]{img/sg_metrics_d4_d4_monomial}	
 \end{center}	
 \end{frame}
 
 \begin{frame}
 \frametitle{Errors}
 \begin{center}
-\includegraphics[scale=0.25]{img/q_noisy_simple_100000}\includegraphics[scale=0.25]{img/q_noisy_ak_100000}	$\lVert I - q\rVert \approx 0.056$
+\includegraphics[scale=0.25]{img/q_d4_d4_monomial_noisy_simple_n100000}\includegraphics[scale=0.25]{img/q_d4_d4_monomial_noisy_ak_n100000}	$\lVert I - q\rVert \approx 0.056$
 
 $\lVert q - C \Phi p\rVert_{\text{simple}} \approx 0.2271$
 
 $\lVert q - C \Phi p\rVert_{\text{ak}} \approx 0.2618$
 
 \end{center}	
+\end{frame}
+
+\begin{frame}
+\frametitle{Higher dimensions}
+Using an arbitrary state preparation ansatz (which allows for easy complex conjugation of the state), we can extend our results to any power of 2 dimension using numerical SIC solutions.	
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=2$}
+\begin{center}
+\includegraphics[scale=0.35]{img/sic_metrics_d2_numerical_sic}
+\includegraphics[scale=0.35]{img/sg_metrics_d2_numerical_sic}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=2$}
+\begin{center}
+\includegraphics[scale=0.3]{img/P_d2_numerical_sic_noisy_simple_n100000}
+\includegraphics[scale=0.3]{img/P_d2_numerical_sic_noisy_ak_n100000}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=2$}
+\begin{center}
+\includegraphics[scale=0.25]{img/q_d2_numerical_sic_noisy_simple_n100000}\includegraphics[scale=0.25]{img/q_d2_numerical_sic_noisy_ak_n100000}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=4$}
+\begin{center}
+\includegraphics[scale=0.35]{img/sic_metrics_d4_numerical_sic}
+\includegraphics[scale=0.35]{img/sg_metrics_d4_numerical_sic}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=4$}
+\begin{center}
+\includegraphics[scale=0.3]{img/P_d4_numerical_sic_noisy_simple_n100000}
+\includegraphics[scale=0.3]{img/P_d4_numerical_sic_noisy_ak_n100000}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=4$}
+\begin{center}
+\includegraphics[scale=0.25]{img/q_d4_numerical_sic_noisy_simple_n100000}\includegraphics[scale=0.25]{img/q_d4_numerical_sic_noisy_ak_n100000}		
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{$d=8$}
+\begin{center}
+\includegraphics[scale=0.35]{img/sic_metrics_d8_numerical_sic}
+\includegraphics[scale=0.35]{img/sg_metrics_d8_numerical_sic}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=8$}
+\begin{center}
+\includegraphics[scale=0.3]{img/P_d8_numerical_sic_noisy_simple_n100000}
+\includegraphics[scale=0.3]{img/P_d8_numerical_sic_noisy_ak_n100000}		
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{$d=8$}
+\begin{center}
+\includegraphics[scale=0.25]{img/q_d8_numerical_sic_noisy_simple_n100000}\includegraphics[scale=0.25]{img/q_d8_numerical_sic_noisy_ak_n100000}		
+\end{center}
 \end{frame}
 
 

@@ -28,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-In this note we adapt the Arthurs-Kelly procedure for realizing Weyl-Heisenberg (WH) covariant POVM's to finite dimensional quantum systems. To perform such a POVM on a $d$-dimensional system, one prepares two $d$-dimensional ancillary systems in a particular initial state; subsequently,  the ancillas are  shifted coherently conditional on the position and momenta of the system of interest, and then measured. We discuss how to prepare the proper initial state of the ancillas from desired WH fiducial state, and for $d=2^n$ dimensional systems, we provide a decomposition of the qudit Arthurs-Kelly procedure into one and two qubit gates. Indeed, we provide a construction of qudit clock and shift operators (and their controlled counterparts) in terms of qubit operations. In particular, we specialize to the implementation of a SIC-POVM in $d=4$, exploiting the ``monomial representation'' of the WH group to prepare the SIC fiducial. We implement our constructions using Google's \T{cirq} framework, and run it on a realistic simulation of their Willow quantum chip. Finally, using the same building blocks, we provide a dramatically simpler implementation of a WH-POVM using a single $d$-dimensional ancilla: the cost is that the system is projected into a computational basis state afterwards.
+In this note we adapt the Arthurs-Kelly procedure for realizing Weyl-Heisenberg (WH) covariant POVM's to finite dimensional quantum systems. To perform such a POVM on a $d$-dimensional system, one prepares two $d$-dimensional ancillary systems in a particular initial state; subsequently,  the ancillas are  shifted coherently conditional on the position and momenta of the system of interest, and then measured. We discuss how to prepare the proper initial state of the ancillas from desired WH fiducial state, and for $d=2^n$ dimensional systems, we provide a decomposition of the qudit Arthurs-Kelly procedure into one and two qubit gates. Indeed, we provide a construction of qudit clock and shift operators (and their controlled counterparts) in terms of qubit operations. In particular, we specialize to the implementation of a SIC-POVM in $d=4$, exploiting the ``monomial representation'' of the WH group to prepare the SIC fiducial. We implement our constructions using Google's \T{cirq} framework, and run it on a realistic simulation of their Willow quantum chip. Using the same building blocks, we provide a dramatically simpler implementation of a WH-POVM using a single $d$-dimensional ancilla: the cost is that the system is projected into a computational basis state afterwards. We extend our results to all dimensions which are a power of 2, using a state preparation ansatz to prepare the SIC fiducial states.
 \end{abstract}
 
 
@@ -36,7 +36,7 @@ In this note we adapt the Arthurs-Kelly procedure for realizing Weyl-Heisenberg 
 
 In 1965, Arthurs and Kelly \cite{ArthursKelly, PhysRevA.43.1153} proposed a realization of the canonical coherent state measurement using the following scheme. Two ancilla systems begin in Gaussian states centered at the origin of the infinite line; the ancillas are then coupled to a system of interest such that system's position drives translations of the first ancilla, and the system's momentum drives translations of the second ancilla. Upon position measurements of the two ancillas, by analyzing the resulting Kraus operators, it is possible to show that one ought to project the system state into a coherent state with the appropriate probability. Recall that the coherent states may be obtained as the orbit of the vacuum state under the Weyl-Heisenberg (WH) group. In fact, the Arthurs-Kelly procedure may realize more general WH-covariant measurements for different choices of initial states for the ancillas.
 
- In this note, we show how the Arthurs-Kelly measurement may be adapted to finite dimensional systems, or qudits. In the case that $d=2^n$, we provide a program for decomposing the required qudit operations into one and two qubit operations. One special class of finite-dimensional WH-covariant measurements are SIC-POVMs (symmetric informationally-complete) \cite{Renes_2004}: a SIC's $d^2$ rank-1 POVM elements may be rescaled into pure states which form a regular simplex inscribed in quantum state-space, and in all save one sporadic case, SICs are covariant under the discrete WH group \cite{Stacey2021}. In particular, we specialize to the implementation of a  SIC in dimension four.
+ In this note, we show how the Arthurs-Kelly measurement may be adapted to finite dimensional systems, or qudits. In the case that $d=2^n$, we provide a program for decomposing the required qudit operations into one and two qubit operations. One special class of finite-dimensional WH-covariant measurements are SIC-POVMs (symmetric informationally-complete) \cite{Renes_2004}: a SIC's $d^2$ rank-1 POVM elements may be rescaled into pure states which form a regular simplex inscribed in quantum state-space, and in all save one sporadic case, SICs are covariant under the discrete WH group \cite{Stacey2021}. In particular, we specialize to the implementation of a  SIC in dimension four. We also show how, if one is willing to sacrifice the post-measurement projection onto a SIC state, one may realize a WH-POVM in a considerably simpler way. Finally, using a state preparation ansatz, we extend our results to any power of 2 dimension. 
 
 \section{Weyl-Heisenberg operators}
 
@@ -133,7 +133,7 @@ where on the RHS we've simply expanded the projector $\Pi$ by inserting the two 
 \label{ancilla}
 	\langle k,m|\gamma\rangle=\omega^{km}\langle m|F^\dagger \Pi |k\rangle.
 \end{align}
- For an alternate interpretation of this procedure, see appendix \ref{alt-interpretation}, and for a slight simplification see appendix \ref{slight-simplification}.
+ For an alternate interpretation of this procedure, see appendix \ref{alt-interpretation}, and for a slight simplification see appendix \ref{slight-simplification}. We note that a similar method was proposed in \cite{10.1063/1.1827924,10.1063/1.2222080}.
 
 \subsection{Preparing the ancillas}
 
@@ -316,7 +316,7 @@ P(i,j)&= \frac{d\delta_{ij}+1}{d(d+1)}
 \end{align}
 for a SIC outcome $i$ given a SIC state preparation $j$, in the middle the frequencies obtained from the noisy simulation, and on the right, the difference between the two. The Frobenius distance between them is $\lVert P_{\text{SIC}}-P\rVert \approx 0.3225$.
 \begin{center}
-\includegraphics[scale=0.5]{img/P_noisy_ak_100000}	
+\includegraphics[scale=0.5]{img/P_d4_d4_monomial_noisy_ak_n100000}	
 \end{center}
 
 
@@ -362,17 +362,17 @@ P(a,b)=\left|\frac{1}{\sqrt{d}}\langle \phi |D_{a,b}^\dagger |\psi\rangle\right|
 \end{align}
 where $E_{a,b}=\frac{1}{d}D_{a,b} \Pi D_{a,b}^\dagger$, and notice for simplicity we are conjugating in the opposite direction than usual. 
 
-Moreover, suppose we prepare $|\psi\rangle \otimes |\psi^*\rangle$. Recall for any pure state $\Pi=|\psi\rangle\langle \psi|$,  the \emph{stabilizer entropy} of order $\alpha$ may be defined as the R\'enyi entropy of precisely the probability distribution $P(a,b)$,
+\subsection{A connection to ``magic state''}
+Suppose we prepare $|\psi\rangle \otimes |\psi^*\rangle$. Recall for any pure state $\Pi=|\psi\rangle\langle \psi|$,  the \emph{stabilizer entropy} of order $\alpha$ may be defined as the R\'enyi entropy of  the probability distribution $P(a,b)$ we have just discussed,
 \begin{align}
 M_{\alpha}(|\phi\rangle)=\frac{1}{1-\alpha}\log \sum_{ab}P(a,b)^{\alpha} - \log d,
 \end{align}
 where $P(a,b) = \frac{1}{d}|\langle \psi|D_{a,b}^\dagger|\psi\rangle|^2$. 
-The stabilizer entropy is a measure of the \emph{magic} of a quantum state: it achieves its minimum on so-called stabilizer states, and its maximum on SIC states \cite{cuffaro2024quantumstatesmaximalmagic}. Our construction provides a simple means of estimating it. Finally, we note that
+The stabilizer entropy is a measure of the \emph{magic} of a quantum state: it achieves its minimum on so-called stabilizer states, and its maximum on SIC states \cite{cuffaro2024quantumstatesmaximalmagic}. Our construction provides a simple means of estimating it. Indeed, we note that
 \begin{align}
 \frac{1}{d}|\langle \psi |D_{a,b}^\dagger|\psi\rangle|^2 &= \frac{d\delta_{a,0}\delta_{b,0}+1}{d(d+1)}
 \end{align}
-if and only if  $\Pi = |\psi\rangle\langle \psi|$ is a SIC fiducial, so that we efficient means of of testing fiducial preparations before implementing the full Arthurs-Kelly procedure. For further intuition about the matrix $\mathcal{D}$, consult appendix \ref{operatorD}. Finally, the gate counts for this simplified procedure (not counting the fiducial preparation) are:
-
+if and only if  $\Pi = |\psi\rangle\langle \psi|$ is a SIC fiducial, so that we have efficient means of of testing fiducial preparations before implementing the full Arthurs-Kelly procedure. For further intuition about the matrix $\mathcal{D}$, consult appendix \ref{operatorD}. Finally, the gate counts for this simplified procedure (not counting the fiducial preparation) are:
 \begin{table}[h!]
 \centering
 \begin{tabular}{lr}
@@ -386,6 +386,7 @@ SwapPowGate & 3 \\
 \end{tabular}
 \label{tab:gate_counts_3}
 \end{table}
+\pagebreak
 
 \subsection{Comparison}
 
@@ -414,16 +415,15 @@ MeasurementGate & 1 \\
 
 \noindent with a total of 41 moments. For 100,000 shots, again we plot the frequencies for SIC outcomes given SIC states. Here $\lVert P_{\text{SIC}}-P\rVert|=0.2126$.
 \begin{center}
-\includegraphics[scale=0.5]{img/P_noisy_simple_100000.pdf}	
+\includegraphics[scale=0.5]{img/P_d4_d4_monomial_noisy_simple_n100000}	
 \end{center}
-
-
-\pagebreak
 
 \section{The sky/ground scenario}
 
  
-Fixing a Hilbert space dimension $d$, we call a \emph{reference device} a procedure which first performs an informationally complete measurement $\{R_i\}$, and then prepares one of a set of informationally complete states $\{\sigma_i\}$. Informational completeness means that the POVM elements (states, resp.) span the space of operators on $\mathcal{H}_d$: it follows that the reference measurement suffices to characterize an arbitrary state, and the reference states suffice to characterize an arbitrary measurement. The Born rule can then be re-expressed as a consistency condition across several experiments. Consider first preparing a quantum system according to $\rho$. We then send system into a reference device $\{R_i, \sigma_i\}$ that can be turned on or off. Afterwards, the system is sent into an arbitrary measurement $\{E_j\}$. 
+Fixing a Hilbert space dimension $d$, we call a \emph{reference device} a procedure which first performs an informationally complete measurement $\{R_i\}$, and then prepares one of a set of informationally complete states $\{\sigma_i\}$. Informational completeness means that the POVM elements (states, resp.) span the space of operators on $\mathcal{H}_d$: it follows that the reference measurement suffices to characterize an arbitrary state, and the reference states suffice to characterize an arbitrary measurement. 
+
+In particular, by means of a IC reference device, the Born rule can  be re-expressed as a consistency condition across several experiments. Consider first preparing a quantum system according to $\rho$. We then send system into a reference device $\{R_i, \sigma_i\}$ that can be turned \emph{on} or \emph{off}. Afterwards, the system is sent into an arbitrary measurement $\{E_j\}$. 
 \begin{center}
 \includegraphics[scale=0.8]{img/sky_ground}	
 \end{center}
@@ -443,39 +443,81 @@ If the number of reference outcomes is $d^2$, the corresponding POVM elements mu
 \end{align}
 To interpret this expression, we note that $(E_j|\B{S}$ is the row vector of conditional probabilities $P(E_j|R_i)$, that $\B{R}|\rho)$ is the column vector of probabilities $P(R_i)$, and $\B{RS}=P$, the matrix of probabilities $P_{ij}=(R_i|\sigma_j)=P(R_i|R_j)$ for getting a reference outcome, given a reference state. Calling $\Phi \equiv P^{-1}$ the Born matrix, we've shown that
 \begin{align}
-Q(E_j)=\sum_{ik} P(E_j|R_i)\Phi_{ik}P(R_j).
+Q(E_j)=\sum_{ik} P(E_j|R_i)\Phi_{ik}P(R_k).
 \end{align}
-In this way, the Born rule appears as a \emph{deformation} of the law of total probability by the operator $\Phi$, which is the inverse of the matrix $P$ which characterizes the reference device itself. In \cite{PhysRevResearch.2.013074}, the authors introduced as a measure of this deformation $||I-\Phi||$ with respect to any unitarily invariant norm, and proved that among all reference devices with $d^2$ outcomes,  $||I-\Phi||$ attains its minimum if and only if the reference measurement is a SIC and the reference states are proportional to its POVM elements. In this case, the expression for the Born rule simplifies to
+In this way, the Born rule appears as a \emph{deformation} of the law of total probability by the operator $\Phi$, which is the inverse of the matrix $P$ which characterizes the reference device itself. In \cite{PhysRevResearch.2.013074}, the authors introduced as a measure of this deformation $||I-\Phi||$ with respect to any unitarily invariant norm, and proved that among all reference devices with $d^2$ outcomes,  $||I-\Phi||$ attains its minimum if and only if the reference measurement is a SIC and the reference states are proportional to its POVM elements, $\sigma_i = E_i/\tr(E_i)$. In this case, the expression for the Born rule simplifies to
 \begin{align}
 Q(E_j)=\sum_i P(E_j|R_i)\left[(d+1)P(R_i)-\frac{1}{d}\right]	.
 \end{align}
 
 To test this, let us consider the following set of conrete experiments:
 \begin{enumerate}
-\item Preparing each of the SIC states in turn, and then performing a SIC measurement. We can gather this data into a matrix of probabilities $P_{ij}=P(R_i|R_j)$.
-\item Preparing each of the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then performing a SIC measurement. We can gather the probabilities into a matrix $p_{ij} = P(R_j|\Pi_i)$.
-\item Preparing each of the SIC states, and performing a computational basis measurement, yielding a matrix of probabilities $C_{ij}=P(\Pi_i|R_j)$.
-\item Preparing each of the computational basis states, and performing a computational basis measurement, yielding probabilities $q_{ij}=P(\Pi_i|\Pi_j)$.
+\item Prepare each of the SIC states in turn, and then perform a SIC measurement. We can gather this data into a matrix of probabilities $P_{ij}=P(R_i|R_j)$.
+\item Prepare each of the computational basis states $\{\Pi_i=|i\rangle\langle i|\}$, and then perform a SIC measurement. We can gather the probabilities into a matrix $p_{ij} = P(R_j|\Pi_i)$.
+\item Prepare each of the SIC states, and perform a computational basis measurement, yielding a matrix of probabilities $C_{ij}=P(\Pi_i|R_j)$.
+\item Prepare each of the computational basis states, and perform a computational basis measurement, yielding probabilities $q_{ij}=P(\Pi_i|\Pi_j)$.
 \end{enumerate}
 Letting $\Phi=P^{-1}$, the Born rule then demands the following consistency condition,
 \begin{align}
 q = C\Phi p.	
 \end{align}
-In order to measure the extent to which our matrices violate this criterion, we could consider several metrics. In order to evaluate the implementation of the SIC itself, we could consider $\lVert P-P_{\text{SIC}}\rVert$, where $P_{\text{SIC}}$ are the exact probabilities, using the Frobenius norm. Alternatively, we could consider $\lVert \Phi -\Phi_{\text{SIC}}\rVert$, or even $\lVert I - \Phi \rVert$, since the latter is known to be minimized for SIC's alone. 
+In order to measure the extent to which our matrices violate this criterion, we could consider several metrics. In order to evaluate the implementation of the SIC itself, we could consider $\lVert P-P_{\text{SIC}}\rVert$, where $P_{\text{SIC}}$ are the exact probabilities, using the Frobenius norm. Alternatively, we could consider $\lVert \Phi -\Phi_{\text{SIC}}\rVert$, or even $\lVert I - \Phi \rVert$, since the latter is known to be minimized over all reference devices for SIC's alone. 
 \begin{center}
-\includegraphics[scale=0.55]{img/sic_metrics}	
+\includegraphics[scale=0.55]{img/sic_metrics_d4_d4_monomial}	
 \end{center}
-Above we plot these three metrics as functions of the number of repetitions of the experiment. In blue, we plot the error for the Arthurs-Kelly implementation of a SIC in the presence of simulated noise. In orange, the same for the simpler WH-POVM implementation. The error for simulations without noise are in green and red. Clearly, in the latter case, as the number of samples increases, the error approaches zero. For the noisy simulations, however, the error plateaus, and the simpler algorithm decisively outperforms the full Arthurs-Kelly procedure.
+Above we plot these three metrics as functions of the number of repetitions of the experiment. In blue, we plot the error for the Arthurs-Kelly implementation of a SIC in the presence of simulated noise. In orange, the same for the simpler WH-POVM implementation. The error for simulations without noise are in green and red. Clearly, in the latter case, as the number of samples increases, the error approaches zero. For the noisy simulations, however, the error plateaus, although the simpler algorithm decisively outperforms the full Arthurs-Kelly procedure.
 
-We could also consider the metrics which account for the whole Born rule itself. First, we consider $\lVert I - q\rVert$. Recall that $q_{ij}$ is the probability with which we obtain a computational basis outcome $i$, given that we prepared computational basis $j$. Clearly, this ought to be the $d\times d$ identity matrix. We see, however, that in the presence of noise, this is not true! Next, we consider $\lVert q-C\Phi p\rVert$, which quantifies the error in the Born rule itself. Again, in the presence of noise, after decreasing initially, the error plateaus.
+We could also consider the metrics which account for the whole Born rule itself. First, we consider $\lVert I - q\rVert$. Recall that $q_{ij}$ is the probability with which we obtain a computational basis outcome $i$, given that we prepared computational basis $j$. Clearly, this ought to be the $d\times d$ identity matrix. We see, however, that in the presence of noise, this is not true. Next, we consider $\lVert q-C\Phi p\rVert$, which quantifies the error in the probability-based Born rule itself. Again, in the presence of noise, after decreasing initially, the error plateaus.
 \begin{center}
-\includegraphics[scale=0.55]{img/sg_metrics}	
+\includegraphics[scale=0.55]{img/sg_metrics_d4_d4_monomial}	
 \end{center}
 To better visualize this, we plot the elements of these matrices after 100,000 shots.
 \begin{center}
-\includegraphics[scale=0.4]{img/q_noisy_simple_100000}\includegraphics[scale=0.4]{img/q_noisy_ak_100000}	
+\includegraphics[scale=0.4]{img/q_d4_d4_monomial_noisy_simple_n100000}\includegraphics[scale=0.4]{img/q_d4_d4_monomial_noisy_ak_n100000}	
 \end{center}
 On the left is the results for the simple WH-POVM implementation, and on the right the same for the Arthurs-Kelly. For both, $\lVert I - q\rVert \approx 0.056$, which shows that even in the simplest scenario of a computational basis preparation, and a computational basis measurement, there is considerable noise. Meanwhile, for the former, $\lVert q - C \Phi p\rVert \approx 0.2271$, and for the latter, $\lVert q - C \Phi p\rVert \approx 0.2618$. 
+
+\section{WH-POVM's for any $d=2^n$}
+
+In order to perform WH-POVM's in any dimension $d=2^n$ with arbitrary fiducial states, it is useful to consider a general state preparation ansatz which, given a state vector $|\psi\rangle$, generates a circuit of single qubit rotations and \T{CNOT}'s which prepares it. In particular, we would ideally use an ansatz for which it is as easy to prepare the complex conjugate of a state as the state itself. An example is provided by \cite{1629135}, which realizes a state by a sequence of block diagonal unitaries whose blocks are $Y$ and $Z$ rotations. These ``uniformly controlled rotations'' can be implemented by the scheme provided by \cite{PhysRevLett.93.130502} which exploits the binary reflected Gray code, as explained in Appendix \ref{ansatz_explanation}. Using known numerical solutions for SIC fiducials, we may then compare SIC sky/ground scenarios in $d=2,4,8$ using this scheme.
+
+\subsection{$d=2$}
+\begin{center}
+\includegraphics[scale=0.5]{img/sic_metrics_d2_numerical_sic}	
+
+\includegraphics[scale=0.5]{img/sg_metrics_d2_numerical_sic}	
+
+\includegraphics[scale=0.4]{img/P_d2_numerical_sic_noisy_simple_n100000}
+
+\includegraphics[scale=0.4]{img/P_d2_numerical_sic_noisy_ak_n100000}
+
+\end{center}
+
+\subsection{$d=4$}
+
+\begin{center}
+\includegraphics[scale=0.5]{img/sic_metrics_d4_numerical_sic}	
+
+\includegraphics[scale=0.5]{img/sg_metrics_d4_numerical_sic}	
+
+\includegraphics[scale=0.4]{img/P_d4_numerical_sic_noisy_simple_n100000}
+
+\includegraphics[scale=0.4]{img/P_d4_numerical_sic_noisy_ak_n100000}
+
+\end{center}
+
+\subsection{$d=8$}
+
+\begin{center}
+\includegraphics[scale=0.5]{img/sic_metrics_d8_numerical_sic}	
+
+\includegraphics[scale=0.5]{img/sg_metrics_d8_numerical_sic}	
+
+\includegraphics[scale=0.4]{img/P_d8_numerical_sic_noisy_simple_n100000}
+
+\includegraphics[scale=0.4]{img/P_d8_numerical_sic_noisy_ak_n100000}
+
+\end{center}
 
 \bibliographystyle{plain} 
 \bibliography{QuditArthursKelly}
@@ -553,9 +595,7 @@ in such a way that if the first qubit is $|1\rangle$, nothing happens. We may re
 \begin{align}
 |1\rangle \otimes |0\rangle \rightarrow |1\rangle \otimes \left(\frac{1}{\sqrt{2}}|0\rangle+\frac{1}{\sqrt{2}}|1\rangle\right),
 \end{align}
-in such a way that if the first qubit is $|0\rangle$, nothing happens, we may use a controlled $y$-rotation with $\theta_3=\pi/2$, which amounts to a controlled-Hadamard transformation.
-
-Finally, we note that the decomposition of the diagonal phase operation $P$ was provided by Google's Gemini 2.5 Pro.
+in such a way that if the first qubit is $|0\rangle$, nothing happens, we may use a controlled $y$-rotation with $\theta_3=\pi/2$, which amounts to a controlled-Hadamard transformation. We note that the decomposition of the diagonal phase operation $P$ was provided by Google's Gemini 2.5 Pro.
 
 \section{The meaning of the operator $\B{D}$}
 \label{operatorD}
@@ -580,6 +620,108 @@ so that, by the standard vectorization identity $\tr(A^\dagger B) = (A|B)$,
 	\mathcal{D}\Big(|\phi\rangle \otimes |\phi^*\rangle\Big)=\frac{1}{\sqrt{d}}\sum_{ab}|a,b\rangle (D_{a,b}|\Pi)=\frac{1}{\sqrt{d}}\sum_{ab} \tr(D_{a,b}^\dagger \Pi)|a,b\rangle ,
 \end{align}
 as desired.
+
+\section{An arbitrary state preparation ansatz}
+\label{ansatz_explanation}
+\subsection{Block decomposition}
+To handle the preparation of arbitrary WH fiducial states in any dimension, we require an ansatz for which it is as easy to prepare the complex conjugate of a state as the original. This is easy enough for a single qubit where we may take $|\psi\rangle = e^{-i\sigma_z\phi/2}e^{-i\sigma_y\theta/2}|0\rangle$ so that, since there is just one relative phase, sending $\phi \rightarrow -\phi$ conjugates the state. \cite{1629135} provides an elegant generalization of this idea for an $n$-qubit state. Beginning, for example, with a $d=2^3$ dimensional state
+\begin{align}
+|\psi^{(1)}\rangle=\begin{pmatrix} a_1 \\ a_2 \\ a_3 \\ a_4 \\ a_5 \\ a_6 \\ a_7 \\ a_8 \end{pmatrix},
+\end{align}
+we first interpret $|\psi^{(1)}\rangle$ as the direct sum of four unnormalized qubits,
+\begin{align}
+|\tilde{\psi_1}^{(1)}\rangle = \begin{pmatrix} a_1 \\ a_2 \end{pmatrix}	&& |\tilde{\psi_2}^{(1)}\rangle = \begin{pmatrix} a_3 \\ a_4 \end{pmatrix}\\
+|\tilde{\psi_3}^{(1)}\rangle = \begin{pmatrix} a_5 \\ a_6 \end{pmatrix} && |\tilde{\psi_4}^{(1)}\rangle = \begin{pmatrix} a_7 \\ a_8 \end{pmatrix}.\!\!
+\end{align}
+Normalizing these qubits and rephasing them so that the first component is real, e.g.,
+\begin{align}
+|\psi_i\rangle &=  \frac{e^{-i\arg\langle 0|\tilde{\psi_i}\rangle}}{\sqrt{\langle \tilde{\psi_i}|\tilde{\psi_i}\rangle}} |\tilde{\psi_i}\rangle,
+\end{align}
+we can extract angles
+\begin{align}
+\theta_i &= 2\arccos\ \langle 0 |\psi_i\rangle 	&& \phi_i = \arg \ \langle 1 |\psi_i\rangle
+\end{align}
+to obtain  a unitary  $U_i = e^{-i\sigma_z\phi_i/2}e^{-i\sigma_y\theta_i/2}$ so that \begin{align}
+U_i^\dagger |\tilde{\psi}_i\rangle = b_i|0\rangle	
+\end{align}
+for some complex number $b_i$. Doing this for each of the four unnormalized qubits, we obtain four unitaries  $\{U_i^{(1)}\}$ as well as four complex numbers $\{b_i\}$, which we may arrange into a vector:
+\begin{align}
+	|\tilde{\psi}^{(2)}\rangle = \begin{pmatrix}b_1 \\ b_2 \\ b_3 \\ b_4 \end{pmatrix}.
+\end{align}
+We then repeat the process, splitting $|\tilde{\psi}^{(2)}\rangle$ into
+\begin{align}
+|\tilde{\psi_1}^{(2)}\rangle = \begin{pmatrix} b_1 \\ b_2 \end{pmatrix}	&& |\tilde{\psi_2}^{(2)}\rangle = \begin{pmatrix} b_3 \\ b_4 \end{pmatrix},	
+\end{align}
+from which we obtain $U_1^{(2)}, U_2^{(2)}$, as well as
+\begin{align}
+|\tilde{\psi}^{(3)}\rangle = \begin{pmatrix} c_1 \\ c_2 \end{pmatrix}.	
+\end{align}
+Repeating the process yet again, we obtain $U_1^{(3)}$ and $d_1$. In fact, $d_1=e^{i\phi}$ will simply be a phase so that $U_1^{(4)}=e^{i \sigma_z \phi}$. Putting this all together, we have
+\begin{align}
+|\psi\rangle=\begin{pmatrix}
+U_1^{(1)} & & & \\
+& U_2^{(1)} & & \\
+& & U_3^{(1)} & \\
+& & & U_4^{(1)}
+ \end{pmatrix}	
+ \left[\begin{pmatrix} 
+ U_1^{(2)} & \\
+	& U_2^{(2)}
+ \end{pmatrix} \otimes I_{2^1}\right] \left[U_1^{(3)}U_1^{(4)} \otimes I_{2^2}\right]|0\rangle.
+\end{align}
+It is instructive to work through the recomposition of the state. First,
+\begin{align}
+	\Big[U_1^{(4)} \otimes I_4\Big]\Big[|0\rangle \otimes |0\rangle \otimes |0\rangle\Big] = d_1|0\rangle \otimes |0\rangle \otimes |0\rangle.
+\end{align}
+Then, recalling that we always have $U_i^\dagger |\tilde{\psi}_i\rangle = z_i|0\rangle$ so that $|\tilde{\psi}_i\rangle = z_i U_i |0\rangle$,
+\begin{align}
+	\left[U_1^{(3)} \otimes I_{4}\right]\Big[d_1|0\rangle \otimes |0\rangle \otimes |0 \rangle\Big] &= |\tilde{\psi}_1^{(3)}\rangle \otimes |0\rangle \otimes |0\rangle= \begin{pmatrix}c_1 \\ 0 \\c_2 \\ 0 \end{pmatrix} \otimes |0\rangle.
+\end{align}
+Next,
+\begin{align}
+\left[\begin{pmatrix} 
+ U_1^{(2)} & \\
+	& U_2^{(2)}
+ \end{pmatrix} \otimes I_{2}\right]	\begin{pmatrix}c_1 \\ 0 \\c_2 \\ 0 \end{pmatrix} \otimes |0\rangle&=\begin{pmatrix}  U_1^{(2)}\begin{pmatrix} c_1 \\ 0 \end{pmatrix} \\ U_2^{(2)}\begin{pmatrix} c_2 \\ 0 \end{pmatrix} \end{pmatrix} \otimes |0\rangle
+ =\begin{pmatrix}  \begin{pmatrix} b_1 \\ b_2 \end{pmatrix} \\ \begin{pmatrix} b_3 \\ b_4 \end{pmatrix} \end{pmatrix} \otimes |0\rangle
+ = \begin{pmatrix} b_1 \\ 0 \\ b_2 \\ 0 \\ b_3 \\ 0 \\ b_4 \\ 0 \end{pmatrix},
+\end{align}
+and finally,
+\begin{align}
+\begin{pmatrix}
+U_1^{(1)} & & & \\
+& U_2^{(1)} & & \\
+& & U_3^{(1)} & \\
+& & & U_4^{(1)}
+ \end{pmatrix}		\begin{pmatrix} b_1 \\ 0 \\ b_2 \\ 0 \\ b_3 \\ 0 \\ b_4 \\ 0 \end{pmatrix}=
+ \begin{pmatrix}
+ 	U_1^{(1)} \begin{pmatrix} b_1 \\ 0 \end{pmatrix} \\ 
+ 	U_2^{(1)} \begin{pmatrix} b_2 \\ 0 \end{pmatrix} \\ 
+ 	U_3^{(1)} \begin{pmatrix} b_3 \\ 0 \end{pmatrix} \\ 
+ 	U_4^{(1)} \begin{pmatrix} b_4 \\ 0 \end{pmatrix} \\ 
+ \end{pmatrix}= \begin{pmatrix} a_1 \\ a_2 \\ a_3 \\ a_4 \\ a_5 \\ a_6 \\ a_7 \\ a_8 \end{pmatrix}=|\psi\rangle.
+\end{align}
+Crucially, just like in the single qubit case, if we negate all the $\phi$'s, we obtain the complex conjugate of our original state. 
+
+\subsection{Performing block-diagonal rotations}
+
+This procedure relies on the ability to perform  block diagonal or \emph{uniformly controlled} rotations. \cite{PhysRevLett.93.130502} proposes a method for doing so. For example, suppose we wish to perform a uniformly controlled-$Z$ rotation, in other words, a block diagonal unitary where each block has the form $R_i=e^{-i\sigma_z \theta_i/2}$ for some angles $\theta_i$. If we are working with $n$ qubits, we must specify $2^{n-1}$ angles. Let
+\begin{align}
+M_{ij} = 2^{-(n-1)} (-1)^{\vec{b}(j) \cdot \vec{g}(i)}	
+\end{align}
+be a $2^{n-1} \times 2^{n-1}$ matrix where $\vec{b}(j)$ is the binary vector corresponding to the standard binary representation of the number $j$ and $\vec{g}(i)$ is the binary vector corresponding to the representation of $i$ in the \emph{binary reflected Gray code}\footnote{The binary reflected Grey code provides a binary representation of a number such that two successive numbers differ only by a single bit. It can be easily constructed recursively. Beginning with the 1-bit Grey code $[0,1]$, one obtains the $(n+1)$-bit Grey code by prepending 0's to the $n$-bit code, prepending 1's to the $n$-bit code in the reverse order, and concatenating the two lists. For exaple, the 2-bit code is $[00,01, 11, 10]$, and the 3-bit code is
+\begin{align}
+[000,001,011,010,110,111,101,100].	
+\end{align}}. 
+Letting $\vec{\theta}$ be the vector of angles $\{\theta_i\}$, we form
+\begin{align}
+\vec{\alpha} 	= M \vec{\theta}
+\end{align}
+to obtain a new set of angles $\{\alpha_i\}$. \cite{PhysRevLett.93.130502}  shows how to perform the uniformly controlled rotation by interleaving single qubit rotations by the $\alpha_i$'s interleaved with \T{CNOT}'s arranged in a particular pattern determined by the binary Gray code: the control wire on the $i$'th \T{CNOT} gate is just the place where the $i$'th and $(i+1)$'th bit strings of the binary reflected Gray code differ. 
+\begin{center}
+\includegraphics[scale=0.6]{img/uniformly_controlled.png}	.
+\end{center}
+
 
 \section{Effect of depolarizing noise on $\Phi_{\text{SIC}}$}
 
@@ -612,7 +754,6 @@ In the limit of maximum depolarizing noise, $\Phi_\alpha$ is no longer invertibl
 	\lim_{\alpha\rightarrow 1}\left(\frac{d+1}{1-\alpha}\right) = \infty && \lim_{\alpha\rightarrow 1} \left(1-\frac{d+1}{1-\alpha}\right)=-\infty,	\end{align}
 that is, the diagonal entries diverge in the positive direction, and the off-diagonal in the negative.
 
-\pagebreak
 \subsection{Take 2}
 
 For simplicity, let us assume depolarization (with parameter $0 \leq \alpha\leq 1 $) of just the SIC measurement itself. The  POVM elements become
@@ -630,40 +771,39 @@ Q(E_i) &= \sum_j P(E_i|R_j)\left[(d+1)P(R_i^{(a)}) - \frac{1}{d}\right]\\
 \end{align}
 we see that if we take the depolarization parameter to be
 \begin{align}
-\alpha &= 1-\frac{1}{d+1}=\frac{d}{d+1}, 
+\alpha &=\frac{d}{d+1}, 
 \end{align}
 then
 \begin{align}
 Q(E_i) &= \sum_j P(E_i|R_j)P(R_j):
 \end{align}
-the LTP is recovered in the presence of noise. Notice that the most negative a SIC quasiprobability can be is $-\frac{1}{d}$. When $\alpha=\frac{d}{d+1}$, the smallest value a quasiprobability can take is exactly 0. After that point, the quasiprobabilities are just probabilities, as $\alpha$ increases, approaching the flat distribution. Of course, depolarizing noise is picked out as special since the SIC channel is depolarizing, and the map to quasiprobabilities is precisely the inverse of this depolarizing channel. Normally applying this inverse takes you out of the $[0,1]$ range, but if you have enough extra depolarization, you can stay inside it. 
+the LTP is recovered in the presence of noise. Notice that the most negative a SIC quasiprobability can be is $-\frac{1}{d}$. When $\alpha=\frac{d}{d+1}$, the smallest value a quasiprobability can take is exactly 0. After that point, the quasiprobabilities are just probabilities, as $\alpha$ increases, approaching the flat distribution. Depolarizing noise is picked out as special here since the corresponding measure-and-reprepare SIC channel is itself depolarizing \cite{PhysRevA.100.062327}, and the map to quasiprobabilities is precisely the inverse of this depolarizing channel. Normally applying this inverse takes you out of the $[0,1]$ range, but if you have enough extra depolarization, you can stay inside it. 
 
-Although only when $\alpha = d/(d+1)$ do we recover the exact LTP, we could say that for $d/(d+1) \leq \alpha \leq 1$, the Urgleichung reduces to a classically explicable expression. But there's a kind of theoretical assumption here: when the LTP is ``recovered,'' we arrive at an expression containing $P(R_j)$, the ideal probabilities, whereas the sky path probabilities themselves ought to be
+Letting
 \begin{align}
-	P(E_i) = \sum_j P(E_i|R_j) P(R_j^{(\alpha)}),
+\rho^{(\alpha)}=(1-\alpha)\rho + \alpha I/d,
 \end{align}
- that is, more depolarized.
-
-\subsection{}
-\begin{align}
-\rho^{(\alpha)}=(1-\alpha)\rho + \alpha I/d.	
-\end{align}
-
+we have
 \begin{align}
 \lVert \rho^{(\alpha)}\rVert	&= \lVert (1-\alpha)\rho + \alpha I/d\rVert\\
 &=\sqrt{\tr\left[\Big((1-\alpha)\rho + \alpha I/d\Big)\Big((1-\alpha)\rho + \alpha I/d\Big)\right]}\\
-&=\sqrt{(1-\alpha)^2\tr(\rho^2)+ \frac{2(1-\alpha)\alpha}{d}+\frac{\alpha^2}{d}}\\
-&=\sqrt{(1-\alpha)^2\tr(\rho^2)- \frac{\alpha(\alpha-2)}{d}}
+&=\sqrt{(1-\alpha)^2\tr(\rho^2)- \frac{\alpha(\alpha-2)}{d}},
 \end{align}
-Suppose $\rho$ is pure. Then:
+so that, supposing $\rho$ pure,
 \begin{align}
-\lVert \rho^{(\alpha)}\rVert	&= \sqrt{(1-\alpha)^2- \frac{\alpha(\alpha-2)}{d}}\\
-&=\sqrt{1+\frac{1}{d}(d-1)(\alpha-2)\alpha}.
+\lVert \rho^{(\alpha)}\rVert	&=\sqrt{1+\frac{1}{d}(d-1)(\alpha-2)\alpha}.
 \end{align}
 If $\alpha=\frac{d}{d+1}$, this becomes
 \begin{align}
 	\lVert \rho^{(\alpha)}\rVert	&= \frac{\sqrt{d+3}}{d+1}.
 \end{align}
+The depolarized quantum state-space is then inscribed in a sphere with this radius: this is the largest sphere such that all negativity washes out from the quasiprobabilities. 
+
+Although only when $\alpha = d/(d+1)$ do we recover the exact LTP, we could say that for $d/(d+1) \leq \alpha \leq 1$, the Urgleichung reduces to a classically explicable expression. That said, there's a kind of theoretical assumption here: when the LTP is ``recovered,'' we arrive at an expression containing $P(R_j)$, the ideal probabilities, whereas the sky path probabilities themselves ought to be
+\begin{align}
+	P(E_i) = \sum_j P(E_i|R_j) P(R_j^{(\alpha)}),
+\end{align}
+ that is, more depolarized. 
 
 
 
