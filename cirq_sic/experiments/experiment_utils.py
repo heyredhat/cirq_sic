@@ -82,7 +82,7 @@ class TaskProgram:
         pass
 
     @classmethod
-    def process_results(cls, task, *args, **kwargs):
+    def process_results(cls, record, *args, **kwargs):
         """Takes a task and a reslt, and returns processed data dictionary."""
         pass
 

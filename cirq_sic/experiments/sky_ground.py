@@ -89,7 +89,9 @@ class CharacterizeWHReferenceDevice(TaskProgram):
         return circuits, {"a": a}
 
     @classmethod
-    def process_results(cls, task, results, **kwargs):
+    def process_results(cls, record, **kwargs):
+        task = record["task"]
+        results = record["data"]
         P = np.array([get_freqs(r[0], **kwargs) for r in results])
         if task.wh_implementation == "ak":
             P = change_conjugate_convention(P)
@@ -119,11 +121,13 @@ class WHPOVMOnBasisStates(TaskProgram):
         return circuits, {"m": m}
 
     @classmethod
-    def process_results(cls, task, results, **kwargs):
+    def process_results(cls, record, **kwargs):
+        task = record["task"]
+        results = record["data"]
         p = np.array([get_freqs(r[0], **kwargs) for r in results])
         if task.wh_implementation == "ak":
             p = change_conjugate_convention(p)
-        return {"p": p}
+        return {"p": p.T}
 
 class BasisMeasurementOnWHStates(TaskProgram):
     @classmethod
@@ -139,10 +143,10 @@ class BasisMeasurementOnWHStates(TaskProgram):
         return circuits, {"a": a}
 
     @classmethod
-    def process_results(cls, task, results, **kwargs):
+    def process_results(cls, record, **kwargs):
+        task = record["task"]
+        results = record["data"]
         C = np.array([get_freqs(r[0], **kwargs) for r in results]).T
-        if task.wh_implementation == "ak":
-            C = change_conjugate_convention(C)
         return {"C": C}
     
 class BasisMeasurementOnBasisStates(TaskProgram):
@@ -157,7 +161,9 @@ class BasisMeasurementOnBasisStates(TaskProgram):
         return circuits, {"m": m}
 
     @classmethod
-    def process_results(cls, task, results, **kwargs):
+    def process_results(cls, record, **kwargs):
+        task = record["task"]
+        results = record["data"]
         q = np.array([get_freqs(r[0], **kwargs) for r in results]).T
         return {"q": q}
     
@@ -168,7 +174,7 @@ sky_ground_programs = [(CharacterizeWHReferenceDevice, "P"),\
 
 ####################################################################################
 
-def calculate_sky_ground_metrics(P, p, C, q, verbose=False):
+def calculate_sky_ground_metrics(P=None, p=None, C=None, q=None, verbose=False):
     d = int(np.sqrt(P.shape[0]))
     Phi = np.linalg.inv(P)
     q_ = C @ Phi @ p
@@ -192,3 +198,20 @@ def calculate_sky_ground_metrics(P, p, C, q, verbose=False):
         print(f"|q - C Phi p| = {sg_q_err}")
     return locals()
 
+def process_sky_ground_data(d, flag, n_shots_list=[1000, 5000, 10000, 20000, 50000, 100000], processor_id="willow_pink", base_dir=""):
+    """Calculate metrics in the sky/ground scenario."""
+    dataset_id = "d%d" % d
+    records = recirq.load_records(dataset_id=dataset_id, base_dir=base_dir)
+    query = {"dataset_id": dataset_id, "d": d, "flag": flag, "processor_id": processor_id}
+    all_metrics = {}
+    for run_type in ["clean", "noisy"]:
+        for wh_implementation in ["simple", "ak"]:
+            data_by_n_shots = dict([(n_shots, {}) for n_shots in n_shots_list])
+            for program, data_label in sky_ground_programs:
+                record = query_records(records, {**query, "run_type": run_type,\
+                                                          "wh_implementation": wh_implementation,\
+                                                          "description": program.__name__})[0]
+                for n_shots in n_shots_list:
+                    data_by_n_shots[n_shots].update(program.process_results(record, n_shots=n_shots))
+            all_metrics[(run_type, wh_implementation)] = {k: calculate_sky_ground_metrics(**v) for k, v in data_by_n_shots.items()}
+    return all_metrics

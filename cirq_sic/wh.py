@@ -26,7 +26,7 @@ def change_conjugate_convention(p):
     if len(p.shape) > 1:
          return np.array([change_conjugate_convention(p_i) for p_i in p]) 
     d = int(np.sqrt(p.shape[0]))
-    idx_order = [0] +list(range(1, d))[::-1]
+    idx_order = [0] + list(range(1, d))[::-1]
     return p.reshape(d,d)[np.ix_(idx_order, idx_order)].flatten()
 
 def arthurs_kelly_ancilla_ready_state(phi, fourier=False):
