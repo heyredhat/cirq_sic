@@ -95,7 +95,7 @@ class CharacterizeWHReferenceDevice(TaskProgram):
         P = np.array([get_freqs(r[0], **kwargs) for r in results])
         if task.wh_implementation == "ak":
             P = change_conjugate_convention(P)
-        return {"P": P}
+        return {"P": P.T}
 
 class WHPOVMOnBasisStates(TaskProgram):
     """Program for measuring the WH-POVM on the computational basis states."""
@@ -165,7 +165,7 @@ class BasisMeasurementOnBasisStates(TaskProgram):
         task = record["task"]
         results = record["data"]
         q = np.array([get_freqs(r[0], **kwargs) for r in results]).T
-        return {"q": q}
+        return {"q": q.T}
     
 sky_ground_programs = [(CharacterizeWHReferenceDevice, "P"),\
                        (WHPOVMOnBasisStates, "p"),\
