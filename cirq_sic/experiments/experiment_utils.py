@@ -65,6 +65,10 @@ def get_freqs(samples, n_shots=None):
     freqs = np.array([v for k, v in sorted(counts.items())])/counts.total()
     return freqs
 
+def avg_negativity(M):
+    """Average negativity of the columns of M."""
+    return np.sum((abs(M)-M)/2)/M.shape[1]
+
 ####################################################################################
 
 def abbrev_n_shots(n_shots):

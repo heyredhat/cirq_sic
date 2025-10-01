@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: QuditArthursKelly.aux
 The style file: plain.bst
 Database file #1: QuditArthursKelly.bib
-You've used 12 entries,
+You've used 17 entries,
             2118 wiz_defined-function locations,
-            586 strings with 6361 characters,
-and the built_in function-call counts, 3928 in all, are:
-= -- 366
-> -- 199
+            620 strings with 7273 characters,
+and the built_in function-call counts, 5635 in all, are:
+= -- 528
+> -- 284
 < -- 0
-+ -- 78
-- -- 66
-* -- 309
-:= -- 679
-add.period$ -- 35
-call.type$ -- 12
-change.case$ -- 67
++ -- 111
+- -- 94
+* -- 453
+:= -- 971
+add.period$ -- 50
+call.type$ -- 17
+change.case$ -- 96
 chr.to.int$ -- 0
-cite$ -- 12
-duplicate$ -- 129
-empty$ -- 306
-format.name$ -- 66
-if$ -- 794
+cite$ -- 17
+duplicate$ -- 184
+empty$ -- 437
+format.name$ -- 94
+if$ -- 1140
 int.to.chr$ -- 0
-int.to.str$ -- 12
-missing$ -- 13
-newline$ -- 62
-num.names$ -- 24
-pop$ -- 64
+int.to.str$ -- 17
+missing$ -- 18
+newline$ -- 87
+num.names$ -- 34
+pop$ -- 83
 preamble$ -- 1
-purify$ -- 57
+purify$ -- 81
 quote$ -- 0
-skip$ -- 86
+skip$ -- 123
 stack$ -- 0
-substring$ -- 259
-swap$ -- 12
+substring$ -- 383
+swap$ -- 17
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 44
+type$ -- 64
 warning$ -- 0
-while$ -- 33
-width$ -- 14
-write$ -- 129
+while$ -- 48
+width$ -- 19
+write$ -- 184

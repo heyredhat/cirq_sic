@@ -24,10 +24,25 @@ John~B. DeBrota, Christopher~A. Fuchs, and Blake~C. Stacey.
 \newblock Symmetric informationally complete measurements identify the irreducible difference between classical and quantum systems.
 \newblock {\em Phys. Rev. Res.}, 2:013074, Jan 2020.
 
+\bibitem{PhysRevA.100.062327}
+John~B. DeBrota and Blake~C. Stacey.
+\newblock L\"uders channels and the existence of symmetric-informationally-complete measurements.
+\newblock {\em Phys. Rev. A}, 100:062327, Dec 2019.
+
+\bibitem{10.1063/1.1827924}
+Thomas Decker, Dominik Janzing, and Martin Rötteler.
+\newblock Implementation of group-covariant positive operator valued measures by orthogonal measurements.
+\newblock {\em Journal of Mathematical Physics}, 46(1):012104, 12 2004.
+
 \bibitem{Gross_2021}
 David Gross, Sepehr Nezami, and Michael Walter.
 \newblock {Schur–Weyl Duality for the Clifford Group with Applications: Property Testing, a Robust Hudson Theorem, and de Finetti Representations}.
 \newblock {\em Communications in Mathematical Physics}, 385(3):1325–1393, June 2021.
+
+\bibitem{10.1063/1.2222080}
+Dominik Janzing and Thomas Decker.
+\newblock {Minimally disturbing Heisenberg–Weyl symmetric measurements using hard-core collisions of Schrödinger particles}.
+\newblock {\em Journal of Mathematical Physics}, 47(8):082102, 08 2006.
 
 \bibitem{PhysRevA.85.052115}
 Amir Kalev, Jiangwei Shang, and Berthold-Georg Englert.
@@ -39,6 +54,11 @@ Amir Kalev, Jiangwei Shang, and Berthold-Georg Englert.
 \newblock Symmetric minimal quantum tomography by successive measurements.
 \newblock {\em Physical Review A}, 85(5), May 2012.
 
+\bibitem{PhysRevLett.93.130502}
+Mikko M\"ott\"onen, Juha~J. Vartiainen, Ville Bergholm, and Martti~M. Salomaa.
+\newblock {Quantum Circuits for General Multiqubit Gates}.
+\newblock {\em Phys. Rev. Lett.}, 93:130502, Sep 2004.
+
 \bibitem{Nielsen_Chuang_2010}
 Michael~A. Nielsen and Isaac~L. Chuang.
 \newblock {\em {Quantum Computation and Quantum Information: 10th Anniversary Edition}}.
@@ -48,6 +68,11 @@ Michael~A. Nielsen and Isaac~L. Chuang.
 Joseph~M. Renes, Robin Blume-Kohout, A.~J. Scott, and Carlton~M. Caves.
 \newblock {Symmetric informationally complete quantum measurements}.
 \newblock {\em Journal of Mathematical Physics}, 45(6):2171–2180, June 2004.
+
+\bibitem{1629135}
+V.V. Shende, S.S. Bullock, and I.L. Markov.
+\newblock Synthesis of quantum-logic circuits.
+\newblock {\em IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems}, 25(6):1000--1010, 2006.
 
 \bibitem{Stacey2021}
 Blake~C. Stacey.

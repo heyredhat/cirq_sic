@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.16)  27 SEP 2025 16:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.16)  1 OCT 2025 01:33
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -288,85 +288,158 @@ File: img/ak_theory_vs_experiment.pdf Graphic file (type pdf)
 Package pdftex.def Info: img/ak_theory_vs_experiment.pdf  used on input line 291.
 (pdftex.def)             Requested size: 429.86368pt x 212.30704pt.
  [9]
-<img/P_noisy_ak_100000.pdf, id=75, 1043.23149pt x 295.57426pt>
-File: img/P_noisy_ak_100000.pdf Graphic file (type pdf)
-<use img/P_noisy_ak_100000.pdf>
-Package pdftex.def Info: img/P_noisy_ak_100000.pdf  used on input line 319.
+<img/P_d4_d4_monomial_noisy_ak_n100000.pdf, id=75, 1043.23149pt x 295.57426pt>
+File: img/P_d4_d4_monomial_noisy_ak_n100000.pdf Graphic file (type pdf)
+<use img/P_d4_d4_monomial_noisy_ak_n100000.pdf>
+Package pdftex.def Info: img/P_d4_d4_monomial_noisy_ak_n100000.pdf  used on input line 319.
 (pdftex.def)             Requested size: 521.61447pt x 147.78676pt.
 
 Overfull \hbox (51.85948pt too wide) in paragraph at lines 319--320
  [] 
  []
 
-[10 <./img/ak_theory_vs_experiment.pdf> <./img/P_noisy_ak_100000.pdf>] [11]
-<img/simple_theory_vs_experiment.pdf, id=190, 859.72946pt x 424.61511pt>
+[10 <./img/ak_theory_vs_experiment.pdf> <./img/P_d4_d4_monomial_noisy_ak_n100000.pdf>] [11]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[12]
+<img/simple_theory_vs_experiment.pdf, id=188, 859.72946pt x 424.61511pt>
 File: img/simple_theory_vs_experiment.pdf Graphic file (type pdf)
 <use img/simple_theory_vs_experiment.pdf>
-Package pdftex.def Info: img/simple_theory_vs_experiment.pdf  used on input line 396.
+Package pdftex.def Info: img/simple_theory_vs_experiment.pdf  used on input line 397.
 (pdftex.def)             Requested size: 429.86368pt x 212.30704pt.
- [12]
-<img/P_noisy_simple_100000.pdf, id=194, 1043.23149pt x 295.57426pt>
-File: img/P_noisy_simple_100000.pdf Graphic file (type pdf)
-<use img/P_noisy_simple_100000.pdf>
-Package pdftex.def Info: img/P_noisy_simple_100000.pdf  used on input line 417.
+<img/P_d4_d4_monomial_noisy_simple_n100000.pdf, id=189, 1043.23149pt x 295.57426pt>
+File: img/P_d4_d4_monomial_noisy_simple_n100000.pdf Graphic file (type pdf)
+<use img/P_d4_d4_monomial_noisy_simple_n100000.pdf>
+Package pdftex.def Info: img/P_d4_d4_monomial_noisy_simple_n100000.pdf  used on input line 418.
 (pdftex.def)             Requested size: 521.61447pt x 147.78676pt.
 
-Overfull \hbox (51.85948pt too wide) in paragraph at lines 417--418
+Overfull \hbox (51.85948pt too wide) in paragraph at lines 418--419
  [] 
  []
 
-[13 <./img/simple_theory_vs_experiment.pdf> <./img/P_noisy_simple_100000.pdf>]
-<img/sky_ground.png, id=303, 568.1225pt x 290.08376pt>
+[13 <./img/simple_theory_vs_experiment.pdf>]
+<img/sky_ground.png, id=241, 568.1225pt x 290.08376pt>
 File: img/sky_ground.png Graphic file (type png)
 <use img/sky_ground.png>
 Package pdftex.def Info: img/sky_ground.png  used on input line 428.
 (pdftex.def)             Requested size: 454.4986pt x 232.0673pt.
- [14 <./img/sky_ground.png>]
-<img/sic_metrics.pdf, id=308, 858.27591pt x 286.27325pt>
-File: img/sic_metrics.pdf Graphic file (type pdf)
-<use img/sic_metrics.pdf>
-Package pdftex.def Info: img/sic_metrics.pdf  used on input line 466.
+ [14 <./img/P_d4_d4_monomial_noisy_simple_n100000.pdf> <./img/sky_ground.png>]
+<img/sic_metrics_d4_d4_monomial.pdf, id=300, 858.27591pt x 286.27325pt>
+File: img/sic_metrics_d4_d4_monomial.pdf Graphic file (type pdf)
+<use img/sic_metrics_d4_d4_monomial.pdf>
+Package pdftex.def Info: img/sic_metrics_d4_d4_monomial.pdf  used on input line 466.
 (pdftex.def)             Requested size: 472.0532pt x 157.45078pt.
 
 Overfull \hbox (2.29822pt too wide) in paragraph at lines 466--467
  [] 
  []
 
-[15 <./img/sic_metrics.pdf>]
-<img/sg_metrics.pdf, id=359, 641.41101pt x 286.27325pt>
-File: img/sg_metrics.pdf Graphic file (type pdf)
-<use img/sg_metrics.pdf>
-Package pdftex.def Info: img/sg_metrics.pdf  used on input line 472.
-(pdftex.def)             Requested size: 352.77715pt x 157.45078pt.
-<img/q_noisy_simple_100000.pdf, id=360, 567.79346pt x 570.21031pt>
-File: img/q_noisy_simple_100000.pdf Graphic file (type pdf)
-<use img/q_noisy_simple_100000.pdf>
-Package pdftex.def Info: img/q_noisy_simple_100000.pdf  used on input line 476.
-(pdftex.def)             Requested size: 227.11336pt x 228.08008pt.
-<img/q_noisy_ak_100000.pdf, id=361, 566.27777pt x 570.21031pt>
-File: img/q_noisy_ak_100000.pdf Graphic file (type pdf)
-<use img/q_noisy_ak_100000.pdf>
-Package pdftex.def Info: img/q_noisy_ak_100000.pdf  used on input line 476.
+[15]
+<img/sg_metrics_d4_d4_monomial.pdf, id=304, 641.75807pt x 286.27325pt>
+File: img/sg_metrics_d4_d4_monomial.pdf Graphic file (type pdf)
+<use img/sg_metrics_d4_d4_monomial.pdf>
+Package pdftex.def Info: img/sg_metrics_d4_d4_monomial.pdf  used on input line 472.
+(pdftex.def)             Requested size: 352.96803pt x 157.45078pt.
+<img/q_d4_d4_monomial_noisy_simple_n100000.pdf, id=305, 566.27777pt x 570.21031pt>
+File: img/q_d4_d4_monomial_noisy_simple_n100000.pdf Graphic file (type pdf)
+<use img/q_d4_d4_monomial_noisy_simple_n100000.pdf>
+Package pdftex.def Info: img/q_d4_d4_monomial_noisy_simple_n100000.pdf  used on input line 476.
 (pdftex.def)             Requested size: 226.5071pt x 228.08008pt.
- (./QuditArthursKelly.bbl [16 <./img/sg_metrics.pdf> <./img/q_noisy_simple_100000.pdf> <./img/q_noisy_ak_100000.pdf>]) [17] [18] [19] [20] [21] [22] [23] (./QuditArthursKelly.aux)
+<img/q_d4_d4_monomial_noisy_ak_n100000.pdf, id=306, 566.27777pt x 570.21031pt>
+File: img/q_d4_d4_monomial_noisy_ak_n100000.pdf Graphic file (type pdf)
+<use img/q_d4_d4_monomial_noisy_ak_n100000.pdf>
+Package pdftex.def Info: img/q_d4_d4_monomial_noisy_ak_n100000.pdf  used on input line 476.
+(pdftex.def)             Requested size: 226.5071pt x 228.08008pt.
+ [16 <./img/sic_metrics_d4_d4_monomial.pdf> <./img/sg_metrics_d4_d4_monomial.pdf>]
+<img/sic_metrics_d2_numerical_sic.pdf, id=410, 858.36897pt x 286.27325pt>
+File: img/sic_metrics_d2_numerical_sic.pdf Graphic file (type pdf)
+<use img/sic_metrics_d2_numerical_sic.pdf>
+Package pdftex.def Info: img/sic_metrics_d2_numerical_sic.pdf  used on input line 486.
+(pdftex.def)             Requested size: 429.18344pt x 143.13628pt.
+<img/sg_metrics_d2_numerical_sic.pdf, id=411, 641.96344pt x 286.27325pt>
+File: img/sg_metrics_d2_numerical_sic.pdf Graphic file (type pdf)
+<use img/sg_metrics_d2_numerical_sic.pdf>
+Package pdftex.def Info: img/sg_metrics_d2_numerical_sic.pdf  used on input line 488.
+(pdftex.def)             Requested size: 320.98093pt x 143.13628pt.
+ [17 <./img/q_d4_d4_monomial_noisy_simple_n100000.pdf> <./img/q_d4_d4_monomial_noisy_ak_n100000.pdf> <./img/sic_metrics_d2_numerical_sic.pdf>]
+<img/P_d2_numerical_sic_noisy_simple_n100000.pdf, id=585, 1038.37154pt x 295.57426pt>
+File: img/P_d2_numerical_sic_noisy_simple_n100000.pdf Graphic file (type pdf)
+<use img/P_d2_numerical_sic_noisy_simple_n100000.pdf>
+Package pdftex.def Info: img/P_d2_numerical_sic_noisy_simple_n100000.pdf  used on input line 490.
+(pdftex.def)             Requested size: 415.34126pt x 118.2276pt.
+<img/P_d2_numerical_sic_noisy_ak_n100000.pdf, id=586, 1038.37154pt x 295.57426pt>
+File: img/P_d2_numerical_sic_noisy_ak_n100000.pdf Graphic file (type pdf)
+<use img/P_d2_numerical_sic_noisy_ak_n100000.pdf>
+Package pdftex.def Info: img/P_d2_numerical_sic_noisy_ak_n100000.pdf  used on input line 492.
+(pdftex.def)             Requested size: 415.34126pt x 118.2276pt.
+<img/sic_metrics_d4_numerical_sic.pdf, id=587, 858.27591pt x 286.27325pt>
+File: img/sic_metrics_d4_numerical_sic.pdf Graphic file (type pdf)
+<use img/sic_metrics_d4_numerical_sic.pdf>
+Package pdftex.def Info: img/sic_metrics_d4_numerical_sic.pdf  used on input line 499.
+(pdftex.def)             Requested size: 429.1369pt x 143.13628pt.
+<img/sg_metrics_d4_numerical_sic.pdf, id=588, 641.61435pt x 286.27325pt>
+File: img/sg_metrics_d4_numerical_sic.pdf Graphic file (type pdf)
+<use img/sg_metrics_d4_numerical_sic.pdf>
+Package pdftex.def Info: img/sg_metrics_d4_numerical_sic.pdf  used on input line 501.
+(pdftex.def)             Requested size: 320.80638pt x 143.13628pt.
+ [18 <./img/sg_metrics_d2_numerical_sic.pdf> <./img/P_d2_numerical_sic_noisy_simple_n100000.pdf> <./img/P_d2_numerical_sic_noisy_ak_n100000.pdf> <./img/sic_metrics_d4_numerical_sic.pdf>]
+<img/P_d4_numerical_sic_noisy_simple_n100000.pdf, id=797, 1043.23149pt x 295.57426pt>
+File: img/P_d4_numerical_sic_noisy_simple_n100000.pdf Graphic file (type pdf)
+<use img/P_d4_numerical_sic_noisy_simple_n100000.pdf>
+Package pdftex.def Info: img/P_d4_numerical_sic_noisy_simple_n100000.pdf  used on input line 503.
+(pdftex.def)             Requested size: 417.2852pt x 118.2276pt.
+<img/P_d4_numerical_sic_noisy_ak_n100000.pdf, id=798, 1043.23149pt x 295.57426pt>
+File: img/P_d4_numerical_sic_noisy_ak_n100000.pdf Graphic file (type pdf)
+<use img/P_d4_numerical_sic_noisy_ak_n100000.pdf>
+Package pdftex.def Info: img/P_d4_numerical_sic_noisy_ak_n100000.pdf  used on input line 505.
+(pdftex.def)             Requested size: 417.2852pt x 118.2276pt.
+<img/sic_metrics_d8_numerical_sic.pdf, id=799, 858.30936pt x 286.27325pt>
+File: img/sic_metrics_d8_numerical_sic.pdf Graphic file (type pdf)
+<use img/sic_metrics_d8_numerical_sic.pdf>
+Package pdftex.def Info: img/sic_metrics_d8_numerical_sic.pdf  used on input line 512.
+(pdftex.def)             Requested size: 429.15363pt x 143.13628pt.
+<img/sg_metrics_d8_numerical_sic.pdf, id=800, 641.19548pt x 286.27325pt>
+File: img/sg_metrics_d8_numerical_sic.pdf Graphic file (type pdf)
+<use img/sg_metrics_d8_numerical_sic.pdf>
+Package pdftex.def Info: img/sg_metrics_d8_numerical_sic.pdf  used on input line 514.
+(pdftex.def)             Requested size: 320.59695pt x 143.13628pt.
+ [19 <./img/sg_metrics_d4_numerical_sic.pdf> <./img/P_d4_numerical_sic_noisy_simple_n100000.pdf> <./img/P_d4_numerical_sic_noisy_ak_n100000.pdf> <./img/sic_metrics_d8_numerical_sic.pdf>]
+<img/P_d8_numerical_sic_noisy_simple_n100000.pdf, id=1019, 1043.22696pt x 295.57426pt>
+File: img/P_d8_numerical_sic_noisy_simple_n100000.pdf Graphic file (type pdf)
+<use img/P_d8_numerical_sic_noisy_simple_n100000.pdf>
+Package pdftex.def Info: img/P_d8_numerical_sic_noisy_simple_n100000.pdf  used on input line 516.
+(pdftex.def)             Requested size: 417.28339pt x 118.2276pt.
+<img/P_d8_numerical_sic_noisy_ak_n100000.pdf, id=1020, 1043.22696pt x 295.57426pt>
+File: img/P_d8_numerical_sic_noisy_ak_n100000.pdf Graphic file (type pdf)
+<use img/P_d8_numerical_sic_noisy_ak_n100000.pdf>
+Package pdftex.def Info: img/P_d8_numerical_sic_noisy_ak_n100000.pdf  used on input line 518.
+(pdftex.def)             Requested size: 417.28339pt x 118.2276pt.
+ (./QuditArthursKelly.bbl [20 <./img/sg_metrics_d8_numerical_sic.pdf> <./img/P_d8_numerical_sic_noisy_simple_n100000.pdf> <./img/P_d8_numerical_sic_noisy_ak_n100000.pdf>]) [21] [22] [23] [24] [25] [26]
+<img/uniformly_controlled.png, id=1210, 476.78125pt x 422.57875pt>
+File: img/uniformly_controlled.png Graphic file (type png)
+<use img/uniformly_controlled.png>
+Package pdftex.def Info: img/uniformly_controlled.png  used on input line 722.
+(pdftex.def)             Requested size: 286.07095pt x 253.5492pt.
+ [27 <./img/uniformly_controlled.png>] [28] [29] [30] [31] (./QuditArthursKelly.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4589 strings out of 474116
- 75428 string characters out of 5743681
- 1947187 words of memory out of 5000000
- 26901 multiletter control sequences out of 15000+600000
- 570984 words of font info for 87 fonts, out of 8000000 for 9000
+ 4722 strings out of 474116
+ 82046 string characters out of 5743681
+ 1956187 words of memory out of 5000000
+ 27030 multiletter control sequences out of 15000+600000
+ 572529 words of font info for 93 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 65i,15n,72p,1437b,264s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on QuditArthursKelly.pdf (23 pages, 568492 bytes).
+ 65i,20n,72p,1561b,264s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on QuditArthursKelly.pdf (31 pages, 940091 bytes).
 PDF statistics:
- 649 PDF objects out of 1000 (max. 8388607)
- 223 compressed objects within 3 object streams
+ 1321 PDF objects out of 1440 (max. 8388607)
+ 391 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 500000)
- 66 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 131 words of extra memory for PDF output out of 10000 (max. 10000000)
 

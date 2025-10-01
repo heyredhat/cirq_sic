@@ -723,10 +723,10 @@ to obtain a new set of angles $\{\alpha_i\}$. \cite{PhysRevLett.93.130502}  show
 \end{center}
 
 
-\section{Effect of depolarizing noise on $\Phi_{\text{SIC}}$}
+\section{Noise analysis}
 
-\subsection{Take 1}
-Let $P =  \frac{1}{d+1}\left(I + \frac{1}{d}J\right)$. Then $\Phi=(d+1)-\frac{1}{d}J$. Depolarizing noise leads to
+\subsection{Depolarizing $\Phi$}
+Let $P =  \frac{1}{d+1}\left(I + \frac{1}{d}J\right)$. Then $\Phi=(d+1)-\frac{1}{d}J$. Depolarizing noise in the states leads to
 \begin{align}
 P_\alpha &= (1-\alpha) P + \frac{\alpha}{d^2}J	\\
 &= \frac{1-\alpha}{d+1}\left(I + \frac{1}{d}J\right)+\frac{\alpha}{d^2}J	\\
@@ -754,7 +754,7 @@ In the limit of maximum depolarizing noise, $\Phi_\alpha$ is no longer invertibl
 	\lim_{\alpha\rightarrow 1}\left(\frac{d+1}{1-\alpha}\right) = \infty && \lim_{\alpha\rightarrow 1} \left(1-\frac{d+1}{1-\alpha}\right)=-\infty,	\end{align}
 that is, the diagonal entries diverge in the positive direction, and the off-diagonal in the negative.
 
-\subsection{Take 2}
+\subsection{Depolarizing state-space}
 
 For simplicity, let us assume depolarization (with parameter $0 \leq \alpha\leq 1 $) of just the SIC measurement itself. The  POVM elements become
 \begin{align}
@@ -804,7 +804,22 @@ Although only when $\alpha = d/(d+1)$ do we recover the exact LTP, we could say 
 	P(E_i) = \sum_j P(E_i|R_j) P(R_j^{(\alpha)}),
 \end{align}
  that is, more depolarized. 
+ 
+ \subsection{The SIC simplex are the quasi-classical states}
+ 
+Since $\Phi=P^{-1}$, $\Phi$ sends MIC probability vectors (the columns of $P$) to the vertices of the simplex (the basis vectors). Since $\Phi$ invertibly maps the reference polytope to the probability simplex, any state outside the polytope will be mapped to a state outside the probability simplex, and thus it must contain quasiprobabilities. It also follows that the only pure states with a properly probabilities as quasiprobabilities are the reference states themselves.
 
+The Euclidean volume of the probability simplex is $\frac{d}{(d^2-1)!}$. The Euclidean volume of the SIC simplex is $\frac{d}{(d^2-1)!}\left(\frac{1}{d+1}\right)^{d^2-1}$. This gives a volume ratio of
+\begin{align}
+R(d) = \left(\frac{1}{d+1}\right)^{d^2-1}	.
+\end{align}
+As $d\rightarrow \infty$, $R(d)\rightarrow 0$ so that the proportion of quasi-classical states, i.e. states for which the Born rule looks like the LTP, goes to 0. We note that if you consider the sphere in which state space is inscribed (within the probability simplex), under the depolarizing map with $\alpha=d/(d+1)$, this sphere becomes the in-sphere of the SIC simplex.
+
+\subsection{Average negativity}
+ A non-negative quasi-probability distribution may be interpreted as a distribution over hidden variables. Thus we can ask: how ``quantum'' are we on average? We prepare 1000 random pure states, perform the SIC, and consider the average sum of the negative entries of their quasi-probabilities. On the left, we use the empirical $\Phi=P^{-1}$ to calculate quasi-probabilities. On the right, we use $\Phi_{\text{SIC}}$.	
+	\begin{center}
+	\includegraphics[scale=0.6]{img/avg_neg_d2_numerical_sic}	
+	\end{center}
 
 
 \end{document}

@@ -368,5 +368,48 @@ Using an arbitrary state preparation ansatz (which allows for easy complex conju
 \end{center}
 \end{frame}
 
+\begin{frame}
+\frametitle{Effect of depolarization on $\Phi$}
+If one depolarizes the SIC states by a parameter $\alpha$, then
+\begin{align}
+\Phi = \left(\frac{d+1}{1-\alpha}\right)I + \left(1-\frac{d+1}{1-\alpha}\right)\frac{1}{d^2}J,	
+\end{align}
+	where $J$ is the matrix of all 1's.
+	\begin{itemize}
+	\item 	In the limit of maximum depolarization, $\Phi$ ceases to be invertible. 
+	\item As you approach this limit, the diagonal entries diverge in the positive direction, and the off-diagonal in the negative direction.
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{On the other hand...}
+\begin{itemize}
+\item Since $\Phi= P^{-1}$, $\Phi$ sends the probability vectors for the reference states to the vertices of the probability simplex.
+\item It follows that the subset of states for which the action of $\Phi$ yields valid probabilities is just the polytope formed by the reference distributions.
+\item Euclidean volume of the probability simplex: $\frac{d}{(d^2-1)!}$.
+\item The Euclidean volume of the SIC simplex: $\frac{d}{(d^2-1)!}\left(\frac{1}{d+1}\right)^{d^2-1}$. 
+\item Volume ratio:
+\begin{align}
+R(d) = \left(\frac{1}{d+1}\right)^{d^2-1}	.
+\end{align}
+\item 
+As $d\rightarrow \infty$, $R(d)\rightarrow 0$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Average negativity}
+\begin{itemize}
+\item A non-negative quasi-probability distribution $\rightarrow$ distribution over hidden variables. So how ``quantum'' are we on average?
+\item Prepare 1000 random pure states, perform the SIC, and consider the average sum of negative entries of their quasi-probabilities.
+\end{itemize}
+	\begin{center}
+	\includegraphics[scale=0.45]{img/avg_neg_d2_numerical_sic}	
+	\begin{small}On the left: use the empirical $\Phi$. On the right: use $\Phi_{\text{SIC}}$.	\end{small}	\end{center}
+\end{frame}
+
+
+
 
 \end{document}

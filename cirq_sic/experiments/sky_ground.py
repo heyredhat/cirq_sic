@@ -167,14 +167,48 @@ class BasisMeasurementOnBasisStates(TaskProgram):
         q = np.array([get_freqs(r[0], **kwargs) for r in results]).T
         return {"q": q.T}
     
+class WHPOVMOnRandomStates(TaskProgram):
+    """Program for measuring the WH-POVM on the computational basis states."""
+    @classmethod
+    def create_circuits(cls, task, *args, **kwargs):
+        d = task.d
+        n = int(np.log2(d))
+        N = kwargs["N"] if "N" in kwargs else 1000
+        prepare_states = [ansatz_circuit(rand_ket(d)) for i in range(N)]
+        prepare_fiducial = kwargs["prepare_fiducial"]
+        if task.wh_implementation == "simple":
+            state_qubits = task.qubits[:n]
+            fiducial_qubits = task.qubits[n:2*n]
+            circuits = [cirq.Circuit((prepare_state(state_qubits),\
+                                      simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                        for prepare_state in prepare_states]
+        elif task.wh_implementation == "ak":
+            ancilla1 = task.qubits[:n]
+            ancilla2 = task.qubits[n:2*n]
+            state_qubits = task.qubits[2*n:3*n]
+            circuits = [cirq.Circuit((prepare_state(state_qubits),\
+                                      arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                        for prepare_state in prepare_states]
+        return circuits, {}
+
+    @classmethod
+    def process_results(cls, record, **kwargs):
+        task = record["task"]
+        results = record["data"]
+        H = np.array([get_freqs(r[0], **kwargs) for r in results])
+        if task.wh_implementation == "ak":
+            H = change_conjugate_convention(H)
+        return {"H": H.T}
+
 sky_ground_programs = [(CharacterizeWHReferenceDevice, "P"),\
                        (WHPOVMOnBasisStates, "p"),\
                        (BasisMeasurementOnWHStates, "C"),\
-                       (BasisMeasurementOnBasisStates, "q")]
+                       (BasisMeasurementOnBasisStates, "q"),\
+                       (WHPOVMOnRandomStates, "H")]
 
 ####################################################################################
 
-def calculate_sky_ground_metrics(P=None, p=None, C=None, q=None, verbose=False):
+def calculate_sky_ground_metrics(P=None, p=None, C=None, q=None, H=None, verbose=False):
     d = int(np.sqrt(P.shape[0]))
     Phi = np.linalg.inv(P)
     q_ = C @ Phi @ p
@@ -187,7 +221,9 @@ def calculate_sky_ground_metrics(P=None, p=None, C=None, q=None, verbose=False):
     quantumness_sic = np.linalg.norm(np.eye(d**2) - Phi_sic)
     q_err = np.linalg.norm(np.eye(d) - q)
     sg_q_err = np.linalg.norm(q - q_)
-    
+    neg_emp = avg_negativity(Phi @ H)
+    neg_sic = avg_negativity(Phi_sic @ H)
+
     if verbose:
         print("Sky/Ground Metrics:")
         print(f"|P - P_SIC| = {P_err}")
@@ -196,6 +232,8 @@ def calculate_sky_ground_metrics(P=None, p=None, C=None, q=None, verbose=False):
         print(f"|I - Phi_SIC| = {quantumness_sic}")
         print(f"|I - q| = {q_err}")
         print(f"|q - C Phi p| = {sg_q_err}")
+        print(f'Neg_emp = {neg_emp}')
+        print(f'Neg_SIC = {neg_sic}')
     return locals()
 
 def process_sky_ground_data(d, flag, n_shots_list=[1000, 5000, 10000, 20000, 50000, 100000], processor_id="willow_pink", base_dir=""):
