@@ -170,3 +170,59 @@ def ansatz_circuit(ket):
     def __ansatz__(q, conjugate=False):
         yield __ansatz_circuit__(q, params, conjugate=conjugate)
     return __ansatz__
+
+####################################################################################
+
+def Z_d(d, qubits, aux, k=1):
+    """Z acting on the first d basis vectors of n qubits. Requires two auxilliary qubits. Note d <= 2^{n-1}"""
+    extended_qubits = [aux[0]] + qubits
+    yield from Z(extended_qubits, k=k)
+    yield from Z(extended_qubits, k=-d)
+    yield from qft(extended_qubits, inverse=True)
+    yield cirq.CNOT(extended_qubits[0], aux[1])
+    yield from qft(extended_qubits)
+    yield from [op.controlled_by(aux[1]) for op in Z(extended_qubits, k=d)]
+    yield from Z(extended_qubits, k=-k)
+    yield from qft(extended_qubits, inverse=True)
+    yield cirq.X(extended_qubits[0])
+    yield cirq.CNOT(extended_qubits[0], aux[1])
+    yield cirq.X(extended_qubits[0])
+    yield from qft(extended_qubits)
+    yield from Z(extended_qubits, k=k)
+
+def X_d(d, qubits, aux, k=1):
+    """X acting on the first d basis vectors of n qubits. Requires two auxilliary qubits. Note d <= 2^{n-1}"""
+    extended_qubits = [aux[0]] + qubits
+    yield from qft(extended_qubits)
+    yield from Z_d(d, qubits, aux, k=k)
+    yield from qft(extended_qubits, inverse=True)
+
+####################################################################################
+
+def CZ_d(d, control_qubits, target_qubits, aux, inverse=False):
+    """CZ acting on the first d basis vectors of two pairs of n qubits. Requires two auxilliary qubits. Note d <= 2^{n-1}"""
+    if inverse:
+        yield from cirq.inverse(list(CZ_d(d, control_qubits, target_qubits, aux)))
+        return
+    for i, control_qubit in enumerate(control_qubits):
+        k = 2**(len(control_qubits) - 1 - i)
+        yield from [op.controlled_by(control_qubit) for op in Z_d(d, target_qubits, aux, k=k)]
+
+def CX_d(d, control_qubits, target_qubits, aux, inverse=False):
+    """CX acting on the first d basis vectors of two pairs of n qubits. Requires two auxilliary qubits. Note d <= 2^{n-1}"""
+    extended_target_qubits = [aux[0]] + target_qubits
+    yield from qft(extended_target_qubits)
+    yield from CZ_d(d, control_qubits, target_qubits, aux, inverse=inverse)
+    yield from qft(extended_target_qubits, inverse=True)
+
+####################################################################################
+
+def qft_d(d, qubits, inverse=False):
+    """QFT acting on the first d basis vectors of two pairs of n qubits."""
+    if inverse:
+        yield from cirq.inverse(qft_d(d, qubits))
+        return
+    n = len(qubits)
+    F = np.array([[np.exp(2*np.pi*1j*i*j/d) for j in range(d)] for i in range(d)])/np.sqrt(d)
+    Fd_gate = cirq.MatrixGate(sc.linalg.block_diag(F, np.eye(2**n - d)), name=f"DFT({d})")
+    yield from cirq.decompose(cirq.Circuit((Fd_gate.on(*qubits))))

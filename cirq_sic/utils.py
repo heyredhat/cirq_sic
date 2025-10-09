@@ -60,3 +60,11 @@ def dirac(state_vector):
             print("%s: %.2f+%.2fj: %.3f" % (bin_str, amp.real, amp.imag, abs(amp)**2))
             basis_states.append((bin_str, amp))
     return basis_states
+
+def mod_d_outcome_mask(d, n, m):
+    """When working on computations mod d encoded in n-qubits, with m groups of n-qubits."""
+    d_b = 2**n
+    return sum([kron(*[np.eye(d_b, dtype=int)[i] for i in ind]) for ind in np.ndindex(*[d_b]*m) if np.all(np.array(ind) < d)])
+
+def mod_d_probabilities(p, d, n, m):
+    return p[np.where(mod_d_outcome_mask(d, n, m)==1)]
