@@ -491,6 +491,10 @@ In order to perform WH-POVM's in any dimension $d=2^n$ with arbitrary fiducial s
 
 \includegraphics[scale=0.4]{img/P_d2_numerical_sic_noisy_ak_n100000}
 
+\includegraphics[scale=0.4]{img/Phi_d2_numerical_sic_noisy_simple_n100000}
+
+\includegraphics[scale=0.4]{img/Phi_d2_numerical_sic_noisy_ak_n100000}
+
 \end{center}
 
 \subsection{$d=4$}
@@ -498,9 +502,9 @@ In order to perform WH-POVM's in any dimension $d=2^n$ with arbitrary fiducial s
 \begin{center}
 \includegraphics[scale=0.5]{img/sic_metrics_d4_numerical_sic}	
 
-\includegraphics[scale=0.5]{img/sg_metrics_d4_numerical_sic}	
-
 \includegraphics[scale=0.4]{img/P_d4_numerical_sic_noisy_simple_n100000}
+
+\includegraphics[scale=0.5]{img/sg_metrics_d4_numerical_sic}	
 
 \includegraphics[scale=0.4]{img/P_d4_numerical_sic_noisy_ak_n100000}
 
@@ -809,11 +813,31 @@ Although only when $\alpha = d/(d+1)$ do we recover the exact LTP, we could say 
  
 Since $\Phi=P^{-1}$, $\Phi$ sends MIC probability vectors (the columns of $P$) to the vertices of the simplex (the basis vectors). Since $\Phi$ invertibly maps the reference polytope to the probability simplex, any state outside the polytope will be mapped to a state outside the probability simplex, and thus it must contain quasiprobabilities. It also follows that the only pure states with a properly probabilities as quasiprobabilities are the reference states themselves.
 
-The Euclidean volume of the probability simplex is $\frac{d}{(d^2-1)!}$. The Euclidean volume of the SIC simplex is $\frac{d}{(d^2-1)!}\left(\frac{1}{d+1}\right)^{d^2-1}$. This gives a volume ratio of
+The Euclidean volume of the probability simplex is
 \begin{align}
-R(d) = \left(\frac{1}{d+1}\right)^{d^2-1}	.
+\text{vol}(\Delta)= \frac{d}{(d^2-1)!}.
 \end{align}
-As $d\rightarrow \infty$, $R(d)\rightarrow 0$ so that the proportion of quasi-classical states, i.e. states for which the Born rule looks like the LTP, goes to 0. We note that if you consider the sphere in which state space is inscribed (within the probability simplex), under the depolarizing map with $\alpha=d/(d+1)$, this sphere becomes the in-sphere of the SIC simplex.
+The Euclidean volume of the SIC simplex is
+\begin{align}
+\text{vol}(\Delta_{\text{SIC}})&= \frac{d}{(d^2-1)!}\left(\frac{1}{d+1}\right)^{d^2-1}	
+\end{align}
+Their ratio is
+\begin{align}
+\frac{\text{vol}(\Delta_{\text{SIC}})}{\text{vol}(\Delta)} = \left(\frac{1}{d+1}\right)^{d^2-1}	.
+\end{align}
+As $d\rightarrow \infty$, this ratio goes to 0 so that the proportion of quasi-classical states, i.e. states for which the Born rule looks like the LTP, goes to 0. We note that if you consider the sphere in which state space is inscribed (within the probability simplex), under the depolarizing map with $\alpha=d/(d+1)$, this sphere becomes the in-sphere of the SIC simplex.
+
+Meanwhile, the volume of quantum state space itself within the probability simplex is \cite{PhysRevResearch.2.013074}
+\begin{align}
+\text{vol}(Q)=\sqrt{\frac{(2\pi)^{d(d-1)}}{d^{d^2-2}(d+1)^{d^2-1}}}\frac{\Gamma(1)\cdots \Gamma(d)}{\Gamma(d^2)}	.
+\end{align}
+(We note that Theorem 2 of the same paper tells us that this volume is the maximum possible among MIC's.) Then
+\begin{align}
+\frac{\text{vol}(\Delta_{\text{SIC}})}{\text{vol}(Q)}	&= \sqrt{\frac{d^{d^2}}{(d+1)^{d^2-1}(2\pi)^{d(d-1)}}}\frac{1}{\Gamma(1)\dots \Gamma(d)}.
+\end{align}
+
+
+
 
 \subsection{Average negativity}
  A non-negative quasi-probability distribution may be interpreted as a distribution over hidden variables. Thus we can ask: how ``quantum'' are we on average? We prepare 1000 random pure states, perform the SIC, and consider the average sum of the negative entries of their quasi-probabilities. On the left, we use the empirical $\Phi=P^{-1}$ to calculate quasi-probabilities. On the right, we use $\Phi_{\text{SIC}}$.	
@@ -821,5 +845,13 @@ As $d\rightarrow \infty$, $R(d)\rightarrow 0$ so that the proportion of quasi-cl
 	\includegraphics[scale=0.6]{img/avg_neg_d2_numerical_sic}	
 	\end{center}
 
+\section{Avoiding intermediate measurement}
+
+The full AK unitary which should act on $|\phi^*\rangle \otimes |\phi\rangle \otimes |\psi\rangle$, where $|\phi\rangle$ is the fiducial and $|\psi\rangle$ is the state to be measured:
+\begin{align}
+U &= \left(\sum_m I \otimes X^{-m} \otimes |m\rangle_p\langle m|_p	\right)\left(\sum_k X^{-k} \otimes I \otimes |k\rangle\langle k|\right)\left(\sum_j |j\rangle\langle j|\otimes Z^j	\otimes I\right)\Big(I \otimes F^\dagger \otimes I\Big)\\
+&=\sum_{jmk} X^{-k}|j\rangle\langle j| \otimes X^{-m}Z^{j}F^\dagger \otimes |m\rangle_p\langle m|_pk\rangle\langle k|\\
+&=\sum_{jmk}\omega^{-mk} \ |j-k\rangle\langle j|\otimes X^{-m}Z^{j}F^\dagger \otimes|m\rangle_p\langle k|...
+\end{align}
 
 \end{document}

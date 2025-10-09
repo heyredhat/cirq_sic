@@ -61,6 +61,11 @@ def test_ak(d=4):
 	
 	# Compare direct WH-POVM probabilities with AK probabilities
 	assert np.allclose(p, ak_p)
+
+	# Check partial state of system.
+	dims = [d**2, d]
+	final_rho = ptrace(np.outer(final_state, final_state.conj()), [0], dims)
+	assert np.allclose(final_rho, sum([p[i]*E[i]/E[i].trace() for i in range(d**2)]))
 	
 	# Usual Kraus operators
 	K = np.array([kron(np.eye(d)[i], np.eye(d)[j], np.eye(d)) @ U @ kron(gamma, np.eye(d)).T for i in range(d) for j in range(d)])

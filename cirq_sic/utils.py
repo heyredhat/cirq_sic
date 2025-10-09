@@ -1,6 +1,7 @@
 import collections
 from functools import reduce
 import numpy as np
+import string
 
 import cirq 
 
@@ -16,6 +17,13 @@ def rand_ket(d):
     """Random d-dimensional normalized complex vector."""
     ket = np.random.randn(d) + 1j*np.random.randn(d)
     return ket/np.linalg.norm(ket)
+
+def ptrace(rho, over, dims):
+    """Partial trace of a density matrix with ket dimensions dims over indices over."""
+    indices = list(string.ascii_lowercase[:len(dims)*2])
+    for o in over:
+        indices[o+len(dims)] = indices[o]
+    return np.einsum("".join(indices), rho.reshape(dims*2))
 
 def pad(x, d):
     return np.concatenate([x, np.zeros(d-len(x))])
