@@ -1,9 +1,9 @@
-import cirq
-import cirq_google
-import qsimcirq
-import recirq
+from pathlib import Path
 
 import numpy as np
+
+import cirq
+import recirq
 
 from ..wh import *
 from ..sics import *
@@ -13,243 +13,262 @@ from .experiment_utils import *
 
 ####################################################################################
 
+def get_wh_qubits(d, wh_implementation):
+    n = int(np.log2(d))
+    cols = 2 if wh_implementation == "simple" else 3
+    return cirq.GridQubit.rect(cols, n, top=4, left=2)
+
+####################################################################################
+
+EXPERIMENT_NAME = "sky_ground"
+DEFAULT_BASE_DIR = f"data/{EXPERIMENT_NAME}"
+
+def load_results(task, base_dir=None):
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+    return recirq.read_json(f"{base_dir}/{task.fn}.json")
+
+def load_circuits(task, base_dir=None, raw=False):
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+    circuits_directory = Path(f"{base_dir}/{task.fn}").parent / "circuits"
+    if raw:
+        path = circuits_directory / "raw.json"
+        return cirq.read_json(str(path))
+    else:
+        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
+        optimized_circuits, mappings = cirq.read_json(str(optimized_path))
+        return optimized_circuits, mappings
+
+####################################################################################
+
+def run_sky_ground_task(task, base_dir=None):
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+
+    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
+    experiment_dir.mkdir(parents=True, exist_ok=True)
+    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
+    
+    try:
+        if recirq.exists(task, base_dir=base_dir):
+            logger.info(f"Task already exists. Skipping.")
+            return
+
+        logger.info(f"Starting task...")    
+
+        logger.info(f"Creating circuits...")
+        circuits_directory = experiment_dir / "circuits"
+        circuits_directory.mkdir(parents=True, exist_ok=True)
+        raw_path = circuits_directory / "raw.json"
+        if not raw_path.exists():
+            circuits = task.make_circuits()
+            cirq.to_json(circuits, str(raw_path))
+        else:
+            circuits = cirq.read_json(str(raw_path))
+        
+        logger.info(f"Optimizing circuits...")
+        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
+        if not optimized_path.exists():
+            if task.optimizer.startswith("cirq"):
+                optimized_circuits, mappings = zip(*[cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits])
+            elif task.optimizer.startswith("bqskit"):
+                optimization_level = int(task.optimizer[-1])
+                machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
+                optimized_circuits, mappings = zip(*[bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level) for circuit in circuits])
+            cirq.to_json([optimized_circuits, mappings], str(optimized_path))
+        else:
+            optimized_circuits, mappings = cirq.read_json(str(optimized_path))
+        
+        logger.info(f"Sampling...")
+        sampler = get_sampler(task.processor_id, run_type=task.run_type)
+        results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
+
+        logger.info(f"Processing results...")
+        data = task.process_results(results, mappings)
+
+        logger.info(f"Saving...")
+        recirq.save(task=task, data=data, base_dir=base_dir)
+    except Exception as e:
+        logger.exception("Help!") 
+
+####################################################################################
+
 @recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
                                     registry=recirq.Registry,
                                     frozen=True)
-class WHSkyGroundTask:
-    """Task parameters for WH sky/ground experiment."""
+class CharacterizeWHReferenceDeviceTask:
     dataset_id: str
     processor_id: str
-    run_type: str # "clean", "noisy", or "real"
-    wh_implementation: str # "simple" or "ak"
-    description: str
-    n_shots: int
+    run_type: str
     qubits: list
+    n_shots: int
+    optimizer: str
+
     d: int
-    flag: str
+    fiducial: np.array
+    fiducial_description: str
+    wh_implementation: str
 
     @property
     def fn(self):
-        """Filename for this task."""
-        n_shots = f'{self.n_shots // 1000}k' if self.n_shots % 1000 == 0 else str(self.n_shots)
-        qubits_str = f"Q{"".join([str(q) for q in self.qubits])}"
-        return (f'{self.dataset_id}/'f'{self.description}_{self.flag}__d{self.d}__{self.wh_implementation}__'
-                f'{self.processor_id}__{self.run_type}__{n_shots}__{qubits_str}')
+        return (f"{self.dataset_id}/"
+                f"d{self.d}/"
+                f"{self.__class__.__name__}/"
+                f"{self.wh_implementation}/"
+                f"{self.fiducial_description}/"
+                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
     
-    def __str__(self):
-        return self.fn
-    
-    def run(self, program, **kwargs):
-        base_dir = kwargs["base_dir"]
-        """Create circuits from the provided program, optimize for the device, process samples, and save the data."""
-        if recirq.exists(self, base_dir=base_dir):
-            print(f"Task already exists. Skipping.")
-            return
-        print(f"Starting task {self.fn}...")
-        print(f"Creating circuits...")
-        circuits, context = program.create_circuits(self, **kwargs)
-        print(f"Optimizing...")
-        device_data = get_device_data(self.processor_id, run_type=self.run_type)
-        optimized_circuits = [process_circuit(circ, device_data["connectivity_graph"], device_data["gateset"], self.qubits) for circ in circuits]
-        print(f"Sampling...")
-        sampler = device_data["sampler"]
-        results = sampler.run_batch(programs=optimized_circuits, repetitions=self.n_shots)
-        data = {**context, "data": results}
-        if base_dir is not None:
-            print(f"Saving...")
-            recirq.save(task=self, data=data, base_dir=base_dir)
-        print(f"Done!")
-        return {"program": program, **kwargs,\
-                "circuits": circuits, "device_data": device_data,\
-                "optimized_circuits": optimized_circuits, "results": results, **data}
-
-####################################################################################
-
-class CharacterizeWHReferenceDevice(TaskProgram):
-    """Program for characterizing a WH reference device in terms of itself: measuring the WH-POVM on the WH statates."""
-    @classmethod
-    def create_circuits(cls, task, *args, **kwargs):
-        d = task.d
-        n = int(np.log2(d))
-        a = [[a1, a2] for a1 in range(d) for a2 in range(d)]
-        prepare_fiducial = kwargs["prepare_fiducial"]
-        if task.wh_implementation == "simple":
-            state_qubits = task.qubits[:n]
-            fiducial_qubits = task.qubits[n:2*n]
+    def make_circuits(self):
+        n = int(np.log2(self.d))
+        a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
+        prepare_fiducial = ansatz_circuit(self.fiducial)
+        if self.wh_implementation == "simple":
+            state_qubits = self.qubits[:n]
+            fiducial_qubits = self.qubits[n:2*n]
             circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
                                       simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for a1, a2 in a]
-        elif task.wh_implementation == "ak":
-            ancilla1_qubits = task.qubits[:n]
-            ancilla2_qubits = task.qubits[n:2*n]
-            state_qubits = task.qubits[2*n:3*n]
+        elif self.wh_implementation == "ak":
+            ancilla1_qubits = self.qubits[:n]
+            ancilla2_qubits = self.qubits[n:2*n]
+            state_qubits = self.qubits[2*n:3*n]
             circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
                                       arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                             for a1, a2 in a]
-        return circuits, {"a": a}
-
-    @classmethod
-    def process_results(cls, record, **kwargs):
-        task = record["task"]
-        results = record["data"]
-        P = np.array([get_freqs(r[0], **kwargs) for r in results])
-        if task.wh_implementation == "ak":
+                                                for a1, a2 in a]
+        return circuits
+    
+    def process_results(self, results, mappings):
+        P = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+        if self.wh_implementation == "ak":
             P = change_conjugate_convention(P)
-        return {"P": P.T}
+        P = P.T
+        return {"P": P}
+    
+####################################################################################
 
-class WHPOVMOnBasisStates(TaskProgram):
-    """Program for measuring the WH-POVM on the computational basis states."""
-    @classmethod
-    def create_circuits(cls, task, *args, **kwargs):
-        d = task.d
-        n = int(np.log2(d))
-        m = np.arange(d)
-        prepare_fiducial = kwargs["prepare_fiducial"]
-        if task.wh_implementation == "simple":
-            state_qubits = task.qubits[:n]
-            fiducial_qubits = task.qubits[n:2*n]
+@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
+                                    registry=recirq.Registry,
+                                    frozen=True)
+class WHPOVMOnBasisStatesTask:
+    dataset_id: str
+    processor_id: str
+    run_type: str
+    qubits: list
+    n_shots: int
+    optimizer: str
+
+    d: int
+    fiducial: np.array
+    fiducial_description: str
+    wh_implementation: str
+
+    @property
+    def fn(self):
+        return (f"{self.dataset_id}/"
+                f"d{self.d}/"
+                f"{self.__class__.__name__}/"
+                f"{self.wh_implementation}/"
+                f"{self.fiducial_description}/"
+                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+    
+    def make_circuits(self):
+        n = int(np.log2(self.d))
+        m = np.arange(self.d)
+        prepare_fiducial = ansatz_circuit(self.fiducial)
+        if self.wh_implementation == "simple":
+            state_qubits = self.qubits[:n]
+            fiducial_qubits = self.qubits[n:2*n]
             circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
                                       simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for i in m]
-        elif task.wh_implementation == "ak":
-            ancilla1 = task.qubits[:n]
-            ancilla2 = task.qubits[n:2*n]
-            state_qubits = task.qubits[2*n:3*n]
+        elif self.wh_implementation == "ak":
+            ancilla1 = self.qubits[:n]
+            ancilla2 = self.qubits[n:2*n]
+            state_qubits = self.qubits[2*n:3*n]
             circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
                                       arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for i in m]
-        return circuits, {"m": m}
-
-    @classmethod
-    def process_results(cls, record, **kwargs):
-        task = record["task"]
-        results = record["data"]
-        p = np.array([get_freqs(r[0], **kwargs) for r in results])
-        if task.wh_implementation == "ak":
+        return circuits
+    
+    def process_results(self, results, mappings):
+        p = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+        if self.wh_implementation == "ak":
             p = change_conjugate_convention(p)
-        return {"p": p.T}
+        p = p.T
+        return {"p": p}
+    
+####################################################################################
 
-class BasisMeasurementOnWHStates(TaskProgram):
-    @classmethod
-    def create_circuits(cls, task, *args, **kwargs):
-        d = task.d
-        n = int(np.log2(d))
-        a = [[a1, a2] for a1 in range(d) for a2 in range(d)]
-        prepare_fiducial = kwargs["prepare_fiducial"]
-        state_qubits = task.qubits[:n]
+@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
+                                    registry=recirq.Registry,
+                                    frozen=True)
+class BasisMeasurementOnWHStatesTask:
+    dataset_id: str
+    processor_id: str
+    run_type: str
+    qubits: list
+    n_shots: int
+    optimizer: str
+
+    d: int
+    fiducial: np.array
+    fiducial_description: str
+
+    @property
+    def fn(self):
+        return (f"{self.dataset_id}/"
+                f"d{self.d}/"
+                f"{self.__class__.__name__}/"
+                f"{self.fiducial_description}/"
+                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+    
+    def make_circuits(self):
+        n = int(np.log2(self.d))
+        a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
+        prepare_fiducial = ansatz_circuit(self.fiducial)
+        state_qubits = self.qubits[:n]
         circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
                                   cirq.measure(state_qubits, key="result")))\
-                                        for a1 in range(d) for a2 in range(d)]
-        return circuits, {"a": a}
-
-    @classmethod
-    def process_results(cls, record, **kwargs):
-        task = record["task"]
-        results = record["data"]
-        C = np.array([get_freqs(r[0], **kwargs) for r in results]).T
+                                        for a1, a2 in a]
+        return circuits
+    
+    def process_results(self, results, mappings):
+        C = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+        C = C.T
         return {"C": C}
-    
-class BasisMeasurementOnBasisStates(TaskProgram):
-    @classmethod
-    def create_circuits(cls, task, *args, **kwargs):
-        d = task.d
-        n = int(np.log2(d))
-        m = np.arange(d)
-        state_qubits = task.qubits[:n]
-        circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),
-                                  cirq.measure(state_qubits, key="result"))) for i in m]
-        return circuits, {"m": m}
-
-    @classmethod
-    def process_results(cls, record, **kwargs):
-        task = record["task"]
-        results = record["data"]
-        q = np.array([get_freqs(r[0], **kwargs) for r in results]).T
-        return {"q": q.T}
-    
-class WHPOVMOnRandomStates(TaskProgram):
-    """Program for measuring the WH-POVM on the computational basis states."""
-    @classmethod
-    def create_circuits(cls, task, *args, **kwargs):
-        d = task.d
-        n = int(np.log2(d))
-        N = kwargs["N"] if "N" in kwargs else 1000
-        prepare_states = [ansatz_circuit(rand_ket(d)) for i in range(N)]
-        prepare_fiducial = kwargs["prepare_fiducial"]
-        if task.wh_implementation == "simple":
-            state_qubits = task.qubits[:n]
-            fiducial_qubits = task.qubits[n:2*n]
-            circuits = [cirq.Circuit((prepare_state(state_qubits),\
-                                      simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for prepare_state in prepare_states]
-        elif task.wh_implementation == "ak":
-            ancilla1 = task.qubits[:n]
-            ancilla2 = task.qubits[n:2*n]
-            state_qubits = task.qubits[2*n:3*n]
-            circuits = [cirq.Circuit((prepare_state(state_qubits),\
-                                      arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for prepare_state in prepare_states]
-        return circuits, {}
-
-    @classmethod
-    def process_results(cls, record, **kwargs):
-        task = record["task"]
-        results = record["data"]
-        H = np.array([get_freqs(r[0], **kwargs) for r in results])
-        if task.wh_implementation == "ak":
-            H = change_conjugate_convention(H)
-        return {"H": H.T}
-
-sky_ground_programs = [(CharacterizeWHReferenceDevice, "P"),\
-                       (WHPOVMOnBasisStates, "p"),\
-                       (BasisMeasurementOnWHStates, "C"),\
-                       (BasisMeasurementOnBasisStates, "q"),\
-                       (WHPOVMOnRandomStates, "H")]
 
 ####################################################################################
 
-def calculate_sky_ground_metrics(P=None, p=None, C=None, q=None, H=None, verbose=False):
-    d = int(np.sqrt(P.shape[0]))
-    Phi = np.linalg.inv(P)
-    q_ = C @ Phi @ p
-    P_sic = SIC_P(d)
-    Phi_sic = np.linalg.inv(P_sic)
+@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
+                                    registry=recirq.Registry,
+                                    frozen=True)
+class BasisMeasurementOnBasisStatesTask:
+    dataset_id: str
+    processor_id: str
+    run_type: str
+    qubits: list
+    n_shots: int
+    optimizer: str
 
-    P_err = np.linalg.norm(P - P_sic)
-    Phi_err = np.linalg.norm(Phi - Phi_sic)
-    quantumness = np.linalg.norm(np.eye(d**2) - Phi)
-    quantumness_sic = np.linalg.norm(np.eye(d**2) - Phi_sic)
-    q_err = np.linalg.norm(np.eye(d) - q)
-    sg_q_err = np.linalg.norm(q - q_)
-    neg_emp = avg_negativity(Phi @ H)
-    neg_sic = avg_negativity(Phi_sic @ H)
+    d: int
 
-    if verbose:
-        print("Sky/Ground Metrics:")
-        print(f"|P - P_SIC| = {P_err}")
-        print(f"|Phi - Phi_SIC| = {Phi_err}")
-        print(f"|I - Phi| = {quantumness}")
-        print(f"|I - Phi_SIC| = {quantumness_sic}")
-        print(f"|I - q| = {q_err}")
-        print(f"|q - C Phi p| = {sg_q_err}")
-        print(f'Neg_emp = {neg_emp}')
-        print(f'Neg_SIC = {neg_sic}')
-    return locals()
-
-def process_sky_ground_data(d, flag, n_shots_list=[1000, 5000, 10000, 20000, 50000, 100000], processor_id="willow_pink", base_dir=""):
-    """Calculate metrics in the sky/ground scenario."""
-    dataset_id = "d%d" % d
-    records = recirq.load_records(dataset_id=dataset_id, base_dir=base_dir)
-    query = {"dataset_id": dataset_id, "d": d, "flag": flag, "processor_id": processor_id}
-    all_metrics = {}
-    for run_type in ["clean", "noisy"]:
-        for wh_implementation in ["simple", "ak"]:
-            data_by_n_shots = dict([(n_shots, {}) for n_shots in n_shots_list])
-            for program, data_label in sky_ground_programs:
-                record = query_records(records, {**query, "run_type": run_type,\
-                                                          "wh_implementation": wh_implementation,\
-                                                          "description": program.__name__})[0]
-                for n_shots in n_shots_list:
-                    data_by_n_shots[n_shots].update(program.process_results(record, n_shots=n_shots))
-            all_metrics[(run_type, wh_implementation)] = {k: calculate_sky_ground_metrics(**v) for k, v in data_by_n_shots.items()}
-    return all_metrics
+    @property
+    def fn(self):
+        return (f"{self.dataset_id}/"
+                f"d{self.d}/"
+                f"{self.__class__.__name__}/"
+                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+    
+    def make_circuits(self):
+        n = int(np.log2(self.d))
+        m = np.arange(self.d)
+        state_qubits = self.qubits[:n]
+        circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),
+                                  cirq.measure(state_qubits, key="result"))) for i in m]
+        return circuits
+    
+    def process_results(self, results, mappings):
+        q = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+        q = q.T
+        return {"q": q}

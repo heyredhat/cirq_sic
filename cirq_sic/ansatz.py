@@ -3,7 +3,7 @@ from functools import reduce
 import numpy as np
 import scipy as sc
 
-from .utils import *
+from .utils import sigma_y, sigma_z
 
 ####################################################################################
 

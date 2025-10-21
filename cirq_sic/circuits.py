@@ -1,6 +1,7 @@
 import cirq 
 import numpy as np
 
+from .wh import *
 from .ansatz import *
 
 def qudit_basis_state(qubits, m):
@@ -218,7 +219,7 @@ def CX_d(d, control_qubits, target_qubits, aux, inverse=False):
 ####################################################################################
 
 def qft_d(d, qubits, inverse=False):
-    """QFT acting on the first d basis vectors of two pairs of n qubits."""
+    """QFT acting on the first d basis vectors of n qubits."""
     if inverse:
         yield from cirq.inverse(qft_d(d, qubits))
         return
@@ -226,3 +227,15 @@ def qft_d(d, qubits, inverse=False):
     F = np.array([[np.exp(2*np.pi*1j*i*j/d) for j in range(d)] for i in range(d)])/np.sqrt(d)
     Fd_gate = cirq.MatrixGate(sc.linalg.block_diag(F, np.eye(2**n - d)), name=f"DFT({d})")
     yield from cirq.decompose(cirq.Circuit((Fd_gate.on(*qubits))))
+
+####################################################################################
+
+def embed_gate(U, qubits, inverse=False):
+    """Unitary acting on the first d basis vectors."""
+    if inverse:
+        yield from cirq.inverse(embed_gate(U, qubits))
+        return
+    n = len(qubits)
+    d = U.shape[0]
+    gate = cirq.MatrixGate(sc.linalg.block_diag(U, np.eye(2**n - d)))
+    yield from cirq.decompose(cirq.Circuit((gate.on(*qubits))))

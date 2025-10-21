@@ -1,9 +1,8 @@
-import collections
 from functools import reduce
 import numpy as np
 import string
 
-import cirq 
+####################################################################################
 
 sigma_x = np.array([[0,1], [1,0]])
 sigma_y = np.array([[0,-1j], [1j, 0]]) 
@@ -18,6 +17,12 @@ def rand_ket(d):
     ket = np.random.randn(d) + 1j*np.random.randn(d)
     return ket/np.linalg.norm(ket)
 
+def rand_dm(d, r=1):
+    """Random dxd density matrix with rank r."""
+    A = np.random.randn(d, r) + 1j*np.random.randn(d, r)
+    rho = A @ A.conj().T
+    return rho/rho.trace()
+
 def ptrace(rho, over, dims):
     """Partial trace of a density matrix with ket dimensions dims over indices over."""
     indices = list(string.ascii_lowercase[:len(dims)*2])
@@ -25,16 +30,7 @@ def ptrace(rho, over, dims):
         indices[o+len(dims)] = indices[o]
     return np.einsum("".join(indices), rho.reshape(dims*2))
 
-def pad(x, d):
-    return np.concatenate([x, np.zeros(d-len(x))])
-
-def get_gate_counts(circuit):
-    """Get gate counts for a cirq circuit."""
-    all_gate_types = [type(op.gate) for op in circuit.all_operations()]
-    type_counts = collections.Counter(all_gate_types)
-    print("--- Gate Counts (by type) ---")
-    for gate_type, count in type_counts.items():
-        print(f"{gate_type.__name__}: {count}")
+####################################################################################
 
 def symmetrize(M, T=100):
     """Obtain a stochastic symmetric matrix by a variant of Sinkhorn's algorithm."""
@@ -50,6 +46,8 @@ def nonneg_projection(p):
     p_fixed = p_fixed/sum(p_fixed)
     return p_fixed
 
+####################################################################################
+
 def dirac(state_vector):
     """n qubit state vector in Dirac notation."""
     n = int(np.log2(len(state_vector)))
@@ -60,6 +58,11 @@ def dirac(state_vector):
             print("%s: %.2f+%.2fj: %.3f" % (bin_str, amp.real, amp.imag, abs(amp)**2))
             basis_states.append((bin_str, amp))
     return basis_states
+
+####################################################################################
+
+def pad(x, d):
+    return np.concatenate([x, np.zeros(d-len(x))])
 
 def mod_d_outcome_mask(d, n, m):
     """When working on computations mod d encoded in n-qubits, with m groups of n-qubits."""

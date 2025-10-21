@@ -19,10 +19,10 @@ def wh_povm(phi):
 	d = phi.shape[0]
 	D = wh_operators(d)["D"]
 	Pi = np.outer(phi, phi.conj())
-	return np.array([D[a].conj().T @ Pi @ D[a] for a in np.ndindex(d,d)])/d
+	return np.array([D[a] @ Pi @ D[a].conj().T for a in np.ndindex(d,d)])/d
 
 def change_conjugate_convention(p):
-    r"""If we have WH-POVM probabilities (a d^2 vector), reorder them from the convention $D^\dag \Pi D to D \Pi D^\dag (and vice versa)."""
+    r"""If we have WH-POVM probabilities (a d^2 vector), reorder them from the convention $D \Pi D^\dag to D^\dag \Pi D (and vice versa)."""
     if len(p.shape) > 1:
          return np.array([change_conjugate_convention(p_i) for p_i in p]) 
     d = int(np.sqrt(p.shape[0]))
