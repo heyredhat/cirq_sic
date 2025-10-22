@@ -1,3 +1,4 @@
+import inspect
 from pathlib import Path
 
 import numpy as np
@@ -54,8 +55,9 @@ def run_sky_ground_task(task, base_dir=None):
     experiment_dir.mkdir(parents=True, exist_ok=True)
     logger = setup_logger(task.fn, experiment_dir / "experiment.log")
     
+    circuits_directory = experiment_dir / "circuits"
     try:
-        if recirq.exists(task, base_dir=base_dir):
+        if recirq.exists(task, base_dir=base_dir) and Path():
             logger.info(f"Task already exists. Skipping.")
             return
 
@@ -92,9 +94,16 @@ def run_sky_ground_task(task, base_dir=None):
         data = task.process_results(results=results)
 
         logger.info(f"Saving...")
-        recirq.save(task=task, data=data, base_dir=base_dir)
+        recirq.save(task=task, data={"processed_data": data}, base_dir=base_dir)
     except Exception as e:
         logger.exception("Help!") 
+
+####################################################################################
+
+def task_from_specs(task_type, specs):
+    sig = inspect.signature(task_type).parameters
+    task = task_type(**{k: specs[k] for k in sig.keys() if k in specs})
+    return task
 
 ####################################################################################
 
@@ -121,7 +130,7 @@ class CharacterizeWHReferenceDeviceTask:
                 f"{self.__class__.__name__}/"
                 f"{self.wh_implementation}/"
                 f"{self.fiducial_description}/"
-                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
     
     def make_circuits(self):
         n = int(np.log2(self.d))
@@ -143,10 +152,7 @@ class CharacterizeWHReferenceDeviceTask:
         return circuits
     
     def process_results(self, results=None, probs=None):
-        if type(probs) == type(None):
-            P = np.array([results_to_freqs(r[0]) for i, r in enumerate(results)])
-        else:
-            P = probs            
+        P = results_to_freqs(results) if type(probs) == type(None) else probs  
         if self.wh_implementation == "ak":
             P = change_conjugate_convention(P)
         P = P.T
@@ -177,7 +183,7 @@ class WHPOVMOnBasisStatesTask:
                 f"{self.__class__.__name__}/"
                 f"{self.wh_implementation}/"
                 f"{self.fiducial_description}/"
-                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
     
     def make_circuits(self):
         n = int(np.log2(self.d))
@@ -198,8 +204,8 @@ class WHPOVMOnBasisStatesTask:
                                         for i in m]
         return circuits
     
-    def process_results(self, results, mappings):
-        p = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+    def process_results(self, results=None, probs=None):
+        p = results_to_freqs(results) if type(probs) == type(None) else probs  
         if self.wh_implementation == "ak":
             p = change_conjugate_convention(p)
         p = p.T
@@ -228,7 +234,7 @@ class BasisMeasurementOnWHStatesTask:
                 f"d{self.d}/"
                 f"{self.__class__.__name__}/"
                 f"{self.fiducial_description}/"
-                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
     
     def make_circuits(self):
         n = int(np.log2(self.d))
@@ -240,11 +246,11 @@ class BasisMeasurementOnWHStatesTask:
                                         for a1, a2 in a]
         return circuits
     
-    def process_results(self, results, mappings):
-        C = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+    def process_results(self, results=None, probs=None):
+        C = results_to_freqs(results) if type(probs) == type(None) else probs  
         C = C.T
         return {"C": C}
-
+    
 ####################################################################################
 
 @recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
@@ -265,7 +271,7 @@ class BasisMeasurementOnBasisStatesTask:
         return (f"{self.dataset_id}/"
                 f"d{self.d}/"
                 f"{self.__class__.__name__}/"
-                f"{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
     
     def make_circuits(self):
         n = int(np.log2(self.d))
@@ -275,7 +281,14 @@ class BasisMeasurementOnBasisStatesTask:
                                   cirq.measure(state_qubits, key="result"))) for i in m]
         return circuits
     
-    def process_results(self, results, mappings):
-        q = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+    def process_results(self, results=None, probs=None):
+        q = results_to_freqs(results) if type(probs) == type(None) else probs  
         q = q.T
         return {"q": q}
+    
+####################################################################################
+
+sk_ground_tasks = [CharacterizeWHReferenceDeviceTask,
+                   WHPOVMOnBasisStatesTask,
+                   BasisMeasurementOnWHStatesTask,
+                   BasisMeasurementOnBasisStatesTask]

@@ -86,10 +86,8 @@ def get_sampler(processor_id, run_type="noisy", PROJECT_ID="cirq_sic"):
 ####################################################################################
 
 def exact_simulation(circuit):
-    gates = [op for op in circuit.all_operations() if not isinstance(op.gate, cirq.MeasurementGate)]
     measurements = [op for op in circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
-
-    circuit_sans_measurements = cirq.Circuit(gates)
+    circuit_sans_measurements = cirq.drop_terminal_measurements(circuit)
     qubits = list(circuit_sans_measurements.all_qubits())
     result = cirq.Simulator().simulate(circuit_sans_measurements)
     return np.diag(result.density_matrix_of(measurements[0].qubits)).real
@@ -125,10 +123,8 @@ def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1
     qubit_map = {cirq.NamedQubit("q_%d" % i): qubit for i, qubit in enumerate(qubits)}
     compiled_circuit = compiled_circuit.transform_qubits(qubit_map)
 
-    gates = [op for op in compiled_circuit.all_operations() if not isinstance(op.gate, cirq.MeasurementGate)]
     measurements = [op for op in compiled_circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
-
-    final_circuit = cirq.Circuit(gates)
+    final_circuit = cirq.drop_terminal_measurements(compiled_circuit)
     to_measure = {int(measurement.gate.key.split("_")[-1]): measurement.qubits[0] for measurement in measurements}
     final_circuit.append(cirq.measure(*[to_measure[i] for i in range(len(to_measure))], key="result"))
     return final_circuit
@@ -148,8 +144,8 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
 
 ####################################################################################
 
-def results_to_freqs(results):
-    measurements = results.measurements["result"]
+def shots_to_freqs(shots):
+    measurements = shots.measurements["result"]
     n_outcomes = 2**measurements.shape[1]
     int_outcomes = [big_endian_bits_to_int(bits) for bits in measurements]
     counts = collections.Counter(int_outcomes)
@@ -158,6 +154,9 @@ def results_to_freqs(results):
             counts[i] = 0
     freqs = np.array([v for k, v in sorted(counts.items())])/counts.total()
     return freqs
+
+def results_to_freqs(results):
+    return np.array([shots_to_freqs(r[0]) for i, r in enumerate(results)])
 
 def avg_negativity(M):
     """Average negativity of the columns of M."""

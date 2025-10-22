@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-10-22T01:23:42.828773",
+  "timestamp": "2025-10-22T02:29:04.919985",
   "task": {
-    "cirq_type": "recirq.sky_ground.CharacterizeWHReferenceDeviceTask",
+    "cirq_type": "recirq.sky_ground.WHPOVMOnBasisStatesTask",
     "dataset_id": "test",
     "processor_id": "willow_pink",
     "run_type": "clean",
@@ -23,47 +23,41 @@
       }
     ],
     "n_shots": 50000,
-    "optimizer": "bqskit1",
+    "optimizer": "cirq",
     "d": 2,
     "fiducial": [
       {
         "cirq_type": "complex",
-        "real": 0.19297189411090215,
-        "imag": 0.9778807384363006
+        "real": -0.7678977602599036,
+        "imag": 0.5222166589720943
       },
       {
         "cirq_type": "complex",
-        "real": -0.04295641475368415,
-        "imag": 0.06830707071772103
+        "real": -0.12240170801197829,
+        "imag": 0.3502008177540385
       }
     ],
     "fiducial_description": "rand_ket",
     "wh_implementation": "ak"
   },
-  "P": [
-    [
-      0.50292,
-      0.48672,
-      0.00676,
-      0.00592
-    ],
-    [
-      0.484,
-      0.50092,
-      0.00586,
-      0.00748
-    ],
-    [
-      0.00672,
-      0.00572,
-      0.50156,
-      0.48686
-    ],
-    [
-      0.00636,
-      0.00664,
-      0.48582,
-      0.49974
+  "processed_data": {
+    "p": [
+      [
+        0.42796,
+        0.06894
+      ],
+      [
+        0.43246,
+        0.0671
+      ],
+      [
+        0.07094,
+        0.4289
+      ],
+      [
+        0.06864,
+        0.43506
+      ]
     ]
-  ]
+  }
 }
