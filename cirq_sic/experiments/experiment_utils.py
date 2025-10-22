@@ -85,6 +85,17 @@ def get_sampler(processor_id, run_type="noisy", PROJECT_ID="cirq_sic"):
 
 ####################################################################################
 
+def exact_simulation(circuit):
+    gates = [op for op in circuit.all_operations() if not isinstance(op.gate, cirq.MeasurementGate)]
+    measurements = [op for op in circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
+
+    circuit_sans_measurements = cirq.Circuit(gates)
+    qubits = list(circuit_sans_measurements.all_qubits())
+    result = cirq.Simulator().simulate(circuit_sans_measurements)
+    return np.diag(result.density_matrix_of(measurements[0].qubits)).real
+
+####################################################################################
+
 bqskit_willow_gateset = [bq.ir.gates.PhasedXZGate(),
                          bq.ir.gates.CZGate(), 
                          bq.ir.gates.RXGate(),
@@ -111,16 +122,16 @@ def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1
                                                                      optimization_level=optimization_level,\
                                                                      with_mapping=True)
     compiled_circuit = bqskit_to_cirq(compiled_bq_circuit)
-    named_qubits = [cirq.NamedQubit("q_%d" % i) for i in range(len(qubits))]
-    qubit_map = dict([(nq, qubits[i]) for i, nq in enumerate(named_qubits)])
-    finished_circuit = cirq.drop_negligible_operations(cirq.drop_terminal_measurements(compiled_circuit.transform_qubits(qubit_map)))
-    final_measurement = None
-    for op in circuit.all_operations():
-        if isinstance(op.gate, cirq.MeasurementGate):
-            final_measurement = op
-            break 
-    finished_circuit.append(final_measurement)
-    return finished_circuit, final_mapping
+    qubit_map = {cirq.NamedQubit("q_%d" % i): qubit for i, qubit in enumerate(qubits)}
+    compiled_circuit = compiled_circuit.transform_qubits(qubit_map)
+
+    gates = [op for op in compiled_circuit.all_operations() if not isinstance(op.gate, cirq.MeasurementGate)]
+    measurements = [op for op in compiled_circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
+
+    final_circuit = cirq.Circuit(gates)
+    to_measure = {int(measurement.gate.key.split("_")[-1]): measurement.qubits[0] for measurement in measurements}
+    final_circuit.append(cirq.measure(*[to_measure[i] for i in range(len(to_measure))], key="result"))
+    return final_circuit
 
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     """Conform the circuit to device topology and gateset."""
@@ -133,15 +144,12 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     routed_circuit, initial_map, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
     finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
                             context=cirq.TransformerContext(deep=True), gateset=gateset)
-    return finished_circuit, None
+    return finished_circuit
 
 ####################################################################################
 
-def results_to_freqs(results, mapping=None):
-    if mapping is not None:
-        measurements = results.measurements["result"][:, mapping]
-    else:
-        measurements = results.measurements["result"]
+def results_to_freqs(results):
+    measurements = results.measurements["result"]
     n_outcomes = 2**measurements.shape[1]
     int_outcomes = [big_endian_bits_to_int(bits) for bits in measurements]
     counts = collections.Counter(int_outcomes)

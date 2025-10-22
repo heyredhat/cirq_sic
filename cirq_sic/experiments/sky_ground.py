@@ -37,8 +37,12 @@ def load_circuits(task, base_dir=None, raw=False):
         return cirq.read_json(str(path))
     else:
         optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
-        optimized_circuits, mappings = cirq.read_json(str(optimized_path))
-        return optimized_circuits, mappings
+        optimized_circuits = cirq.read_json(str(optimized_path))
+        return optimized_circuits
+
+def exactify(task, base_dir=None):
+    circuits = load_circuits(task, base_dir=base_dir)
+    return task.process_results(probs=np.array([exact_simulation(circuit) for i, circuit in enumerate(circuits)]))
 
 ####################################################################################
 
@@ -71,21 +75,21 @@ def run_sky_ground_task(task, base_dir=None):
         optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
         if not optimized_path.exists():
             if task.optimizer.startswith("cirq"):
-                optimized_circuits, mappings = zip(*[cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits])
+                optimized_circuits = [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
             elif task.optimizer.startswith("bqskit"):
                 optimization_level = int(task.optimizer[-1])
                 machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
-                optimized_circuits, mappings = zip(*[bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level) for circuit in circuits])
-            cirq.to_json([optimized_circuits, mappings], str(optimized_path))
+                optimized_circuits = [bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level) for circuit in circuits]
+            cirq.to_json(optimized_circuits, str(optimized_path))
         else:
-            optimized_circuits, mappings = cirq.read_json(str(optimized_path))
+            optimized_circuits = cirq.read_json(str(optimized_path))
         
         logger.info(f"Sampling...")
         sampler = get_sampler(task.processor_id, run_type=task.run_type)
         results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
 
         logger.info(f"Processing results...")
-        data = task.process_results(results, mappings)
+        data = task.process_results(results=results)
 
         logger.info(f"Saving...")
         recirq.save(task=task, data=data, base_dir=base_dir)
@@ -138,8 +142,11 @@ class CharacterizeWHReferenceDeviceTask:
                                                 for a1, a2 in a]
         return circuits
     
-    def process_results(self, results, mappings):
-        P = np.array([results_to_freqs(r[0], mapping=mappings[i]) for i, r in enumerate(results)])
+    def process_results(self, results=None, probs=None):
+        if type(probs) == type(None):
+            P = np.array([results_to_freqs(r[0]) for i, r in enumerate(results)])
+        else:
+            P = probs            
         if self.wh_implementation == "ak":
             P = change_conjugate_convention(P)
         P = P.T
