@@ -9,7 +9,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -23,7 +23,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 4.451417111151699
+              "rads": -0.8939620303255604
             },
             "qubits": [
               {
@@ -37,7 +37,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -56,7 +56,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -70,7 +70,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -84,7 +84,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -103,7 +103,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -117,7 +117,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.6373326326723061
+              "rads": -2.006744969943139
             },
             "qubits": [
               {
@@ -131,7 +131,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -411,7 +411,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -425,7 +425,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 4.451417111151699
+              "rads": -0.8939620303255604
             },
             "qubits": [
               {
@@ -439,7 +439,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -458,7 +458,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -472,7 +472,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -486,7 +486,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -505,7 +505,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -519,7 +519,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.6373326326723061
+              "rads": -2.006744969943139
             },
             "qubits": [
               {
@@ -533,7 +533,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -828,7 +828,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -842,7 +842,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 4.451417111151699
+              "rads": -0.8939620303255604
             },
             "qubits": [
               {
@@ -856,7 +856,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -875,7 +875,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -889,7 +889,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -903,7 +903,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -922,7 +922,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -936,7 +936,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.6373326326723061
+              "rads": -2.006744969943139
             },
             "qubits": [
               {
@@ -950,7 +950,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -1245,7 +1245,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -1259,7 +1259,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 4.451417111151699
+              "rads": -0.8939620303255604
             },
             "qubits": [
               {
@@ -1273,7 +1273,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -4.451417111151699
+              "rads": 0.8939620303255604
             },
             "qubits": [
               {
@@ -1292,7 +1292,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -1306,7 +1306,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -1320,7 +1320,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.7601184277516807
+              "rads": 2.001959539323338
             },
             "qubits": [
               {
@@ -1339,7 +1339,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {
@@ -1353,7 +1353,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.6373326326723061
+              "rads": -2.006744969943139
             },
             "qubits": [
               {
@@ -1367,7 +1367,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.6373326326723061
+              "rads": 2.006744969943139
             },
             "qubits": [
               {

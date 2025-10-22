@@ -41,6 +41,19 @@ def load_circuits(task, base_dir=None, raw=False):
         optimized_circuits = cirq.read_json(str(optimized_path))
         return optimized_circuits
 
+def load_sky_ground_results(specs, base_dir=None, separate=True):
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+    results = {task_type: recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json") for task_type in sk_ground_tasks}
+    if separate:
+        tasks = {task_type: stuff["task"] for task_type, stuff in results.items()}
+        data = [stuff["processed_data"] for task_type, stuff in results.items()]
+        return tasks, {k: np.array(v) for d in data for k, v in d.items()}
+    else:
+        return results
+
+####################################################################################
+
 def exactify(task, base_dir=None):
     circuits = load_circuits(task, base_dir=base_dir)
     return task.process_results(probs=np.array([exact_simulation(circuit) for i, circuit in enumerate(circuits)]))
@@ -123,15 +136,19 @@ class CharacterizeWHReferenceDeviceTask:
     fiducial_description: str
     wh_implementation: str
 
+    @classmethod
+    def filename(cls, **specs):
+        return (f"{specs['dataset_id']}/"
+                f"d{specs['d']}/"
+                f"{cls.__name__}/"
+                f"{specs['wh_implementation']}/"
+                f"{specs['fiducial_description']}/"
+                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
+
     @property
     def fn(self):
-        return (f"{self.dataset_id}/"
-                f"d{self.d}/"
-                f"{self.__class__.__name__}/"
-                f"{self.wh_implementation}/"
-                f"{self.fiducial_description}/"
-                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
-    
+        return CharacterizeWHReferenceDeviceTask.filename(**self.__dict__)
+
     def make_circuits(self):
         n = int(np.log2(self.d))
         a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
@@ -176,14 +193,18 @@ class WHPOVMOnBasisStatesTask:
     fiducial_description: str
     wh_implementation: str
 
+    @classmethod
+    def filename(cls, **specs):
+        return (f"{specs['dataset_id']}/"
+                f"d{specs['d']}/"
+                f"{cls.__name__}/"
+                f"{specs['wh_implementation']}/"
+                f"{specs['fiducial_description']}/"
+                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
+
     @property
     def fn(self):
-        return (f"{self.dataset_id}/"
-                f"d{self.d}/"
-                f"{self.__class__.__name__}/"
-                f"{self.wh_implementation}/"
-                f"{self.fiducial_description}/"
-                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+        return self.__class__.filename(**self.__dict__)
     
     def make_circuits(self):
         n = int(np.log2(self.d))
@@ -228,13 +249,17 @@ class BasisMeasurementOnWHStatesTask:
     fiducial: np.array
     fiducial_description: str
 
+    @classmethod
+    def filename(cls, **specs):
+        return (f"{specs['dataset_id']}/"
+                f"d{specs['d']}/"
+                f"{cls.__name__}/"
+                f"{specs['fiducial_description']}/"
+                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
+
     @property
     def fn(self):
-        return (f"{self.dataset_id}/"
-                f"d{self.d}/"
-                f"{self.__class__.__name__}/"
-                f"{self.fiducial_description}/"
-                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+        return self.__class__.filename(**self.__dict__)
     
     def make_circuits(self):
         n = int(np.log2(self.d))
@@ -266,12 +291,16 @@ class BasisMeasurementOnBasisStatesTask:
 
     d: int
 
+    @classmethod
+    def filename(cls, **specs):
+        return (f"{specs['dataset_id']}/"
+                f"d{specs['d']}/"
+                f"{cls.__name__}/"
+                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
+
     @property
     def fn(self):
-        return (f"{self.dataset_id}/"
-                f"d{self.d}/"
-                f"{self.__class__.__name__}/"
-                f"{self.optimizer}_{self.run_type}_n{abbrev_n_shots(self.n_shots)}_{self.processor_id}_q{abbrev_grid_qubits(self.qubits)}")
+        return self.__class__.filename(**self.__dict__)
     
     def make_circuits(self):
         n = int(np.log2(self.d))
