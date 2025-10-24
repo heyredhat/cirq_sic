@@ -144,7 +144,6 @@ def sky_ground_metrics(specs, base_dir=None):
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
-
     exact_P = exactify(tasks[CharacterizeWHReferenceDeviceTask])["P"]
     empirical_P = sg_results["P"]
     P_err = np.linalg.norm(exact_P - empirical_P)

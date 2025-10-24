@@ -119,3 +119,11 @@ def geodesic_interpolator(psi_start, psi_target, atol=1e-12):
         return np.cos(t * theta) * psi_start + np.sin(t * theta) * eta
 
     return psi
+
+####################################################################################
+
+def merge_dicts(dicts):
+    merged = {}
+    for d in dicts:
+        merged.update(d)  # later keys overwrite earlier ones
+    return merged
