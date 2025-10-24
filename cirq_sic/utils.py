@@ -71,3 +71,51 @@ def mod_d_outcome_mask(d, n, m):
 
 def mod_d_probabilities(p, d, n, m):
     return p[np.where(mod_d_outcome_mask(d, n, m)==1)]
+
+####################################################################################
+
+def geodesic_interpolator(psi_start, psi_target, atol=1e-12):
+    """
+    Build psi(t) that moves along the Fubini–Study geodesic from psi_start to psi_target.
+
+    Parameters
+    ----------
+    psi_start, psi_target : array_like
+        Column vectors (shape (d,) or (d,1)). They will be normalized internally.
+    atol : float
+        Angular tolerance treating states as identical.
+
+    Returns
+    -------
+    psi : callable
+        psi(t) with t ∈ [0, 1], giving a normalized vector.
+    """
+    psi_start = np.asarray(psi_start, dtype=complex).reshape(-1)
+    psi_target = np.asarray(psi_target, dtype=complex).reshape(-1)
+
+    # Normalize both inputs
+    psi_start = psi_start / np.linalg.norm(psi_start)
+    psi_target = psi_target / np.linalg.norm(psi_target)
+
+    # Align global phase of the target so overlap is real and non-negative
+    overlap = np.vdot(psi_start, psi_target)
+    phase = np.angle(overlap)
+    aligned = np.exp(-1j * phase) * psi_target
+
+    c = np.real(np.vdot(psi_start, aligned))
+    c = np.clip(c, -1.0, 1.0)
+    theta = np.arccos(c)
+
+    if theta < atol:
+        def psi(t):
+            return psi_start.copy()
+        return psi
+
+    sin_theta = np.sin(theta)
+    eta = (aligned - c * psi_start) / sin_theta  # unit vector orthogonal to psi_start
+
+    def psi(t):
+        t = np.asarray(t, dtype=float)
+        return np.cos(t * theta) * psi_start + np.sin(t * theta) * eta
+
+    return psi

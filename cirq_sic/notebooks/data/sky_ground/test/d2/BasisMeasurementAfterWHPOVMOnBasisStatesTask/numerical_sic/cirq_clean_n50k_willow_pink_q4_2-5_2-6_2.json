@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-23T22:21:13.865567",
+  "timestamp": "2025-10-24T01:01:18.609252",
   "task": {
     "cirq_type": "recirq.sky_ground.BasisMeasurementAfterWHPOVMOnBasisStatesTask",
     "dataset_id": "test",
@@ -42,12 +42,12 @@
   "processed_data": {
     "p": [
       [
-        0.66784,
-        0.33544
+        0.66374,
+        0.33182
       ],
       [
-        0.33216,
-        0.66456
+        0.33626,
+        0.66818
       ]
     ]
   }

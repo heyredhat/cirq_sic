@@ -56,6 +56,12 @@ def minimize_wh_frame_potential(d, T=10, method="SLSQP"):
     ket = jp.concatenate([jp.array([1]), V[:d-1] + 1j*V[d-1:]])
     return np.array(ket/jp.linalg.norm(ket))
 
+def wh_2_frame_potential(ket):
+    d = ket.shape[0]
+    D = wh_operators(d)["D"]
+    R = jp.einsum("ijkl, l->ijk", D, ket).reshape(d**2, d)
+    return (jp.sum(abs(R @ R.conj().T)**4)/d**4 - frame_potential_minimum(d, 2))**2
+
 ####################################################################################
 
 def d4_sic_fiducial_ket(monomial=False):

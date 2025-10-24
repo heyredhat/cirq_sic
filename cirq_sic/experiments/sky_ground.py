@@ -49,7 +49,11 @@ def load_circuits(task, base_dir=None, raw=False):
 def load_sky_ground_results(specs, base_dir=None, separate=True):
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    results = {task_type: recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json") for task_type in sk_ground_tasks}
+    results = {}
+    for task_type in sky_ground_tasks:
+        if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+            continue
+        results[task_type] = recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json")
     if separate:
         tasks = {task_type: stuff["task"] for task_type, stuff in results.items()}
         data = [stuff["processed_data"] for task_type, stuff in results.items()]
@@ -115,6 +119,15 @@ def run_sky_ground_task(task, base_dir=None):
         recirq.save(task=task, data={"processed_data": data}, base_dir=base_dir)
     except Exception as e:
         logger.exception("Help!") 
+
+def run_sky_ground_tasks(specs, base_dir=None):
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+    for task_type in sky_ground_tasks:
+        if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+            continue
+        task = task_from_specs(task_type, specs)
+        run_sky_ground_task(task, base_dir=base_dir)
 
 ####################################################################################
 
@@ -362,7 +375,7 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
 
 ####################################################################################
 
-sk_ground_tasks = [CharacterizeWHReferenceDeviceTask,
+sky_ground_tasks = [CharacterizeWHReferenceDeviceTask,
                    WHPOVMOnBasisStatesTask,
                    BasisMeasurementOnWHStatesTask,
                    BasisMeasurementOnBasisStatesTask,
