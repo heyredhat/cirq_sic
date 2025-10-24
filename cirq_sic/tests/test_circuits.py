@@ -87,7 +87,7 @@ def test_simple_wh_povm(n=3):
 	p = np.diag(sim.simulate(circ).density_matrix_of(system_qubits+ancilla_qubits)).real
 
 	E = wh_povm(phi)
-	p2 = change_conjugate_convention(np.array([ket.conj() @ e @ ket for e in E]).real)
+	p2 = np.array([ket.conj() @ e @ ket for e in E]).real
 	assert np.allclose(p, p2)
 
 def test_arthurs_kelly(n=3):
@@ -108,7 +108,7 @@ def test_arthurs_kelly(n=3):
 									   ancilla1_qubits, ancilla2_qubits,
 									   prepare_fiducial=prepare_fiducial, measure=False)))
 	sim = cirq.Simulator()
-	p = np.diag(sim.simulate(circ).density_matrix_of(ancilla1_qubits+ancilla2_qubits)).real
+	p = change_conjugate_convention(np.diag(sim.simulate(circ).density_matrix_of(ancilla1_qubits+ancilla2_qubits)).real)
 
 	E = wh_povm(phi)
 	p2 = np.array([ket.conj() @ e @ ket for e in E]).real
@@ -167,5 +167,5 @@ def test_simple_wh_povm_d(n=3, d_s=3):
 	p = mod_d_probabilities(total_p, d_s, n, 2)
 
 	E = wh_povm(phi)
-	p2 = change_conjugate_convention(np.array([ket.conj() @ e @ ket for e in E]).real)
+	p2 = np.array([ket.conj() @ e @ ket for e in E]).real
 	assert np.allclose(p, p2)
