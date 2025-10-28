@@ -1,0 +1,131 @@
+{
+  "timestamp": "2025-10-27T22:56:16.970218",
+  "task": {
+    "cirq_type": "recirq.sky_ground.WHPOVMOnStatesTask",
+    "dataset_id": "test",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 4
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 3
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 4
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 3
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 4
+      }
+    ],
+    "n_shots": 50000,
+    "optimizer": "cirq",
+    "d": 3,
+    "fiducial_description": "numerical_sic",
+    "states_description": "rand_ket",
+    "wh_implementation": "simple",
+    "fiducial": [
+      {
+        "cirq_type": "complex",
+        "real": 0.24301085666178665,
+        "imag": -0.766589329508283
+      },
+      {
+        "cirq_type": "complex",
+        "real": -0.35162037482800157,
+        "imag": -0.3890472178974496
+      },
+      {
+        "cirq_type": "complex",
+        "real": -0.19076003046535822,
+        "imag": -0.2047010221212176
+      }
+    ],
+    "fiducial_circuit": null,
+    "states": [
+      [
+        {
+          "cirq_type": "complex",
+          "real": 0.5786203444929836,
+          "imag": 0.3664064944626876
+        },
+        {
+          "cirq_type": "complex",
+          "real": -0.5580074449078883,
+          "imag": 0.21304449450420518
+        },
+        {
+          "cirq_type": "complex",
+          "real": 0.22360501672685615,
+          "imag": -0.35239936015518736
+        }
+      ]
+    ],
+    "states_circuits": null
+  },
+  "processed_data": {
+    "r": [
+      [
+        0.04148
+      ],
+      [
+        0.20364
+      ],
+      [
+        0.16828
+      ],
+      [
+        0.06466
+      ],
+      [
+        0.17308
+      ],
+      [
+        0.07876
+      ],
+      [
+        0.00074
+      ],
+      [
+        0.23098
+      ],
+      [
+        0.03838
+      ]
+    ]
+  }
+}

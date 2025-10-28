@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-24T01:02:49.278553",
+  "timestamp": "2025-10-24T13:50:23.254764",
   "task": {
     "cirq_type": "recirq.sky_ground.BasisMeasurementOnWHStatesTask",
     "dataset_id": "interpolation",
@@ -37,16 +37,16 @@
   "processed_data": {
     "C": [
       [
-        0.99,
-        0.98996,
-        0.01154,
-        0.0113
+        0.98984,
+        0.99012,
+        0.01032,
+        0.01008
       ],
       [
-        0.01,
-        0.01004,
-        0.98846,
-        0.9887
+        0.01016,
+        0.00988,
+        0.98968,
+        0.98992
       ]
     ]
   }

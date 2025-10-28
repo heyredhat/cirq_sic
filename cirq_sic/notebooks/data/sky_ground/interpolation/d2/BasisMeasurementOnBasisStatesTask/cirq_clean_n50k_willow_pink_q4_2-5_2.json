@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-24T01:02:44.278054",
+  "timestamp": "2025-10-24T13:50:18.910123",
   "task": {
     "cirq_type": "recirq.sky_ground.BasisMeasurementOnBasisStatesTask",
     "dataset_id": "interpolation",

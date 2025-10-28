@@ -9,7 +9,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "PhasedXZGate",
-              "axis_phase_exponent": -0.49851325954461634,
+              "axis_phase_exponent": -0.4985132595446162,
               "x_exponent": 0.4693304340500255,
               "z_exponent": -0.9706738131897499
             },

@@ -9,7 +9,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974484
             },
             "qubits": [
               {
@@ -28,7 +28,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.34118450647303883
+              "rads": 0.3411845064730388
             },
             "qubits": [
               {
@@ -132,7 +132,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974484
             },
             "qubits": [
               {
@@ -151,7 +151,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.34118450647303883
+              "rads": 0.3411845064730388
             },
             "qubits": [
               {
@@ -275,7 +275,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974484
             },
             "qubits": [
               {
@@ -294,7 +294,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.34118450647303883
+              "rads": 0.3411845064730388
             },
             "qubits": [
               {
@@ -418,7 +418,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974484
             },
             "qubits": [
               {
@@ -437,7 +437,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.34118450647303883
+              "rads": 0.3411845064730388
             },
             "qubits": [
               {

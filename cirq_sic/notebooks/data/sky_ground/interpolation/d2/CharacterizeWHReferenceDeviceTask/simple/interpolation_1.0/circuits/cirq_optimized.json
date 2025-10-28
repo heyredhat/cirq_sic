@@ -10,8 +10,8 @@
             "gate": {
               "cirq_type": "PhasedXZGate",
               "axis_phase_exponent": -0.41666666666666663,
-              "x_exponent": 0.3040867239846965,
-              "z_exponent": -0.8333333333333326
+              "x_exponent": 0.3040867239846967,
+              "z_exponent": -0.833333333333333
             },
             "qubits": [
               {
@@ -137,9 +137,9 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "PhasedXZGate",
-              "axis_phase_exponent": 0.5833333333333333,
-              "x_exponent": 0.695913276015304,
-              "z_exponent": -0.33333333333333304
+              "axis_phase_exponent": 0.583333333333333,
+              "x_exponent": 0.6959132760153035,
+              "z_exponent": -0.3333333333333326
             },
             "qubits": [
               {
@@ -266,8 +266,8 @@
             "gate": {
               "cirq_type": "PhasedXZGate",
               "axis_phase_exponent": -0.4166666666666662,
-              "x_exponent": 0.3040867239846967,
-              "z_exponent": 0.16666666666666652
+              "x_exponent": 0.30408672398469694,
+              "z_exponent": 0.16666666666666674
             },
             "qubits": [
               {
@@ -393,9 +393,9 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "PhasedXZGate",
-              "axis_phase_exponent": 0.5833333333333335,
-              "x_exponent": 0.695913276015304,
-              "z_exponent": 0.6666666666666665
+              "axis_phase_exponent": 0.5833333333333333,
+              "x_exponent": 0.6959132760153035,
+              "z_exponent": 0.666666666666667
             },
             "qubits": [
               {

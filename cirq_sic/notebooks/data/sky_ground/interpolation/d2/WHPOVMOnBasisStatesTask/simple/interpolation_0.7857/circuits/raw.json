@@ -9,7 +9,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.7853981633974487
+              "rads": -0.7853981633974485
             },
             "qubits": [
               {
@@ -185,7 +185,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.7853981633974487
+              "rads": -0.7853981633974485
             },
             "qubits": [
               {

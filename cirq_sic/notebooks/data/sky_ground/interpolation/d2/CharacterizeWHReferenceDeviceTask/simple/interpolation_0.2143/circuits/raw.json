@@ -9,7 +9,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974485
             },
             "qubits": [
               {
@@ -23,7 +23,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.7853981633974486
+              "rads": -0.7853981633974485
             },
             "qubits": [
               {
@@ -42,7 +42,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -56,7 +56,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -259,7 +259,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974485
             },
             "qubits": [
               {
@@ -273,7 +273,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.7853981633974486
+              "rads": -0.7853981633974485
             },
             "qubits": [
               {
@@ -292,7 +292,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -306,7 +306,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -529,7 +529,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974485
             },
             "qubits": [
               {
@@ -543,7 +543,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.7853981633974486
+              "rads": -0.7853981633974485
             },
             "qubits": [
               {
@@ -562,7 +562,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -576,7 +576,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -799,7 +799,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": 0.7853981633974486
+              "rads": 0.7853981633974485
             },
             "qubits": [
               {
@@ -813,7 +813,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Rz",
-              "rads": -0.7853981633974486
+              "rads": -0.7853981633974485
             },
             "qubits": [
               {
@@ -832,7 +832,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {
@@ -846,7 +846,7 @@
             "cirq_type": "GateOperation",
             "gate": {
               "cirq_type": "Ry",
-              "rads": 0.20471070388381923
+              "rads": 0.2047107038838192
             },
             "qubits": [
               {

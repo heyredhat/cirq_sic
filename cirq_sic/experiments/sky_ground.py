@@ -1,5 +1,6 @@
 import inspect
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
@@ -15,14 +16,14 @@ from .experiment_utils import *
 ####################################################################################
 
 def get_wh_qubits(d, wh_implementation):
-    n = int(np.log2(d))
-    cols = 2 if wh_implementation == "simple" else 3
-    return cirq.GridQubit.rect(cols, n, top=4, left=2)
-
-def task_from_specs(task_type, specs):
-    sig = inspect.signature(task_type).parameters
-    task = task_type(**{k: specs[k] for k in sig.keys() if k in specs})
-    return task
+    n = int(np.ceil(np.log2(d)))
+    if 2**n == d:
+        cols = 2 if wh_implementation == "simple" else 3
+        return cirq.GridQubit.rect(cols, n, top=4, left=2)
+    else:
+        n = int(np.ceil(np.log2(d)) + 1)
+        cols = 3 if wh_implementation == "simple" else 4
+        return cirq.GridQubit.rect(cols, n, top=4, left=2)
 
 ####################################################################################
 
@@ -53,7 +54,10 @@ def load_sky_ground_results(specs, base_dir=None, separate=True):
     for task_type in sky_ground_tasks:
         if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             continue
-        results[task_type] = recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json")
+        try:
+            results[task_type] = recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json")
+        except:
+            continue
     if separate:
         tasks = {task_type: stuff["task"] for task_type, stuff in results.items()}
         data = [stuff["processed_data"] for task_type, stuff in results.items()]
@@ -68,6 +72,14 @@ def exactify(task, base_dir=None):
     return task.process_results(probs=np.array([exact_simulation(circuit) for i, circuit in enumerate(circuits)]))
 
 ####################################################################################
+
+def task_from_specs(task_type, specs):
+    sig = inspect.signature(task_type).parameters
+    task = task_type(**{k: specs[k] for k in sig.keys() if k in specs})
+    return task
+
+def run_sky_ground_task_from_specs(task_type, specs, base_dir=None):
+    run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir) 
 
 def run_sky_ground_task(task, base_dir=None):
     if base_dir is None:
@@ -126,8 +138,7 @@ def run_sky_ground_tasks(specs, base_dir=None):
     for task_type in sky_ground_tasks:
         if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             continue
-        task = task_from_specs(task_type, specs)
-        run_sky_ground_task(task, base_dir=base_dir)
+        run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir)
 
 ####################################################################################
 
@@ -161,21 +172,21 @@ class CharacterizeWHReferenceDeviceTask:
         return CharacterizeWHReferenceDeviceTask.filename(**self.__dict__)
 
     def make_circuits(self):
-        n = int(np.log2(self.d))
         a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
+        n = int(np.log2(self.d))
         prepare_fiducial = ansatz_circuit(self.fiducial)
         if self.wh_implementation == "simple":
             state_qubits = self.qubits[:n]
             fiducial_qubits = self.qubits[n:2*n]
             circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
-                                      simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                        simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for a1, a2 in a]
         elif self.wh_implementation == "ak":
             ancilla1_qubits = self.qubits[:n]
             ancilla2_qubits = self.qubits[n:2*n]
             state_qubits = self.qubits[2*n:3*n]
             circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
-                                      arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                        arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                                 for a1, a2 in a]
         return circuits
     
@@ -375,8 +386,78 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
 
 ####################################################################################
 
+@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
+                                    registry=recirq.Registry,
+                                    frozen=True)
+class WHPOVMOnStatesTask:
+    dataset_id: str
+    processor_id: str
+    run_type: str
+    qubits: list
+    n_shots: int
+    optimizer: str
+
+    d: int
+    fiducial_description: str
+    states_description: str
+    wh_implementation: str
+
+    fiducial: Optional[np.array] = None
+    fiducial_circuit: Optional[cirq.Circuit] = None
+    states: Optional[list] = None
+    states_circuits: Optional[list] = None
+
+    @classmethod
+    def filename(cls, **specs):
+        return (f"{specs['dataset_id']}/"
+                f"d{specs['d']}/"
+                f"{cls.__name__}/"
+                f"{specs['wh_implementation']}/"
+                f"{specs['fiducial_description']}/"
+                f"{specs['states_description']}/"
+                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
+
+    @property
+    def fn(self):
+        return self.__class__.filename(**self.__dict__)
+    
+    def make_circuits(self):
+        n = int(np.log2(self.d))
+        if type(self.fiducial_circuit) != type(None):
+            prepare_fiducial = self.fiducial_circuit
+        else:
+            prepare_fiducial = ansatz_circuit(self.fiducial)
+        if type(self.states_circuits) != type(None):
+            prepare_states = self.states_circuits
+        else:
+            prepare_states = [ansatz_circuit(state) for state in self.states]
+
+        if self.wh_implementation == "simple":
+            state_qubits = self.qubits[:n]
+            fiducial_qubits = self.qubits[n:2*n]
+            circuits = [cirq.Circuit((prepare_state(state_qubits),\
+                                      simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                        for prepare_state in prepare_states]
+        elif self.wh_implementation == "ak":
+            ancilla1 = self.qubits[:n]
+            ancilla2 = self.qubits[n:2*n]
+            state_qubits = self.qubits[2*n:3*n]
+            circuits = [cirq.Circuit((prepare_state(state_qubits),\
+                                      arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                        for prepare_state in prepare_states]
+        return circuits
+    
+    def process_results(self, results=None, probs=None):
+        r = results_to_freqs(results) if type(probs) == type(None) else probs  
+        if self.wh_implementation == "ak":
+            r = change_conjugate_convention(r)
+        r = r.T
+        return {"r": r}
+    
+####################################################################################
+
 sky_ground_tasks = [CharacterizeWHReferenceDeviceTask,
-                   WHPOVMOnBasisStatesTask,
-                   BasisMeasurementOnWHStatesTask,
-                   BasisMeasurementOnBasisStatesTask,
-                   BasisMeasurementAfterWHPOVMOnBasisStatesTask]
+                    WHPOVMOnBasisStatesTask,
+                    BasisMeasurementOnWHStatesTask,
+                    BasisMeasurementOnBasisStatesTask,
+                    BasisMeasurementAfterWHPOVMOnBasisStatesTask]

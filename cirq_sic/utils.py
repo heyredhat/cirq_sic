@@ -62,7 +62,7 @@ def dirac(state_vector):
 ####################################################################################
 
 def pad(x, d):
-    return np.concatenate([x, np.zeros(d-len(x))])
+    return np.concatenate([x, np.zeros(int(d-len(x)))])
 
 def mod_d_outcome_mask(d, n, m):
     """When working on computations mod d encoded in n-qubits, with m groups of n-qubits."""

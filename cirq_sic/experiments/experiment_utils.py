@@ -129,6 +129,27 @@ def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1
     final_circuit.append(cirq.measure(*[to_measure[i] for i in range(len(to_measure))], key="result"))
     return final_circuit
 
+def to_one_and_two_qubit_ops(circuit: cirq.Circuit) -> cirq.Circuit:
+    def keep(op: cirq.Operation) -> bool:
+        if cirq.is_measurement(op):
+            return True
+        return len(op.qubits) <= 2  # accept only 1- and 2-qubit non-measurement ops
+
+    decomposed_ops = []
+    for op in circuit.all_operations():
+        decomposed_ops.extend(cirq.decompose(op, keep=keep, on_stuck_raise=True))
+    return cirq.Circuit(decomposed_ops)
+
+def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
+    trailing = []
+    kept = []
+    for op in circuit.all_operations():
+        if cirq.is_measurement(op):
+            trailing.append(op)
+        else:
+            kept.append(op)
+    return cirq.Circuit(kept + trailing)
+
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     """Conform the circuit to device topology and gateset."""
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
@@ -137,9 +158,19 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
 
     mapping = dict([(q,q) for q in qubits])
     router = cirq.RouteCQC(connectivity_graph)
-    routed_circuit, initial_map, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
+
+    prepped_circuit = push_measurements_to_end(to_one_and_two_qubit_ops(circuit))
+    measurement_ops = [op for op in prepped_circuit.all_operations() if cirq.is_measurement(op)]
+    circuit_without_measurements = cirq.drop_terminal_measurements(prepped_circuit)
+
+    routed_circuit, initial_map, final_map = router.route_circuit(circuit_without_measurements,\
+                                                                  initial_mapper=cirq.HardCodedInitialMapper(mapping))
     finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
                             context=cirq.TransformerContext(deep=True), gateset=gateset)
+
+    if measurement_ops:
+        finished_circuit += cirq.Circuit(measurement_ops)
+
     return finished_circuit
 
 ####################################################################################
@@ -188,4 +219,3 @@ def deep_match(obj, criteria):
 def query_records(records, query):
     """Yields records that satisfy the query function."""
     return [record for record in records if deep_match(record, query)]
-

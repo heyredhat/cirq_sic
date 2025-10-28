@@ -267,7 +267,7 @@
               "cirq_type": "PhasedXZGate",
               "axis_phase_exponent": -0.48115245351800995,
               "x_exponent": 0.3946163127022624,
-              "z_exponent": 0.09284083885699435
+              "z_exponent": 0.09284083885699412
             },
             "qubits": [
               {
@@ -394,7 +394,7 @@
             "gate": {
               "cirq_type": "PhasedXZGate",
               "axis_phase_exponent": 0.5188475464819899,
-              "x_exponent": 0.6053836872977376,
+              "x_exponent": 0.6053836872977374,
               "z_exponent": 0.8694640681790262
             },
             "qubits": [

@@ -198,6 +198,16 @@ def X_d(d, qubits, aux, k=1):
     yield from Z_d(d, qubits, aux, k=k)
     yield from qft(extended_qubits, inverse=True)
 
+def displace_d(d, qubits, aux, a1, a2):
+    """Qudit displacement operator on n qudits with indices (a1, a2)."""
+    yield from Z_d(d, qubits, aux, a2)
+    yield from X_d(d, qubits, aux, a1)
+
+def wh_state_d(d, qubits, aux, prepare_fiducial, a1, a2):
+    """Prepare the WH state D(a1,a2)|fiducial> on n qubits."""
+    yield from prepare_fiducial(qubits)
+    yield from displace_d(d, qubits, aux, a1, a2)
+
 ####################################################################################
 
 def CZ_d(d, control_qubits, target_qubits, aux, inverse=False):
@@ -239,3 +249,43 @@ def embed_gate(U, qubits, inverse=False):
     d = U.shape[0]
     gate = cirq.MatrixGate(sc.linalg.block_diag(U, np.eye(2**n - d)))
     yield from cirq.decompose(cirq.Circuit((gate.on(*qubits))))
+
+####################################################################################
+
+def ready_arthurs_kelly_ancillas_d(d, ancilla1_qubits, ancilla2_qubits, aux):
+    """Prepare Arthurs-Kelly ancillas."""
+    yield from qft_d(d, ancilla2_qubits, inverse=True)
+    yield from CZ_d(d, ancilla1_qubits, ancilla2_qubits, aux)
+
+def arthurs_kelly_coupling_d(d, system_qubits, ancilla1_qubits, ancilla2_qubits, aux):
+    """Qudit Arthurs-Kelly coupling."""
+    yield from CX_d(d, system_qubits, ancilla1_qubits, aux, inverse=True)
+    yield from qft_d(d, system_qubits, inverse=True)
+    yield from CX_d(d, system_qubits, ancilla2_qubits, aux, inverse=True)
+    yield from qft_d(d, system_qubits)
+
+def arthurs_kelly_d(d, system_qubits, ancilla1_qubits, ancilla2_qubits, aux,\
+                    prepare_fiducial=None, prepare_ancillas=None, measure=True):
+    """Qudit Arthurs-Kelly on n qubits with two n qubit ancillas."""
+    if prepare_fiducial is not None:
+        yield from prepare_fiducial(ancilla1_qubits, conjugate=True)
+        yield from prepare_fiducial(ancilla2_qubits)
+        yield from ready_arthurs_kelly_ancillas_d(d, ancilla1_qubits, ancilla2_qubits, aux)
+    if prepare_ancillas is not None:
+        yield from prepare_ancillas(d, ancilla1_qubits, ancilla2_qubits, aux)
+    yield from arthurs_kelly_coupling_d(d, system_qubits, ancilla1_qubits, ancilla2_qubits, aux)
+    if measure:
+        yield cirq.measure(*[ancilla1_qubits+ancilla2_qubits], key="result")
+
+####################################################################################
+
+def simple_wh_povm_d(d, system_qubits, ancilla_qubits, aux, prepare_fiducial=None, measure=True):
+    """Simple WH-POVM on n qubits with n qubit ancilla."""
+    if prepare_fiducial is not None:
+        yield prepare_fiducial(ancilla_qubits, conjugate=True)
+    yield from CX_d(d, ancilla_qubits, system_qubits, aux, inverse=True)
+    yield from qft_d(d, ancilla_qubits, inverse=True)
+    if measure:
+        yield cirq.measure(*(system_qubits+ancilla_qubits), key="result")
+
+####################################################################################
