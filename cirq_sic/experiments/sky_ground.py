@@ -113,9 +113,10 @@ def run_sky_ground_task(task, base_dir=None):
             if task.optimizer.startswith("cirq"):
                 optimized_circuits = [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
             elif task.optimizer.startswith("bqskit"):
-                optimization_level = int(task.optimizer[-1])
+                tokens = task.optimizer.split("_")
+                optimization_level = int(tokens[-1])
                 machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
-                optimized_circuits = [bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level) for circuit in circuits]
+                optimized_circuits = [bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level, server=tokens[1]) for circuit in circuits]
             cirq.to_json(optimized_circuits, str(optimized_path))
         else:
             optimized_circuits = cirq.read_json(str(optimized_path))

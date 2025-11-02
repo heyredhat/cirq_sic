@@ -113,12 +113,13 @@ def bqskit_machine_model(qubits, processor_id="willow_pink"):
     model = bq.MachineModel(len(qubits), gate_set=bqskit_willow_gateset, coupling_graph=coupling_graph)
     return model
 
-def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1):
+def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1, server="local"):
     bq_circuit = cirq_to_bqskit(circuit)
     compiled_bq_circuit, initial_mapping, final_mapping = bq.compile(bq_circuit,\
                                                                      model=machine_model,\
                                                                      optimization_level=optimization_level,\
-                                                                     with_mapping=True)
+                                                                     with_mapping=True,\
+                                                                     ip = None if server == "local" else "localhost")
     compiled_circuit = bqskit_to_cirq(compiled_bq_circuit)
     qubit_map = {cirq.NamedQubit("q_%d" % i): qubit for i, qubit in enumerate(qubits)}
     compiled_circuit = compiled_circuit.transform_qubits(qubit_map)
