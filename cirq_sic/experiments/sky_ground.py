@@ -154,9 +154,11 @@ class CharacterizeWHReferenceDeviceTask:
     optimizer: str
 
     d: int
-    fiducial: np.array
     fiducial_description: str
     wh_implementation: str
+
+    fiducial: Optional[np.array] = None
+    fiducial_circuit: Optional[cirq.Circuit] = None
 
     @classmethod
     def filename(cls, **specs):
@@ -174,7 +176,10 @@ class CharacterizeWHReferenceDeviceTask:
     def make_circuits(self):
         a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
         n = int(np.log2(self.d))
-        prepare_fiducial = ansatz_circuit(self.fiducial)
+        if type(self.fiducial_circuit) != type(None):
+            prepare_fiducial = self.fiducial_circuit
+        else:
+            prepare_fiducial = ansatz_circuit(self.fiducial)
         if self.wh_implementation == "simple":
             state_qubits = self.qubits[:n]
             fiducial_qubits = self.qubits[n:2*n]
@@ -211,9 +216,11 @@ class WHPOVMOnBasisStatesTask:
     optimizer: str
 
     d: int
-    fiducial: np.array
     fiducial_description: str
     wh_implementation: str
+
+    fiducial: Optional[np.array] = None
+    fiducial_circuit: Optional[cirq.Circuit] = None
 
     @classmethod
     def filename(cls, **specs):
@@ -231,7 +238,10 @@ class WHPOVMOnBasisStatesTask:
     def make_circuits(self):
         n = int(np.log2(self.d))
         m = np.arange(self.d)
-        prepare_fiducial = ansatz_circuit(self.fiducial)
+        if type(self.fiducial_circuit) != type(None):
+            prepare_fiducial = self.fiducial_circuit
+        else:
+            prepare_fiducial = ansatz_circuit(self.fiducial)
         if self.wh_implementation == "simple":
             state_qubits = self.qubits[:n]
             fiducial_qubits = self.qubits[n:2*n]
@@ -268,8 +278,10 @@ class BasisMeasurementOnWHStatesTask:
     optimizer: str
 
     d: int
-    fiducial: np.array
     fiducial_description: str
+
+    fiducial: Optional[np.array] = None
+    fiducial_circuit: Optional[cirq.Circuit] = None
 
     @classmethod
     def filename(cls, **specs):
@@ -286,7 +298,10 @@ class BasisMeasurementOnWHStatesTask:
     def make_circuits(self):
         n = int(np.log2(self.d))
         a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
-        prepare_fiducial = ansatz_circuit(self.fiducial)
+        if type(self.fiducial_circuit) != type(None):
+            prepare_fiducial = self.fiducial_circuit
+        else:
+            prepare_fiducial = ansatz_circuit(self.fiducial)
         state_qubits = self.qubits[:n]
         circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
                                   cirq.measure(state_qubits, key="result")))\
@@ -351,8 +366,10 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
     optimizer: str
 
     d: int
-    fiducial: np.array
     fiducial_description: str
+
+    fiducial: Optional[np.array] = None
+    fiducial_circuit: Optional[cirq.Circuit] = None
 
     @classmethod
     def filename(cls, **specs):
@@ -369,7 +386,10 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
     def make_circuits(self):
         n = int(np.log2(self.d))
         m = np.arange(self.d)
-        prepare_fiducial = ansatz_circuit(self.fiducial)
+        if type(self.fiducial_circuit) != type(None):
+            prepare_fiducial = self.fiducial_circuit
+        else:
+            prepare_fiducial = ansatz_circuit(self.fiducial)
         ancilla1 = self.qubits[:n]
         ancilla2 = self.qubits[n:2*n]
         state_qubits = self.qubits[2*n:3*n]
