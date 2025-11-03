@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-11-02T03:23:52.560035",
+  "task": {
+    "cirq_type": "recirq.sky_ground.BasisMeasurementOnBasisStatesTask",
+    "dataset_id": "11_2_25",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 3
+      }
+    ],
+    "n_shots": 100000,
+    "optimizer": "bqskit_server_4",
+    "d": 4
+  },
+  "processed_data": {
+    "q": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  }
+}

@@ -151,8 +151,22 @@ def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
             kept.append(op)
     return cirq.Circuit(kept + trailing)
 
+# Problematic with arbitrary d circuits
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     """Conform the circuit to device topology and gateset."""
+    device = cirq_google.engine.create_device_from_processor_id(processor_id)
+    gateset = device.metadata.compilation_target_gatesets[0]
+    connectivity_graph = device.metadata.nx_graph
+
+    mapping = dict([(q,q) for q in qubits])
+    router = cirq.RouteCQC(connectivity_graph)
+    routed_circuit, initial_map, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
+    finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
+                            context=cirq.TransformerContext(deep=True), gateset=gateset)
+    return finished_circuit
+
+"""
+def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
     gateset = device.metadata.compilation_target_gatesets[0]
     connectivity_graph = device.metadata.nx_graph
@@ -173,7 +187,7 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
         finished_circuit += cirq.Circuit(measurement_ops)
 
     return finished_circuit
-
+"""
 ####################################################################################
 
 def shots_to_freqs(shots):

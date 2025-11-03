@@ -32,6 +32,7 @@ def main():
         specs["fiducial_circuit"] = d4_sic_fiducial
 
     run_sky_ground_tasks(specs, base_dir=base_dir)
+    sky_ground_images(specs, base_dir=base_dir, img_dir=f"{base_dir}/{specs["dataset_id"]}/d{specs["d"]}/img")
 
 if __name__ == "__main__":
     main()
