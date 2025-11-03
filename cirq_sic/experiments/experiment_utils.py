@@ -67,7 +67,7 @@ def get_sampler(processor_id, run_type="noisy", PROJECT_ID="cirq_sic"):
     if run_type == "real":
         engine = cirq_google.Engine(project_id=PROJECT_ID)
         device = engine.get_processor(processor_id).get_device()
-        sampler = engine.get_sampler(processor_id=processor_id)
+        sampler = engine.get_sampler(processor_id=processor_id) # REWRITE!!!
     else:
         device = cirq_google.engine.create_device_from_processor_id(processor_id)
         if run_type == "noisy":
