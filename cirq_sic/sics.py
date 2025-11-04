@@ -14,7 +14,8 @@ from .wh import *
 
 def load_sic_fiducial(d):
     r"""
-    Loads a Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$ from the repository provided here: http://www.physics.umb.edu/Research/QBism/solutions.html.
+    Loads a Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$ from the repository provided here:
+      http://www.physics.umb.edu/Research/QBism/solutions.html.
     """
     data_file_path = files("cirq_sic").joinpath("sic_povms/d%d.txt" % d)
     with data_file_path.open("r") as f:
@@ -57,6 +58,7 @@ def minimize_wh_frame_potential(d, T=10, method="SLSQP"):
     return np.array(ket/jp.linalg.norm(ket))
 
 def wh_2_frame_potential(ket):
+    """Returns the 2-frame potential of a ket. Minimized for a SIC."""
     d = ket.shape[0]
     D = wh_operators(d)["D"]
     R = jp.einsum("ijkl, l->ijk", D, ket).reshape(d**2, d)
@@ -65,7 +67,7 @@ def wh_2_frame_potential(ket):
 ####################################################################################
 
 def d4_sic_fiducial_ket(monomial=False):
-    """Construct a d=4 SIC fiducial ket from the monomial basis"""
+    """Construct a d=4 SIC fiducial ket from the monomial basis."""
     monomial_fiducial = (np.array([np.sqrt(2 + np.sqrt(5)), 1, 1, 1])/np.sqrt(5 + np.sqrt(5)))
     if monomial:
         return monomial_fiducial 

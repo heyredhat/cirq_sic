@@ -22,7 +22,7 @@ At the top level,
 
 In `experiments`:
 
-* `sky_ground.py` defines the basic `recirq` task functions which (a) specify the parameters for a battery of experiments, (b) construct the requisite circuits, and (c) process the data. So far we have: `CharacterizeWHReferenceDeviceTask`, `WHPOVMOnBasisStatesTask`, `BasisMeasurementOnWHStatesTask`, `BasisMeasurementOnBasisStatesTask`, `BasisMeasurementAfterWHPOVMOnBasisStatesTask`, and finally the more general, `WHPOVMOnStatesTask`. A task can be run with `run_sky_ground_task`: this builds the circuits, optimizes them, samples the circuits, and processes the results, saving the data, circuits, and logs in a particular file structure. 
+* `sky_ground.py` defines the basic `recirq` task functions which (a) specify the parameters for a battery of experiments, (b) construct the requisite circuits (`make_circuits`), and (c) process the data (`process_results`). So far we have: `CharacterizeWHReferenceDeviceTask`, `WHPOVMOnBasisStatesTask`, `BasisMeasurementOnWHStatesTask`, `BasisMeasurementOnBasisStatesTask`, `BasisMeasurementAfterWHPOVMOnBasisStatesTask`, and finally the more general, `WHPOVMOnStatesTask`. A task can be run with `run_sky_ground_task`: this builds the circuits, optimizes them, samples the circuits, and processes the results, saving the data, circuits, and logs in a particular file structure. 
 
 * `sky_ground_analysis.py` provides functions for calculating the basic metrics for consistency in the QBist sky/ground scenario, and for generating plots of the results.
 
@@ -34,7 +34,7 @@ In `experiments/runners`:
 
 * `sky_ground_args.py`: edit this to generate an `args.txt` specifying all the experiments you want to run in parallel (as command line arguments for `sky_ground_run.py`).
 
-* `parallel_runner.sh` is meant to be run from the command line e.g. as `./parallel_runner.sh args.txt sky_ground_run.py`. It spawns off a bunch of instances of `sky_ground_run.py`, one for each line of arguments in `args.txt`.
+* `parallel_runner.sh` is meant to be run from the command line e.g. as `./parallel_runner.sh args.txt sky_ground_run.py`. It spawns off a bunch of instances of `sky_ground_run.py`, one for each line of arguments in `args.txt`. If you do this and want to use bqskit, you'll have to first run `bqskit-manager` and then `bqskit-server localhost`, for example, do deal with the multiple processes.
 
 In `tests`:
 

@@ -16,6 +16,8 @@ from .experiment_utils import *
 ####################################################################################
 
 def get_wh_qubits(d, wh_implementation):
+    """Depending on the dimension and the WH implementation (`simple` or `ak`), returns a list of qubits appropriate for the circuit.
+    At the moment these are fixed to be a arbitrary but convienient choice."""
     n = int(np.ceil(np.log2(d)))
     if 2**n == d:
         cols = 2 if wh_implementation == "simple" else 3
@@ -31,11 +33,13 @@ EXPERIMENT_NAME = "sky_ground"
 DEFAULT_BASE_DIR = f"data/{EXPERIMENT_NAME}"
 
 def load_results(task, base_dir=None):
+    """Loads the results associated with a task from a directory structure rooted in base_dir."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     return recirq.read_json(f"{base_dir}/{task.fn}.json")
 
 def load_circuits(task, base_dir=None, raw=False):
+    """Loads the circuits associated with a task from a directory structure rooted in base_dir. If raw=True, returns the unoptimized circuits."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     circuits_directory = Path(f"{base_dir}/{task.fn}").parent / "circuits"
@@ -48,6 +52,8 @@ def load_circuits(task, base_dir=None, raw=False):
         return optimized_circuits
 
 def load_sky_ground_results(specs, base_dir=None, separate=True):
+    """Given a specification dictionary, returns the results from a full battery of sky/ground tasks. 
+    If `separate=True`, returns the a tuple: a task list and a dictionary of results."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     results = {}
@@ -68,20 +74,33 @@ def load_sky_ground_results(specs, base_dir=None, separate=True):
 ####################################################################################
 
 def exactify(task, base_dir=None):
+    """Given a task, loads its circuits, and performs an exact numerical calculation of the resulting probabilities, which are processed in accordance with the task."""
     circuits = load_circuits(task, base_dir=base_dir)
     return task.process_results(probs=np.array([exact_simulation(circuit) for i, circuit in enumerate(circuits)]))
 
 ####################################################################################
 
 def task_from_specs(task_type, specs):
+    """Builds a task of class `task_type` given specification dictionary `specs`. """
     sig = inspect.signature(task_type).parameters
     task = task_type(**{k: specs[k] for k in sig.keys() if k in specs})
     return task
 
 def run_sky_ground_task_from_specs(task_type, specs, base_dir=None):
+    """Runs a sky ground task of class `task_type` and specification dictionary `specs`."""
     run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir) 
 
+def run_sky_ground_tasks(specs, base_dir=None):
+    """Given a specification dictionary, runs all the sky/ground tasks."""
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+    for task_type in sky_ground_tasks:
+        if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+            continue
+        run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir)
+
 def run_sky_ground_task(task, base_dir=None):
+    """Runs the sky/ground task. Builds the directory structure, the circuits, optimizes them, samples them, and processes them."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
 
@@ -133,20 +152,13 @@ def run_sky_ground_task(task, base_dir=None):
     except Exception as e:
         logger.exception("Help!") 
 
-def run_sky_ground_tasks(specs, base_dir=None):
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
-    for task_type in sky_ground_tasks:
-        if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
-            continue
-        run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir)
-
 ####################################################################################
 
 @recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
                                     registry=recirq.Registry,
                                     frozen=True)
 class CharacterizeWHReferenceDeviceTask:
+    """For obtaining the probabilities of a WH POVM outcome given a WH covariant state."""
     dataset_id: str
     processor_id: str
     run_type: str
@@ -209,6 +221,7 @@ class CharacterizeWHReferenceDeviceTask:
                                     registry=recirq.Registry,
                                     frozen=True)
 class WHPOVMOnBasisStatesTask:
+    """For obtaining the probabilities of a WH POVM outcome given computational basis states."""
     dataset_id: str
     processor_id: str
     run_type: str
@@ -271,6 +284,7 @@ class WHPOVMOnBasisStatesTask:
                                     registry=recirq.Registry,
                                     frozen=True)
 class BasisMeasurementOnWHStatesTask:
+    """For obtaining the probabilities of a computational basis outcome given WH covariant states."""
     dataset_id: str
     processor_id: str
     run_type: str
@@ -320,6 +334,7 @@ class BasisMeasurementOnWHStatesTask:
                                     registry=recirq.Registry,
                                     frozen=True)
 class BasisMeasurementOnBasisStatesTask:
+    """For obtaining the probabilities of a computational basis outcome given computational basis states."""
     dataset_id: str
     processor_id: str
     run_type: str
@@ -359,6 +374,9 @@ class BasisMeasurementOnBasisStatesTask:
                                     registry=recirq.Registry,
                                     frozen=True)
 class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+    """For obtaining the probabilities of a computational basis outcome after a WH-POVM has been performed on computational basis states.
+    Only works in Arthurs-Kelly mode: after the basis state is prepared, the AK interaction is performed (but not the measurement itself), 
+    and then the computational basis measurement."""
     dataset_id: str
     processor_id: str
     run_type: str
@@ -411,6 +429,7 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
                                     registry=recirq.Registry,
                                     frozen=True)
 class WHPOVMOnStatesTask:
+    """WH-POVM measurement on an arbitrary set of states."""
     dataset_id: str
     processor_id: str
     run_type: str

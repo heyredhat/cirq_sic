@@ -62,6 +62,7 @@ def dirac(state_vector):
 ####################################################################################
 
 def pad(x, d):
+    """Pads a vector with 0's on the right so it is of length d."""
     return np.concatenate([x, np.zeros(int(d-len(x)))])
 
 def mod_d_outcome_mask(d, n, m):
@@ -70,6 +71,7 @@ def mod_d_outcome_mask(d, n, m):
     return sum([kron(*[np.eye(d_b, dtype=int)[i] for i in ind]) for ind in np.ndindex(*[d_b]*m) if np.all(np.array(ind) < d)])
 
 def mod_d_probabilities(p, d, n, m):
+    """Given a probability vector p, for a dimension d computation, which is encoded in m groups of n qubits, return just the relevant probabilities."""
     return p[np.where(mod_d_outcome_mask(d, n, m)==1)]
 
 ####################################################################################
@@ -123,7 +125,8 @@ def geodesic_interpolator(psi_start, psi_target, atol=1e-12):
 ####################################################################################
 
 def merge_dicts(dicts):
+    """Helper function to merge dictionaries. """
     merged = {}
     for d in dicts:
-        merged.update(d)  # later keys overwrite earlier ones
+        merged.update(d)
     return merged

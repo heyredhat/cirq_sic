@@ -7,11 +7,13 @@ from .sky_ground import *
 ####################################################################################
 
 def remove_task_segment(path):
+    """Helper for turning task paths into something more readable."""
     parts = path.split('/')
     filtered = [p for p in parts if not p.endswith('Task')]
     return '/'.join(filtered)
 
 def add_caption(fig, text, pad=0.02, **kwargs):
+    """Adds a caption to the bottom of the figure."""
     caption = fig.text(0.5, 0, text, ha="center", va="bottom", **kwargs)
 
     fig.canvas.draw()  # needed so the text has a real size
@@ -25,6 +27,7 @@ def add_caption(fig, text, pad=0.02, **kwargs):
     caption.set_position((0.5, -text_height-0.01))
 
 def plot_matrix_comparison(plot_title, matrices, labels, filename, inset="", show=False):
+    """Generates matrix comparison plots."""
     fig, axes = plt.subplots(1, len(matrices), figsize=(15, 4))
     ticks = np.arange(matrices[0].shape[0])
     tick_labels = [str(tick) for tick in ticks]
@@ -48,6 +51,7 @@ def plot_matrix_comparison(plot_title, matrices, labels, filename, inset="", sho
 ####################################################################################
 
 def P_img(specs, img_dir, base_dir=None, show=False):
+    """Generates matrix comparison plot for the P matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
@@ -65,6 +69,7 @@ def P_img(specs, img_dir, base_dir=None, show=False):
     plot_matrix_comparison(plot_title, matrices, labels, filename, inset=inset, show=show)
 
 def Phi_img(specs, img_dir, base_dir=None, show=False):
+    """Generates matrix comparison plot for the \Phi matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
@@ -86,6 +91,7 @@ def Phi_img(specs, img_dir, base_dir=None, show=False):
     plot_matrix_comparison(plot_title, matrices, labels, filename, inset=inset, show=show)
 
 def q_img(specs, img_dir, base_dir=None, show=False):
+    """Generates matrix comparison plot for the q matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
@@ -107,6 +113,7 @@ def q_img(specs, img_dir, base_dir=None, show=False):
     plot_matrix_comparison(plot_title, matrices, labels, filename, inset=inset, show=show)
 
 def p_img(specs, img_dir, base_dir=None, show=False):
+    """Generates matrix comparison plot for the p matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True)
@@ -130,6 +137,7 @@ def p_img(specs, img_dir, base_dir=None, show=False):
 sky_ground_img_funcs = [P_img, Phi_img, q_img, p_img]
 
 def sky_ground_images(specs, img_dir="img", base_dir=None, show=False):
+    """Generates all the sky ground images from the results picked out by the specification dictionary `specs`."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     img_dir = Path(img_dir)
@@ -142,6 +150,7 @@ def sky_ground_images(specs, img_dir="img", base_dir=None, show=False):
 ####################################################################################
 
 def sky_ground_metrics(specs, base_dir=None):
+    """Given the specification dictionary `specs`, loads the results, and calculates all the sky/ground metrics."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
@@ -177,19 +186,3 @@ def sky_ground_metrics(specs, base_dir=None):
         metrics["LTP_err"] = LTP_err
 
     return metrics
-
-####################################################################################
-
-def FP_img(d, interpolation, img_dir="img", show=False):
-    fig, ax = plt.subplots(1, 1)
-    T = np.linspace(0, 1, 15)
-    ax.plot(T, [wh_2_frame_potential(interpolation(t)) for t in T])
-    ax.axhline(y=0, c="black")
-    ax.axvline(x=1, c="black")
-    ax.set_title(f"d = {d}: Stabilizer to SIC state")
-    ax.set_xlabel("t")
-    ax.set_ylabel("Frame potential")
-    plt.tight_layout()
-    fig.savefig(f"{img_dir}/d{d}_frame_potential.pdf", bbox_inches='tight')
-    if show: 
-        plt.show()

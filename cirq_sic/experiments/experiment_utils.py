@@ -16,6 +16,7 @@ from bqskit.ext import bqskit_to_cirq, cirq_to_bqskit
 ####################################################################################
 
 def setup_logger(name, path):
+    """Initialize logger."""
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
@@ -86,6 +87,7 @@ def get_sampler(processor_id, run_type="noisy", PROJECT_ID="cirq_sic"):
 ####################################################################################
 
 def exact_simulation(circuit):
+    """Returns the exact outcome probabilities for a cirq circuit."""
     measurements = [op for op in circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
     circuit_sans_measurements = cirq.drop_terminal_measurements(circuit)
     qubits = list(circuit_sans_measurements.all_qubits())
@@ -101,6 +103,7 @@ bqskit_willow_gateset = [bq.ir.gates.PhasedXZGate(),
                          bq.ir.gates.RZGate()]
 
 def bqskit_machine_model(qubits, processor_id="willow_pink"):
+    """Construct bqskit machine model for a cirq processor."""
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
     gateset = device.metadata.compilation_target_gatesets[0]
     connectivity_graph = device.metadata.nx_graph
@@ -114,6 +117,7 @@ def bqskit_machine_model(qubits, processor_id="willow_pink"):
     return model
 
 def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1, server="local"):
+    """Optimize cirq circuit using bqskit, given a machine model. Server can be local or localhost (use the latter for runs in parallel)."""
     bq_circuit = cirq_to_bqskit(circuit)
     compiled_bq_circuit, initial_mapping, final_mapping = bq.compile(bq_circuit,\
                                                                      model=machine_model,\
@@ -131,6 +135,7 @@ def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1
     return final_circuit
 
 def to_one_and_two_qubit_ops(circuit: cirq.Circuit) -> cirq.Circuit:
+    """Decompose circuit into one and two qubit operators. (Defunct?)"""
     def keep(op: cirq.Operation) -> bool:
         if cirq.is_measurement(op):
             return True
@@ -142,6 +147,7 @@ def to_one_and_two_qubit_ops(circuit: cirq.Circuit) -> cirq.Circuit:
     return cirq.Circuit(decomposed_ops)
 
 def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
+    """Push all measurements to end of circuit."""
     trailing = []
     kept = []
     for op in circuit.all_operations():
@@ -165,7 +171,7 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
                             context=cirq.TransformerContext(deep=True), gateset=gateset)
     return finished_circuit
 
-"""
+""" WORKING: Need a fix for arbitrary d. 
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
     gateset = device.metadata.compilation_target_gatesets[0]
@@ -191,6 +197,7 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
 ####################################################################################
 
 def shots_to_freqs(shots):
+    """Get frequencies from shots data."""
     measurements = shots.measurements["result"]
     n_outcomes = 2**measurements.shape[1]
     int_outcomes = [big_endian_bits_to_int(bits) for bits in measurements]
@@ -202,6 +209,7 @@ def shots_to_freqs(shots):
     return freqs
 
 def results_to_freqs(results):
+    """Given cirq results, calculate frequencies."""
     return np.array([shots_to_freqs(r[0]) for i, r in enumerate(results)])
 
 def avg_negativity(M):

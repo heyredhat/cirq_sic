@@ -148,6 +148,7 @@ def d4_sic_fiducial(qubits, conjugate=False):
 ####################################################################################
 
 def __ansatz_circuit__(q, params, conjugate=False):
+    """Implements the Grey code ansatz as a function of params."""
     n = len(q)
     targeting_data = [grey_data(i) for i in range(n)]
     sign = -1 if conjugate else 1
@@ -167,12 +168,14 @@ def __ansatz_circuit__(q, params, conjugate=False):
             yield cirq.CNOT(current_q[targets[j]], current_q[-1])
 
 def ansatz_circuit(ket):
+    "Return a generating function which yields gates preparing an arbitrary key."
     params = ansatz_angles_to_params(*ket_to_ansatz_angles(ket))
     def __ansatz__(q, conjugate=False):
         yield __ansatz_circuit__(q, params, conjugate=conjugate)
     return __ansatz__
 
 ####################################################################################
+### WORK IN PROGRESS: WH-POVMs in arbitrary dimension via embedding
 
 def Z_d(d, qubits, aux, k=1):
     """Z acting on the first d basis vectors of n qubits. Requires two auxilliary qubits. Note d <= 2^{n-1}"""
