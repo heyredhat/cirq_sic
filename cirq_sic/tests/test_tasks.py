@@ -14,7 +14,7 @@ def test_sg():
          "fiducial_description": "rand_ket",
          "wh_implementation": "ak"}
     
-    for task_type in sk_ground_tasks:
+    for task_type in sky_ground_tasks:
           task = task_from_specs(task_type, specs)
           run_sky_ground_task(task, base_dir=base_dir)
 
