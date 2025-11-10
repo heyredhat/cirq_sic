@@ -134,7 +134,24 @@ def p_img(specs, img_dir, base_dir=None, show=False):
             f"\n$||p_{{\\text{{empirical}}}} - (C r)_{{\\text{{empirical}}}}|| = {LTP_err}$")
     plot_matrix_comparison(plot_title, matrices, labels, filename, inset=inset, show=show)
 
-sky_ground_img_funcs = [P_img, Phi_img, q_img, p_img]
+def pq_img(specs, img_dir, base_dir=None, show=False):
+    """Generates matrix comparison plot for p/q matrix."""
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+    tasks, sg_results = load_sky_ground_results(specs, separate=True)
+    plot_title = remove_task_segment(tasks[CharacterizeWHReferenceDeviceTask].fn)
+    ltp = sg_results["C"] @ sg_results["r"]
+    born = sg_results["C"] @ np.linalg.pinv(sg_results["P"]) @ sg_results["r"]
+    matrices = [ltp, born, ltp-born]
+    labels = [f"$(C r)_{{\\text{{empirical}}}}$",
+              f"$(C \\Phi r)_{{\\text{{empirical}}}}$",
+              f"$(C r)_{{\\text{{empirical}}}} - (C \\Phi r)_{{\\text{{empirical}}}}$"]
+    filename = f"{img_dir}/{plot_title.replace("/", "-")}-ltp_born"
+    err = np.round(np.linalg.norm(ltp - born), 6)
+    inset = (f"$||(C r)_{{\\text{{empirical}}}} - (C \\Phi r)_{{\\text{{empirical}}}}|| = {err}$")
+    plot_matrix_comparison(plot_title, matrices, labels, filename, inset=inset, show=show)
+
+sky_ground_img_funcs = [P_img, Phi_img, q_img, p_img, pq_img]
 
 def sky_ground_images(specs, img_dir="img", base_dir=None, show=False):
     """Generates all the sky ground images from the results picked out by the specification dictionary `specs`."""

@@ -1,5 +1,7 @@
+import os
 import sys
 import logging 
+from pathlib import Path
 
 import numpy as np
 import collections
@@ -38,14 +40,6 @@ def setup_logger(name, path):
     return logger
 
 ####################################################################################
-
-def get_gate_counts(circuit):
-    """Get gate counts for a cirq circuit."""
-    all_gate_types = [type(op.gate) for op in circuit.all_operations()]
-    type_counts = collections.Counter(all_gate_types)
-    print("--- Gate Counts (by type) ---")
-    for gate_type, count in type_counts.items():
-        print(f"{gate_type.__name__}: {count}")
 
 def abbrev_n_shots(n_shots: int) -> str:
     """Shorter n_shots component of a filename"""
@@ -242,3 +236,39 @@ def deep_match(obj, criteria):
 def query_records(records, query):
     """Yields records that satisfy the query function."""
     return [record for record in records if deep_match(record, query)]
+
+####################################################################################
+
+def collect_circuit_files(base_dir):
+    """Return {circuits_dir_path: [file names]} for every 'circuits' folder under base_dir."""
+    base_path = Path(base_dir).expanduser().resolve()
+    circuit_dirs: dict[Path, list[str]] = {}
+    for dirpath, dirnames, filenames in os.walk(base_path):
+        if Path(dirpath).name == "circuits":
+            circuit_dirs[Path(dirpath)] = sorted(filenames)
+    return circuit_dirs
+
+def collect_circuits(base_dir):
+    circuit_files = collect_circuit_files(base_dir)
+    circuits = {}
+    for k, v in circuit_files.items():
+        before, during, after = str(k).partition(base_dir.rsplit("/", 1)[-1]+"/")
+        circuits[during+after.removesuffix("/circuits")] = {f: cirq.read_json(k / f) for f in v}
+    return circuits
+
+def get_gate_counts(circuit, return_str=False):
+    """Get gate counts for a cirq circuit."""
+    counts = collections.Counter([type(op.gate).__name__ for op in circuit.all_operations() if not cirq.is_measurement(op)])
+    if return_str:
+        s = ", ".join([f"{gate_type}: {count}" for gate_type, count in counts.items()])
+        return s + f". Total: {counts.total()}"
+    else:
+        return counts
+    
+def print_all_gate_counts(base_dir):
+    circuits = collect_circuits(base_dir)
+    for task_spec, circs in circuits.items():
+        print(task_spec)
+        for circ_type, circuits in circs.items():
+            for i, circuit in enumerate(circuits):
+                print(f"\t{circ_type} ({i}): [{get_gate_counts(circuit, return_str=True)}]")
