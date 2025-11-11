@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amssymb,amsmath,amsthm,mathtools}
+\usepackage{enumitem, graphicx, hyperref}
+
+\topmargin -0.5in
+\textheight 9.0in
+\oddsidemargin  -0.05in
+\evensidemargin -0.05in
+\textwidth 6.5in
+\renewcommand
+\baselinestretch{1.0}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}[section]
+\newtheorem*{remark}{Remark}
+
+\allowdisplaybreaks
+\numberwithin{equation}{section}
+ 
+\newcommand{\tr}{{\text{tr}}}
+\newcommand{\B}[1]{\textbf{#1}}
+\newcommand{\T}[1]{\texttt{#1}}
+
+\title{Clarifying the QBist Born Rule}
+\author{Matthew B. Weiss}
+\date{\today}
+
+\begin{document}
+\maketitle 
+
+
+Let $r_{ij}=P(R_i|\sigma_j)$ denote the probability of getting reference outcome $R_i$ given that you've prepared state $\sigma_j$ (e.g. a computational basis state). These probabilities characterize the states $\{\sigma_j\}$.
+
+Let $P_{ij}=P(R_i|R_j)$ denote the probability of getting reference outcome $R_i$ given that you've prepared reference state $R_j$. These probabilities characterize the reference measurement in its own terms. The Born matrix is defined as $\Phi=P^{-1}$.
+
+Let $C_{ij}=P(E_i|R_j)$ denote the probability of getting some final outcome $E_i$ (e.g. upon a computational basis measurement) given that first you obtained reference outcome $R_j$. 
+
+Let $q_{ij} = P(E_i|\sigma_j)$ denote the probability of getting final outcome $E_i$ (e.g. upon a computational measurement) after preparing state $\sigma_j$ (e.g. a computational basis state).
+
+Given that we've prepared some state, performed the reference measurement, and then performed the arbitrary final measurement, by the law of total probability, we should assign probabilities to the final measurement
+\begin{align}
+	p = C r,
+\end{align}
+that is, $P(E_i|\sigma_k)=\sum_jP(E_i|R_j)P(R_j|\sigma_k)$. Quantum mechanically, this is the same as preparing the state, entangling the system with the reference measurement ancillas (but not performing the reference measurement), and then performing the final measurement $\{E_i\}$.
+
+On the other hand, given that we've prepared some state, and then simply performed some final measurement $\{E_i\}$, the Born rule says that our probability assignments should satisfy
+\begin{align}
+q=C\Phi r.	
+\end{align}
+
+
+
+
+\end{document}
