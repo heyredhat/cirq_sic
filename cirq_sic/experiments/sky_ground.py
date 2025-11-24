@@ -154,8 +154,8 @@ def run_sky_ground_task(task, base_dir=None):
 
 ####################################################################################
 
-def create_sky_ground_circuits(task, base_dir=None):
-    """Creates (and optimizes) circuits for a given sky/ground task."""
+def create_circuits(task, base_dir=None):
+    """Creates (and optimizes) circuits for a given task."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
 
@@ -196,8 +196,8 @@ def create_sky_ground_circuits(task, base_dir=None):
     except Exception as e:
         logger.exception("Help!") 
 
-def run_sky_ground_circuits(task, base_dir=None):
-    """Loads and runs circuits for a given sky/ground task, returning Results."""
+def run_circuits(task, base_dir=None):
+    """Loads and runs circuits for a task, returning Results."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
 
@@ -221,7 +221,7 @@ def run_sky_ground_circuits(task, base_dir=None):
     except Exception as e:
         logger.exception("Help!") 
 
-def process_sky_ground_results(task, results, base_dir=None):
+def process_task_results(task, results, base_dir=None):
     """Given task and results, processes the sky/ground results, saving them to a json file with recirq."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
