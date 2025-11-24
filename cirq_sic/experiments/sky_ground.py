@@ -239,6 +239,8 @@ def process_task_results(task, results, base_dir=None):
 
         logger.info(f"Saving...")
         recirq.save(task=task, data={"processed_data": data}, base_dir=base_dir)
+
+        return data
     except Exception as e:
         logger.exception("Help!") 
 
