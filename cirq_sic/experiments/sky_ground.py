@@ -154,6 +154,96 @@ def run_sky_ground_task(task, base_dir=None):
 
 ####################################################################################
 
+def create_sky_ground_circuits(task, base_dir=None):
+    """Creates (and optimizes) circuits for a given sky/ground task."""
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+
+    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
+    experiment_dir.mkdir(parents=True, exist_ok=True)
+    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
+    try:
+        if recirq.exists(task, base_dir=base_dir) and Path():
+            logger.info(f"Task already exists. Skipping.")
+            return
+
+        logger.info(f"Creating circuits...")
+        circuits_directory = experiment_dir / "circuits"
+        circuits_directory.mkdir(parents=True, exist_ok=True)
+
+        raw_path = circuits_directory / "raw.json"
+        if not raw_path.exists():
+            circuits = task.make_circuits()
+            cirq.to_json(circuits, str(raw_path))
+        else:
+            circuits = cirq.read_json(str(raw_path))
+        
+        logger.info(f"Optimizing circuits...")
+        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
+        if not optimized_path.exists():
+            if task.optimizer.startswith("cirq"):
+                optimized_circuits = [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
+            elif task.optimizer.startswith("bqskit"):
+                tokens = task.optimizer.split("_")
+                optimization_level = int(tokens[-1])
+                machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
+                optimized_circuits = [bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level, server=tokens[1]) for circuit in circuits]
+            cirq.to_json(optimized_circuits, str(optimized_path))
+        else:
+            optimized_circuits = cirq.read_json(str(optimized_path))
+
+        return optimized_circuits
+    except Exception as e:
+        logger.exception("Help!") 
+
+def run_sky_ground_circuits(task, base_dir=None):
+    """Loads and runs circuits for a given sky/ground task, returning Results."""
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+
+    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
+    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
+    try:
+        if recirq.exists(task, base_dir=base_dir) and Path():
+            logger.info(f"Task already exists. Skipping.")
+            return
+
+        circuits_directory = experiment_dir / "circuits"
+        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
+        optimized_circuits = cirq.read_json(str(optimized_path))
+        
+        logger.info(f"Sampling...")
+        sampler = get_sampler(task.processor_id, run_type=task.run_type)
+        results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
+
+        return results
+
+    except Exception as e:
+        logger.exception("Help!") 
+
+def process_sky_ground_results(task, results, base_dir=None):
+    """Given task and results, processes the sky/ground results, saving them to a json file with recirq."""
+    if base_dir is None:
+        base_dir = DEFAULT_BASE_DIR
+
+    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
+    experiment_dir.mkdir(parents=True, exist_ok=True)
+    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
+    try:
+        if recirq.exists(task, base_dir=base_dir) and Path():
+            logger.info(f"Task already exists. Skipping.")
+            return
+        
+        logger.info(f"Processing results...")
+        data = task.process_results(results=results)
+
+        logger.info(f"Saving...")
+        recirq.save(task=task, data={"processed_data": data}, base_dir=base_dir)
+    except Exception as e:
+        logger.exception("Help!") 
+
+####################################################################################
+
 @recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
                                     registry=recirq.Registry,
                                     frozen=True)
@@ -200,9 +290,9 @@ class CharacterizeWHReferenceDeviceTask:
                                         simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for a1, a2 in a]
         elif self.wh_implementation == "ak":
-            ancilla1_qubits = self.qubits[:n]
-            ancilla2_qubits = self.qubits[n:2*n]
-            state_qubits = self.qubits[2*n:3*n]
+            state_qubits = self.qubits[:n]
+            ancilla1_qubits = self.qubits[n:2*n]
+            ancilla2_qubits = self.qubits[2*n:3*n]
             circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
                                         arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                                 for a1, a2 in a]
@@ -263,11 +353,11 @@ class WHPOVMOnBasisStatesTask:
                                       simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for i in m]
         elif self.wh_implementation == "ak":
-            ancilla1 = self.qubits[:n]
-            ancilla2 = self.qubits[n:2*n]
-            state_qubits = self.qubits[2*n:3*n]
+            state_qubits = self.qubits[:n]
+            ancilla1_qubits = self.qubits[n:2*n]
+            ancilla2_qubits = self.qubits[2*n:3*n]
             circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
-                                      arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                      arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for i in m]
         return circuits
     
@@ -409,11 +499,11 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             prepare_fiducial = self.fiducial_circuit
         else:
             prepare_fiducial = ansatz_circuit(self.fiducial)
-        ancilla1 = self.qubits[:n]
-        ancilla2 = self.qubits[n:2*n]
-        state_qubits = self.qubits[2*n:3*n]
+        state_qubits = self.qubits[:n]
+        ancilla1_qubits = self.qubits[n:2*n]
+        ancilla2_qubits = self.qubits[2*n:3*n]
         circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
-                                  arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=False),
+                                  arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=False),
                                   cirq.measure(state_qubits, key="result")))\
                                     for i in m]
         return circuits
@@ -479,11 +569,11 @@ class WHPOVMOnStatesTask:
                                       simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for prepare_state in prepare_states]
         elif self.wh_implementation == "ak":
-            ancilla1 = self.qubits[:n]
-            ancilla2 = self.qubits[n:2*n]
-            state_qubits = self.qubits[2*n:3*n]
+            state_qubits = self.qubits[:n]
+            ancilla1_qubits = self.qubits[n:2*n]
+            ancilla2_qubits = self.qubits[2*n:3*n]
             circuits = [cirq.Circuit((prepare_state(state_qubits),\
-                                      arthurs_kelly(state_qubits, ancilla1, ancilla2, prepare_fiducial=prepare_fiducial, measure=True)))\
+                                      arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
                                         for prepare_state in prepare_states]
         return circuits
     

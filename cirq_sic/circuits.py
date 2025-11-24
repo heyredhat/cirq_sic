@@ -169,11 +169,12 @@ def __ansatz_circuit__(q, params, conjugate=False):
 
 def ansatz_circuit(ket):
     "Return a generating function which yields gates preparing an arbitrary key."
-    params = ansatz_angles_to_params(*ket_to_ansatz_angles(ket))
+    params = ansatz_angles_to_params(*ket_to_ansatz_angles(np.array(ket)))
     def __ansatz__(q, conjugate=False):
         yield __ansatz_circuit__(q, params, conjugate=conjugate)
     return __ansatz__
 
+####################################################################################
 ####################################################################################
 ### WORK IN PROGRESS: WH-POVMs in arbitrary dimension via embedding
 

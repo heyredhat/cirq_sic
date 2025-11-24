@@ -10,4 +10,8 @@ Requires-Dist: qsimcirq
 Requires-Dist: recirq@ git+https://github.com/quantumlib/ReCirq
 Requires-Dist: ipykernel
 Requires-Dist: pytest
-Requires-Dist: sympy
+Requires-Dist: jax
+Requires-Dist: bqskit
+Requires-Dist: qiskit
+Requires-Dist: ply
+Requires-Dist: mpmath
