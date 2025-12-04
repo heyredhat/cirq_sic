@@ -98,7 +98,7 @@ and denoting by $\B{p}$ and  $\B{c}$ the tensors $P(a_i, b_j|A_k, B_l)$ and $c_{
 \begin{align}
 -2 \leq \B{c}^T\B{p} \leq 2.
 \end{align}
-This is quite general: a Bell inequality always takes the form
+Note that $\B{p}$ is often called a \emph{behavior}. This is quite general: a Bell inequality always takes the form
 \begin{align}
 \B{c}^T\B{p}\leq \beta,	
 \end{align}
@@ -176,12 +176,57 @@ For example, maximal violation of the CHSH inequality gives $\Delta = 2\sqrt{2}-
 \end{align}
 itself to be a measure of the nonclassicality inherent in the scenario as captured by the reference device.
 
-\section{Conclusion}
+\section{Conclusions}
 
  We have thus shown that it is possible to bound the deformation of the law of total probability implied by quantum mechanics in terms of the probabilities which define a Bell scenario. The significance is that in a multipartite scenario, one cannot explain observations by assuming that systems have underlying classical properties which are disturbed by measurement as such disturbances would violate locality. Reformulating Bell inequality violations in terms of bounds on $\lVert \Phi - I \rVert$ in the context of the reference device formalism provides supporting evidence for the QBist view that quantum theory is best understood as normative guidance for an agent gambling on the consequences of their actions in an unfinished world and wishing to make their probability assignments consistent in light of nature's creativity.
  
-This result opens up a number of important research directions. In particular, one may ask: optimizing over number of parties, reference devices, initial state, choices of measurement, and Bell inequality, which scenario gives the largest bound? Is it possible to find a bound which is equal to the actual value of $\lVert  \Phi - I\rVert$? Fixing a reference device, which Bell scenario gives the largest bound? Fixing a Bell scenario, which reference device gives the largest bound? And finally, can we implement such scenarios efficiently on a quantum computer?
+This result opens up a number of important research directions. In particular, one may ask: optimizing over number of parties, reference devices, initial state, choices of measurement, and Bell inequality, which scenario gives the largest bound? Is it possible to find a bound which is equal to the actual value of $\lVert  \Phi - I\rVert$? Fixing a reference device (e.g., a SIC), which Bell scenario gives the largest bound? Fixing a Bell scenario, which reference device gives the largest bound? And finally, can we implement such scenarios efficiently on a quantum computer?
 
+\subsection{Some initial results}
+
+
+Numerically, I’ve discovered a) fixing a SIC reference device and the CHSH inequality and maximizing the bound over different states and measurements, always gives a $T$ matrix with a fixed set of singular values; b) fixing CHSH and the usual states and measurements which maximize its violation, but picking reference measurements at random, one finds that $\sigma_{\max}(T)$ for a SIC is not the smallest it could be.
+
+
+\section{Finding Bell inequalities}
+
+The wonderful review article \cite{Brunner2014} gives an explicit algorithm for constructing a Bell inequality which witnesses the nonclassicality of a behavior $\B{p}$. The first observation is that any uncertainty in the response functions (e.g., $P(a_i|A_j, \lambda_k)$) can be shunted instead into the hidden variables $\lambda$: thus it suffices to consider models where the local response functions take values in $\{0,1\}$, that is to say, it suffices to consider deterministic local hidden variable models. In such a model, the hidden variables simply assign outcomes to measurements in a particular run. For example,  let there be two parties, Alice and Bob, and let  $\lambda = (\lambda_{A_1}, \dots, \lambda_{A_m}; \lambda_{B_1}, \dots, \lambda_{B_n})$ be an assignment of outcomes to each of Alice's $m$ measurements and each of Bob's $n$ measurements in a given run. To each possible $\lambda$ corresponds a deterministic behavior
+\begin{align}
+P_\lambda (a_i, b_j|A_k, B_l) = \delta_{a_i, \lambda_{A_k}}  \delta_{b_j, \lambda_{B_l}}.
+\end{align}
+A behavior $\B{p}$ is Bell local iff it can be written as a convex combination of these deterministic behaviors,
+\begin{align}
+\B{p} = \sum_\lambda p(\lambda)\B{p}_\lambda  && p(\lambda)\ge0, \ \  \sum_\lambda p(\lambda)=1	.
+\end{align}
+Given a behavior $\B{p}$, consider the following linear (and so efficiently solvable) program 
+\begin{align}
+\max_{\B{c}, \beta}	\ S=\B{c}^T\B{p} - \beta \ \text{ such that }\  \forall \lambda: \B{c}^T\B{p}_\lambda - \beta \leq 0 \text{ and } \B{c}^T\B{p}-\beta \leq 1.
+\end{align}
+Now if $\B{p}$ is Bell local, from $\forall \lambda: \B{c}^T\B{p}_\lambda - \beta \leq 0$, we have, summing over all $\lambda$'s,
+\begin{align}
+\sum_\lambda p(\lambda) \B{c}^T \B{p}_\lambda - \beta \leq 0	\Longrightarrow \B{c}^T \B{p}\leq \beta. 
+\end{align}
+Thus $S \leq 0$. If $\B{p}$ is not Bell local, then by the second constraint $\B{c}^T\B{p}-\beta \leq 1$, the maximum $S$ can achieve is 1, and from the first constraint, any deterministic behavior satisfies $\B{c}^T \B{p}_\lambda  \leq \beta $, and thus so does \emph{any} Bell local behavior while at the same time $\B{c}^T\B{p}\leq \beta +1$: the classical bound is violated by $\B{p}$ itself. Thus the Bell functional $\B{c}$ witnesses the nonclassicality of $\B{p}$. We note that the Bell polytope $\mathcal{L}$ is the convex hull of the deterministic behaviors, which are its extreme points: switching from the vertex representation to the halfspace representation of the polytope, we see that $\mathcal{L}$ is characterized by a finite set of Bell inequalities. If $\B{c}^T\B{p}\leq \beta $ is true for any point $\B{p}$ in the polytope, then the set $\{\B{p}\in \mathcal{L}: \B{c}^T\B{p}=\beta\}$ is a \emph{face}. Faces of dimension $\dim\mathcal{L}-1$ are called \emph{facets}, and the corresponding Bell inequalities are called \emph{tight}: any other Bell inequality can be written as a non-negative combination of facet inequalities.
+
+\subsection{Some initial results}
+
+My first thought was to give Alice a choice of either doing a von Neumann measurement (e.g., a computational basis measurement) or a SIC, while Bob has a choice of doing either the transposed von Neumann measurement or the transposed SIC. If Alice and Bob share $|\psi\rangle= \frac{1}{\sqrt{d}}\sum_i |i, i\rangle$, then since $(O \otimes I)|\psi\rangle = (I \otimes O^T)|\psi\rangle$ and $\langle \psi |A \otimes B|\psi\rangle = \frac{1}{d}\tr(AB^T)$, we ahve
+\begin{align}
+P(a_i, b_j|A_k, B_l)&=\langle \psi |E_{a_i|A_k}\otimes E_{b_j|B_l}|\psi\rangle=\frac{1}{d}\tr(E_{a_i|A_k}E_{b_j|B_l}^T).
+\end{align}
+But since Bob's measurements are transposed relative to Alice, the probabilities always take the form a) $\frac{1}{d}\tr(\Pi_i\Pi_j)$; b) $\frac{1}{d}\tr(R_i \Pi_j)$; or c) $\frac{1}{d}\tr(R_iR_j)$. In fact, this gives us all the probabilities that characterize a sky/ground scenario where a set of orthogonal states is prepared, a SIC reference device turned on or off, after which the corresponding von Neumann measurement is performed---along with the probabilities that characterize the reference device itself. Using SIC's in $d=2,3,4$, it appears however that the resulting behavior $\B{p}$ is \emph{classical}! It doesn't matter whether one drops the transpositions, chooses a different von Neumann measurement, if Alice and Bob do different von Neumann measurements, or if one starts with a different maximally entangled state, or even if Alice and Bob can choose between a SIC and its transpose. All classical! 
+
+And yet... it is known that if one considers two parties, each with two choices of von Neumann measurements on qudits, the so-called CGLMP inequality is tight \cite{Brunner2014, 10.5555/2011528.2011532}: this inequality reduces to CHSH when $d=2$, but for $d\ge 3$, it is \emph{not} maximally violated by a maximally entangled state. This leads one to wonder whether the state $|\psi\rangle$ above is the limiting factor: choosing a random state for Alice and Bob to share, however, doesn't seem to help. We note in passing that \cite{PhysRevA.78.052103} introduces for prime qudits Bell scenarios with three possible settings which \emph{are} saturated by maximally entangled states and mutually unbiased measurements.
+
+\subsection{Previous work}
+The most famous use of SIC's in the present context is Gisin's elegant Bell inequality, which, while not a facet inequality, is saturated when Alice's measurement projectors form a complete set of three mutually unbiased bases while Bob's measurement projectors can be partitioned into two dual sets of SIC's \cite{Andersson2017, Andersson2018} (acting on a qubit). \cite{bae2025designinggeneralizedelegantbell} generalizes this idea to qudit SIC's. 
+
+ \cite{Tavakoli2020} provides a means of self-testing arbitrary POVM's in the prepare-and-measure scenario (with an assumption on the Hilbert space dimension), and give as an example a witness for a qubit SIC-POVM. \cite{Tavakoli2021} introduces a Bell inequality which is maximally violated by SIC's, providing device independent certification of a SIC: compare to the earlier \cite{Tavakoli2019} which already introduces a scheme for certifying SIC's. Similarly, \cite{Smania2020} recounts an experimental certification of a qubit SIC related to the ``elegant Bell inequality.'' \cite{Sarkar2023} provides a certification scheme for all rank-1 extremal measurements, as does \cite{Navascus2023} in the context of a prepare-and-measure scenario. For a general review of self-testing schemes, see \cite{upi2020}.
+
+\cite{Stacey2021} discusses dramatizes Mermin's three qubit Bell inequality using the Hoggar SIC; a Bell type argument in the case where Alice and Bob can do projective measurements corresponding to testing SIC states on qubits; and gives an alternative spin on \cite{Bengtsson2012}, which derives a Kochen-Specker inequality using a SIC and mutually unbiased bases in $d=3$. 
+
+Finally, with an eye to $d=4$, \cite{Compounds} introduces the idea of a SIC-compound: a collection of $d^3$ vectors in a $d$ dimensional Hilbert space which can be partition into $d$ SICS, but also $d^2$ orthonormal bases---and provide an explicit construction in $d=4$. 
+ 
 \appendix 
 \section{The distance to a hyperplane}
 \label{duals}

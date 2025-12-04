@@ -1,0 +1,102 @@
+\begin{thebibliography}{10}
+
+\bibitem{Andersson2017}
+Ole Andersson, Piotr Badziag, Ingemar Bengtsson, Irina Dumitru, and Adán Cabello.
+\newblock {Self-testing properties of Gisin's elegant Bell inequality}.
+\newblock {\em Physical Review A}, 96(3), September 2017.
+
+\bibitem{Andersson2018}
+Ole Andersson, Piotr Badziag, Irina Dumitru, and Adán Cabello.
+\newblock {Device-independent certification of two bits of randomness from one entangled bit and Gisin's elegant Bell inequality}.
+\newblock {\em Physical Review A}, 97(1), January 2018.
+
+\bibitem{bae2025designinggeneralizedelegantbell}
+Kwangil Bae, Junghee Ryu, Ilkwon Sohn, and Wonhyuk Lee.
+\newblock {Designing generalized elegant Bell inequalities in high dimension from a quantum bound}, 2025.
+
+\bibitem{Bengtsson2012}
+Ingemar Bengtsson, Kate Blanchfield, and Adán Cabello.
+\newblock {A Kochen–Specker inequality from a SIC}.
+\newblock {\em Physics Letters A}, 376(4):374–376, January 2012.
+
+\bibitem{Boyd2004}
+Stephen Boyd and Lieven Vandenberghe.
+\newblock {\em {Convex Optimization}}.
+\newblock Cambridge University Press, March 2004.
+
+\bibitem{Brunner2014}
+Nicolas Brunner, Daniel Cavalcanti, Stefano Pironio, Valerio Scarani, and Stephanie Wehner.
+\newblock Bell nonlocality.
+\newblock {\em Reviews of Modern Physics}, 86(2):419–478, April 2014.
+
+\bibitem{PhysRevResearch.2.013074}
+John~B. DeBrota, Christopher~A. Fuchs, and Blake~C. Stacey.
+\newblock {Symmetric informationally complete measurements identify the irreducible difference between classical and quantum systems}.
+\newblock {\em Phys. Rev. Res.}, 2:013074, Jan 2020.
+
+\bibitem{PhysRevA.78.052103}
+Se-Wan Ji, Jinhyoung Lee, James Lim, Koji Nagata, and Hai-Woong Lee.
+\newblock {Multisetting Bell inequality for qudits}.
+\newblock {\em Phys. Rev. A}, 78:052103, Nov 2008.
+
+\bibitem{10.5555/2011528.2011532}
+Ll~Masanes.
+\newblock {Tight Bell inequality for d-outcome measurements correlations}.
+\newblock {\em Quantum Info. Comput.}, 3(4):345–358, July 2003.
+
+\bibitem{Navascus2023}
+Miguel Navascués, Károly~F. Pál, Tamás Vértesi, and Mateus Araújo.
+\newblock {Self-Testing in Prepare-and-Measure Scenarios and a Robust Version of Wigner’s Theorem}.
+\newblock {\em Physical Review Letters}, 131(25), December 2023.
+
+\bibitem{Pironio2014}
+Stefano Pironio.
+\newblock {All Clauser–Horne–Shimony–Holt polytopes}.
+\newblock {\em Journal of Physics A: Mathematical and Theoretical}, 47(42):424020, October 2014.
+
+\bibitem{Sarkar2023}
+Shubhayan Sarkar, Jakub~J. Borkała, Chellasamy Jebarathinam, Owidiusz Makuta, Debashis Saha, and Remigiusz Augusiak.
+\newblock {Self-Testing of any Pure Entangled State with the Minimal Number of Measurements and Optimal Randomness Certification in a One-Sided Device-Independent Scenario}.
+\newblock {\em Physical Review Applied}, 19(3), March 2023.
+
+\bibitem{Smania2020}
+Massimiliano Smania, Piotr Mironowicz, Mohamed Nawareg, Marcin Pawłowski, Adán Cabello, and Mohamed Bourennane.
+\newblock {Experimental certification of an informationally complete quantum measurement in a device-independent protocol}.
+\newblock {\em Optica}, 7(2):123, January 2020.
+
+\bibitem{Stacey2021}
+Blake~C. Stacey.
+\newblock {\em {A First Course in the Sporadic SICs}}.
+\newblock Springer International Publishing, 2021.
+
+\bibitem{Compounds}
+Armin Tavakoli, Ingemar Bengtsson, Nicolas Gisin, and Joseph~M. Renes.
+\newblock {Compounds of symmetric informationally complete measurements and their application in quantum key distribution}.
+\newblock {\em Physical Review Research}, 2(4), October 2020.
+
+\bibitem{Tavakoli2021}
+Armin Tavakoli, Máté Farkas, Denis Rosset, Jean-Daniel Bancal, and Jedrzej Kaniewski.
+\newblock {Mutually unbiased bases and symmetric informationally complete measurements in Bell experiments}.
+\newblock {\em Science Advances}, 7(7), February 2021.
+
+\bibitem{Tavakoli2019}
+Armin Tavakoli, Denis Rosset, and Marc-Olivier Renou.
+\newblock {Enabling Computation of Correlation Bounds for Finite-Dimensional Quantum Systems via Symmetrization}.
+\newblock {\em Physical Review Letters}, 122(7), February 2019.
+
+\bibitem{Tavakoli2020}
+Armin Tavakoli, Massimiliano Smania, Tamás Vértesi, Nicolas Brunner, and Mohamed Bourennane.
+\newblock {Self-testing nonprojective quantum measurements in prepare-and-measure experiments}.
+\newblock {\em Science Advances}, 6(16), April 2020.
+
+\bibitem{Werner2001}
+R.~F. Werner and M.~M. Wolf.
+\newblock {All-multipartite Bell-correlation inequalities for two dichotomic observables per site}.
+\newblock {\em Physical Review A}, 64(3), August 2001.
+
+\bibitem{upi2020}
+Ivan Šupić and Joseph Bowles.
+\newblock {Self-testing of quantum systems: a review}.
+\newblock {\em Quantum}, 4:337, September 2020.
+
+\end{thebibliography}
