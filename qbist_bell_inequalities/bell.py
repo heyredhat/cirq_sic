@@ -670,17 +670,14 @@ def construct_T(state,
     ref_outcome_tuples = ref_meta["ref_outcome_tuples"]  # all s-tuples
 
     # --- 1) Compute joint reference distribution PR(s_0,...,s_{n-1}) from state ---
-    PR = []
-    for R_joint in joint_reference_measurement:
-        val = np.trace(R_joint @ state)
-        val = float(np.real_if_close(val))
-        if val < 0 and val > -1e-12:
-            val = 0.0
-        PR.append(val)
-    PR = np.array(PR, dtype=float)  # shape (#ref_outcome_tuples,)
-
-    # Map s-tuple -> PR index
-    s_index_map = {s_tuple: idx for idx, s_tuple in enumerate(ref_outcome_tuples)}
+    PR = np.array(
+        [
+            float(np.real_if_close(np.trace(R_joint @ state)))
+            for R_joint in joint_reference_measurement
+        ],
+        dtype=float,
+    )
+    PR[(PR < 0) & (PR > -1e-12)] = 0.0  # clip tiny negatives
 
     # --- 2) Precompute single-party conditional probabilities P_i(a_i | x_i, R_{r_i}) ---
     cond_probs = []  # cond_probs[party][measurement] has shape (n_out, n_R_i)
@@ -734,30 +731,35 @@ def construct_T(state,
     num_phi_entries = len(phi_index_tuples)
 
     # --- 5) Build T ---
+    # Vectorized build: block-by-block per setting
+    num_r = int(np.prod(n_R_per_party))
     T = np.zeros((num_bell_probs, num_phi_entries), dtype=float)
-    row = 0
+    row_start = 0
 
     for s_idx, setting in enumerate(settings_list):
         out_counts = outcome_ranges_per_setting[s_idx]
-        outcome_ranges = [range(c) for c in out_counts]
 
-        for outcome_tuple in product(*outcome_ranges):
-            # For each column of T, corresponding to (r_tuple, s_tuple)
-            for col, (r_tuple, s_tuple) in enumerate(phi_index_tuples):
-                # Product over parties of P_i(a_i | x_i, R_{r_i})
-                prob_prod = 1.0
-                for i in range(n_parties):
-                    x_i = setting[i]
-                    a_i = outcome_tuple[i]
-                    r_i = r_tuple[i]
-                    prob_prod *= cond_probs[i][x_i][a_i, r_i]
+        # Per-party conditional matrices for this setting: shapes (n_out_i, n_R_i)
+        cond_mats = [cond_probs[i][setting[i]] for i in range(n_parties)]
 
-                # Joint reference probability PR(s_tuple)
-                s_idx_PR = s_index_map[s_tuple]
-                prob_prod *= PR[s_idx_PR]
+        # Tensor of products P_i(a_i | x_i, R_{r_i}) with axes interleaved (out_i, r_i)
+        tensor = cond_mats[0]
+        for arr in cond_mats[1:]:
+            tensor = np.multiply.outer(tensor, arr)  # shape grows: (o0, r0, o1, r1, ...)
 
-                T[row, col] = prob_prod
-            row += 1
+        # Reorder axes to group outcomes then r's, then flatten
+        axes_out = list(range(0, tensor.ndim, 2))
+        axes_r = list(range(1, tensor.ndim, 2))
+        tensor = np.transpose(tensor, axes_out + axes_r)
+        cond_block = tensor.reshape(int(np.prod(out_counts)), num_r)
+
+        # Outer with PR to fill the corresponding block in T (phi columns ordered r outer, s inner)
+        block = cond_block[:, :, None] * PR[None, None, :]  # (num_outcomes, num_r, num_s)
+        block = block.reshape(cond_block.shape[0], num_phi_entries)
+
+        row_end = row_start + cond_block.shape[0]
+        T[row_start:row_end, :] = block
+        row_start = row_end
 
     meta = {
         "settings": settings_list,
