@@ -113,7 +113,7 @@ where $\Pi_{a_i|A_k}$ is the rank-1 projector onto the $a_i$ outcome of observab
 \label{polytope_inequality}
 \text{dist}(\B{p}, \mathcal{L})\ge \frac{\Delta}{\lVert \B{c}\rVert_*}	,
 \end{align}
-where $\lVert \cdot \rVert_*$ is the dual norm of $\lVert \cdot \rVert$. In particular, for a $p$-norm, $\lVert \B{x}\rVert_p = \left(\sum_i x_i^p\right)^{1/p}$, the dual norm is the H\"older dual $\lVert \B{x} \rVert_q$ satisfying $1/p + 1/q=1$ \cite{Boyd2004}: notice that that Euclidean norm is self-dual in this sense. As proven in Appendix \ref{duals}, the distance from  $\B{p}$ to the hyperplane $H=\{\B{x}|\B{c}^T\B{x}=\beta \}$ is $ \text{dist}(\B{p}, H)=\frac{\Delta}{\lVert \B{c}\rVert_*}$. Every (tight) Bell inequality defines a supporting hyperplane (the entire polytope lies in the corresponding half-space $\{\B{x}|\B{c}^T\B{x}\leq \beta\}$, and at least one vertex of the polytope lies on the hyperplane, or facet). Since the Bell polytope $\mathcal{L}$ lies entirely on the hyperplane's inner side, the distance to the hyperplane gives a lower bound on the distance to the whole polytope: $\text{dist}(\B{p}, \mathcal{L})\ge \text{dist}(\B{p}, H)=\frac{\Delta}{\lVert \B{c}\rVert_*}$.
+where $\lVert \cdot \rVert_*$ is the dual norm of $\lVert \cdot \rVert$. In particular, for a $p$-norm, $\lVert \B{x}\rVert_p = \left(\sum_i x_i^p\right)^{1/p}$, the dual norm is the H\"older dual $\lVert \B{x} \rVert_q$ satisfying $1/p + 1/q=1$ \cite{Boyd2004}: notice that that Euclidean norm is self-dual in this sense. As proven in Appendix \ref{duals}, the distance from  $\B{p}$ to the hyperplane $H=\{\B{x}|\B{c}^T\B{x}=\beta \}$ is $ \text{dist}(\B{p}, H)=\frac{\Delta}{\lVert \B{c}\rVert_*}$. Every Bell inequality defines halfspace  $\{\B{x}|\B{c}^T\B{x}\leq \beta\}$ bounded by the corresponding hyperplane: since the Bell polytope $\mathcal{L}$ lies entirely on the hyperplane's inner side, the distance to the hyperplane gives a lower bound on the distance to the whole polytope: $\text{dist}(\B{p}, \mathcal{L})\ge \text{dist}(\B{p}, H)=\frac{\Delta}{\lVert \B{c}\rVert_*}$.
 
 \section{Bounding $\lVert \Phi -I \rVert$}
 
@@ -125,7 +125,7 @@ and characterize their measurements with
 \begin{align}
 P(a_i|A_k, R_u)=\tr(\Pi_{a_i|A_k}\sigma_u) && P(b_j|B_l, R_v)=\tr(\Pi_{b_j|B_l}\sigma_v),
 \end{align}
-where $\sigma_u = R_u/\tr(R_u)$. If $\Phi$ is the Born matrix for a single system reference device $\{R_i\}$, then Born matrix of the composite reference device $\{R_i \otimes R_j\}$ is just $\Phi \otimes \Phi$. Along the same lines as Eq. \! \ref{Born_rule}, we may then reexpress the joint probability distribution $P(a_i, b_j|A_k, B_l)$ in terms of reference probabilities,
+where e.g., $\sigma_u = R_u/\tr(R_u)$. If $\Phi$ is the Born matrix for a single system reference device $\{R_i\}$, then Born matrix of the composite reference device $\{R_i \otimes R_j\}$ is just $\Phi \otimes \Phi$. Along the same lines as Eq. \! \ref{Born_rule}, we may then reexpress the joint probability distribution $P(a_i, b_j|A_k, B_l)$ in terms of reference probabilities,
 \begin{align}
 \label{composite_born}
 	P(a_i, b_j|A_k, B_l)&= \sum_{rs,uv} P(a_i|A_k, R_r)\Phi_{rs}P(b_j|B_l, R_u)\Phi_{uv}P(R_s, R_v)\\
@@ -185,7 +185,7 @@ This result opens up a number of important research directions. In particular, o
 \subsection{Some initial results}
 
 
-Numerically, I’ve discovered a) fixing a SIC reference device and the CHSH inequality and maximizing the bound over different states and measurements, always gives a $T$ matrix with a fixed set of singular values; b) fixing CHSH and the usual states and measurements which maximize its violation, but picking reference measurements at random, one finds that $\sigma_{\max}(T)$ for a SIC is not the smallest it could be.
+Numerically, I’ve discovered a) fixing a SIC reference device and the CHSH inequality and maximizing the bound over different states and measurements, always gives a $\B{T}$ matrix with a fixed set of singular values; b) fixing CHSH and the usual states and measurements which maximize its violation, but picking reference measurements at random, one finds that $\sigma_{\max}(\B{T})$ for a SIC is not the smallest it could be.
 
 
 \section{Finding Bell inequalities}
@@ -194,7 +194,7 @@ The wonderful review article \cite{Brunner2014} gives an explicit algorithm for 
 \begin{align}
 P_\lambda (a_i, b_j|A_k, B_l) = \delta_{a_i, \lambda_{A_k}}  \delta_{b_j, \lambda_{B_l}}.
 \end{align}
-A behavior $\B{p}$ is Bell local iff it can be written as a convex combination of these deterministic behaviors,
+A behavior $\B{p}$ is then Bell local iff it can be written as a convex combination of these deterministic behaviors,
 \begin{align}
 \B{p} = \sum_\lambda p(\lambda)\B{p}_\lambda  && p(\lambda)\ge0, \ \  \sum_\lambda p(\lambda)=1	.
 \end{align}
@@ -206,7 +206,7 @@ Now if $\B{p}$ is Bell local, from $\forall \lambda: \B{c}^T\B{p}_\lambda - \bet
 \begin{align}
 \sum_\lambda p(\lambda) \B{c}^T \B{p}_\lambda - \beta \leq 0	\Longrightarrow \B{c}^T \B{p}\leq \beta. 
 \end{align}
-Thus $S \leq 0$. If $\B{p}$ is not Bell local, then by the second constraint $\B{c}^T\B{p}-\beta \leq 1$, the maximum $S$ can achieve is 1, and from the first constraint, any deterministic behavior satisfies $\B{c}^T \B{p}_\lambda  \leq \beta $, and thus so does \emph{any} Bell local behavior while at the same time $\B{c}^T\B{p}\leq \beta +1$: the classical bound is violated by $\B{p}$ itself. Thus the Bell functional $\B{c}$ witnesses the nonclassicality of $\B{p}$. We note that the Bell polytope $\mathcal{L}$ is the convex hull of the deterministic behaviors, which are its extreme points: switching from the vertex representation to the halfspace representation of the polytope, we see that $\mathcal{L}$ is characterized by a finite set of Bell inequalities. If $\B{c}^T\B{p}\leq \beta $ is true for any point $\B{p}$ in the polytope, then the set $\{\B{p}\in \mathcal{L}: \B{c}^T\B{p}=\beta\}$ is a \emph{face}. Faces of dimension $\dim\mathcal{L}-1$ are called \emph{facets}, and the corresponding Bell inequalities are called \emph{tight}: any other Bell inequality can be written as a non-negative combination of facet inequalities.
+Thus $S \leq 0$. If $\B{p}$ is not Bell local, then by the second constraint $\B{c}^T\B{p}-\beta \leq 1$, the maximum $S$ can achieve is 1, and from the first constraint, any deterministic behavior satisfies $\B{c}^T \B{p}_\lambda  \leq \beta $, and thus so does \emph{any} Bell local behavior, while at the same time $\B{c}^T\B{p}\leq \beta +1$: the classical bound is violated by $\B{p}$ itself. Thus the Bell functional $\B{c}$ witnesses the nonclassicality of $\B{p}$. We note that the Bell polytope $\mathcal{L}$ is the convex hull of the deterministic behaviors, which are its extreme points: switching from the vertex representation to the halfspace representation of the polytope, we see that $\mathcal{L}$ is characterized by a finite set of Bell inequalities. If $\B{c}^T\B{p}\leq \beta $ is true for any point $\B{p}$ in the polytope, then the set $\{\B{p}\in \mathcal{L}: \B{c}^T\B{p}=\beta\}$ is a \emph{face}. Faces of dimension $\dim\mathcal{L}-1$ are called \emph{facets}, and the corresponding Bell inequalities are called \emph{tight}: any other Bell inequality can be written as a non-negative combination of facet inequalities.
 
 \subsection{Some initial results}
 
@@ -214,16 +214,18 @@ My first thought was to give Alice a choice of either doing a von Neumann measur
 \begin{align}
 P(a_i, b_j|A_k, B_l)&=\langle \psi |E_{a_i|A_k}\otimes E_{b_j|B_l}|\psi\rangle=\frac{1}{d}\tr(E_{a_i|A_k}E_{b_j|B_l}^T).
 \end{align}
-But since Bob's measurements are transposed relative to Alice, the probabilities always take the form a) $\frac{1}{d}\tr(\Pi_i\Pi_j)$; b) $\frac{1}{d}\tr(R_i \Pi_j)$; or c) $\frac{1}{d}\tr(R_iR_j)$. In fact, this gives us all the probabilities that characterize a sky/ground scenario where a set of orthogonal states is prepared, a SIC reference device turned on or off, after which the corresponding von Neumann measurement is performed---along with the probabilities that characterize the reference device itself. Using SIC's in $d=2,3,4$, it appears however that the resulting behavior $\B{p}$ is \emph{classical}! It doesn't matter whether one drops the transpositions, chooses a different von Neumann measurement, if Alice and Bob do different von Neumann measurements, or if one starts with a different maximally entangled state, or even if Alice and Bob can choose between a SIC and its transpose. All classical! 
+But since Bob's measurements are transposed relative to Alice, the probabilities always take the form a) $\frac{1}{d}\tr(\Pi_i\Pi_j)$; b) $\frac{1}{d}\tr(R_i \Pi_j)$; or c) $\frac{1}{d}\tr(R_iR_j)$. In fact, this gives us all the probabilities that characterize a sky/ground scenario where a set of orthogonal states is prepared, a SIC reference device turned on or off, after which the corresponding von Neumann measurement is performed---along with the probabilities that characterize the reference device itself. Using SIC's in $d=2,3,4$, it appears however that the resulting behavior $\B{p}$ is \emph{classical}! It doesn't matter whether one drops the transpositions, chooses a different von Neumann measurement, if Alice and Bob do different von Neumann measurements, or if one starts with a different maximally entangled state, or even if Alice and Bob can choose between a SIC and its transpose. All (generically) classical! 
 
 And yet... it is known that if one considers two parties, each with two choices of von Neumann measurements on qudits, the so-called CGLMP inequality is tight \cite{Brunner2014, 10.5555/2011528.2011532}: this inequality reduces to CHSH when $d=2$, but for $d\ge 3$, it is \emph{not} maximally violated by a maximally entangled state. This leads one to wonder whether the state $|\psi\rangle$ above is the limiting factor: choosing a random state for Alice and Bob to share, however, doesn't seem to help. We note in passing that \cite{PhysRevA.78.052103} introduces for prime qudits Bell scenarios with three possible settings which \emph{are} saturated by maximally entangled states and mutually unbiased measurements.
 
+Similar experiments with multiple numbers of WH-POVM's for Alice and Bob failed generally to yield nonclassical distributions... For comparison, \cite{PhysRevLett.104.050401} studied $n$ parties sharing a GHZ state. As $n$ grows large, the probability of violating a Bell inequality grows quickly to 1. For a randomly chosen two qubit pure state and randomly chosen measurement bases: violation about 10\% of the time.
+
 \subsection{Previous work}
-The most famous use of SIC's in the present context is Gisin's elegant Bell inequality, which, while not a facet inequality, is saturated when Alice's measurement projectors form a complete set of three mutually unbiased bases while Bob's measurement projectors can be partitioned into two dual sets of SIC's \cite{Andersson2017, Andersson2018} (acting on a qubit). \cite{bae2025designinggeneralizedelegantbell} generalizes this idea to qudit SIC's. 
+The most famous use of SIC's in the present context is Gisin's elegant Bell inequality, which, while not a facet inequality, is saturated when Alice's measurement projectors can be partitioned into a complete set of three mutually unbiased bases while Bob's measurement projectors can be partitioned into two dual sets of SIC's \cite{Andersson2017, Andersson2018} (acting on a qubit). \cite{bae2025designinggeneralizedelegantbell} generalizes this idea to qudit SIC's. 
 
- \cite{Tavakoli2020} provides a means of self-testing arbitrary POVM's in the prepare-and-measure scenario (with an assumption on the Hilbert space dimension), and give as an example a witness for a qubit SIC-POVM. \cite{Tavakoli2021} introduces a Bell inequality which is maximally violated by SIC's, providing device independent certification of a SIC: compare to the earlier \cite{Tavakoli2019} which already introduces a scheme for certifying SIC's. Similarly, \cite{Smania2020} recounts an experimental certification of a qubit SIC related to the ``elegant Bell inequality.'' \cite{Sarkar2023} provides a certification scheme for all rank-1 extremal measurements, as does \cite{Navascus2023} in the context of a prepare-and-measure scenario. For a general review of self-testing schemes, see \cite{upi2020}.
+ \cite{Tavakoli2020} provides a means of self-testing arbitrary POVM's in the prepare-and-measure scenario (with an assumption on the Hilbert space dimension), and give as an example a witness for a qubit SIC-POVM: compare to the earlier \cite{Tavakoli2019} which already introduces a measure-and-prepare scheme for certifying SIC's. \cite{Tavakoli2021} introduces a Bell inequality which is maximally violated by SIC's. Similarly, \cite{Smania2020} recounts an experimental certification of a qubit SIC related to the ``elegant Bell inequality.'' \cite{Sarkar2023} provides a certification scheme for all rank-1 extremal measurements using Bell-type reasoning, as does \cite{Navascus2023} in the context of a prepare-and-measure scenario. For a general review of self-testing schemes, see \cite{upi2020}.
 
-\cite{Stacey2021} discusses dramatizes Mermin's three qubit Bell inequality using the Hoggar SIC; a Bell type argument in the case where Alice and Bob can do projective measurements corresponding to testing SIC states on qubits; and gives an alternative spin on \cite{Bengtsson2012}, which derives a Kochen-Specker inequality using a SIC and mutually unbiased bases in $d=3$. 
+\cite{Stacey2021} discusses dramatizes Mermin's three qubit Bell inequality using the Hoggar SIC; gives a Bell type argument in the case where Alice and Bob can do projective measurements corresponding to testing SIC states on entangled qubits; and gives an alternative spin on \cite{Bengtsson2012}, which derives a Kochen-Specker inequality using a SIC and mutually unbiased bases in $d=3$. 
 
 Finally, with an eye to $d=4$, \cite{Compounds} introduces the idea of a SIC-compound: a collection of $d^3$ vectors in a $d$ dimensional Hilbert space which can be partition into $d$ SICS, but also $d^2$ orthonormal bases---and provide an explicit construction in $d=4$. 
  
@@ -232,7 +234,7 @@ Finally, with an eye to $d=4$, \cite{Compounds} introduces the idea of a SIC-com
 \label{duals}
 
 \begin{theorem}
-Let $H=\{\B{x} |\langle \B{y},\B{x}\rangle =\beta \}$ be a hyperplane. The distance of a point $\B{x}_0$ to $H$ (with respect to a choice of norm $\lVert \cdot \rVert$) is
+Let $H=\{\B{x}\  |\ \langle \B{y},\B{x}\rangle =\beta \}$ be a hyperplane. The distance of a point $\B{x}_0$ to $H$ (with respect to a choice of norm $\lVert \cdot \rVert$) is
 \begin{align}
 	\text{dist}(\B{x}_0, H)=\frac{|\Delta|}{\lVert \B{y}\rVert_*},
 \end{align}
@@ -247,7 +249,7 @@ Immediately, we have the tight inequality
 \begin{align}
 \langle \B{x},\B{y}\rangle =\lVert \B{y}\rVert \left\langle \B{x}, \frac{\B{y}}{\lVert \B{y}\rVert}\right\rangle \leq \lVert \B{y}\rVert \lVert \B{x}\rVert_*.
 \end{align}
-Let us now  consider the distance from a point $\B{x}_0\in \mathbb{R}^n$ to a hyperplane $H=\{\B{x} |\langle \B{y},\B{x}\rangle =\beta \}$. In other words, we seek the point in $H$ closest to $\B{x}_0$,
+Let us now  consider the distance from a point $\B{x}_0\in \mathbb{R}^n$ to a hyperplane $H=\{\B{x} \ |\ \langle \B{y},\B{x}\rangle =\beta \}$. In other words, we seek the point in $H$ closest to $\B{x}_0$,
 \begin{align}
  \text{dist}(\B{x}_0, H)=\min_{\B{x}\in H}\lVert \B{x}_0 - \B{x}\rVert.
 \end{align}

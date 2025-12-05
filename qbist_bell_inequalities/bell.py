@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sc
 np.set_printoptions(precision=3, suppress=True)
 
 from itertools import product
@@ -8,11 +9,33 @@ import cvxpy as cp
 
 ##################################################################
 
+def rand_herm(d):
+    A = np.random.randn(d,d) + 1j*np.random.randn(d,d)
+    return A + A.conj().T
+
+def rand_unitary(d):
+    return sc.stats.unitary_group.rvs(d)
+
+def rand_dichotomous():
+    U = sc.stats.unitary_group.rvs(d)
+    return U @ np.diag([1,-1]) @ U.conj().T
+
+def rand_basis_povm(d):
+    basis_povm = np.array([np.diag(np.eye(d)[i]) for i in range(d)])
+    U = rand_unitary(d)
+    return np.array([U @ e @ U.conj().T for e in basis_povm])
+
 def kron(*A):
     return reduce(np.kron, A)
 
 def transpose_povm(E):
     return np.array([e.T for e in E])
+
+def ghz(d, n):
+    return sum([kron(*[np.eye(d)[i]]*n) for i in range(d)])/np.sqrt(d)
+
+def extract_specs(E):
+    return [[len(M) for M in Ei] for Ei in E]   
 
 ##################################################################
 
@@ -43,83 +66,105 @@ def construct_deterministic_behaviors(w, return_lambdas=False):
         (lambda_0, ..., lambda_{N-1}), where lambda_i is a tuple of length
         len(w[i]) giving the predetermined outcome for each measurement of party i.
     """
-    # number of parties
     n_parties = len(w)
     if n_parties == 0:
         raise ValueError("w must describe at least one party.")
 
-    # 1) Build the space of deterministic assignments for each party
-    #    For party i, a deterministic assignment is a tuple:
-    #        lambda_i = (a_i^0, a_i^1, ..., a_i^{M_i-1})
-    #    where a_i^m in range(w[i][m])
-    party_assignment_spaces = []
+    # Per-party deterministic assignments as dense arrays
+    per_party_assignments = []
+    num_lambda_per_party = []
     for party_outcomes in w:
         if len(party_outcomes) == 0:
             raise ValueError("Each party must have at least one measurement.")
-        ranges_for_party = [range(o) for o in party_outcomes]
-        # All tuples of predetermined outcomes for this party
-        party_assignment_spaces.append(list(product(*ranges_for_party)))
+        ranges = [np.arange(o, dtype=int) for o in party_outcomes]
+        grids = np.array(np.meshgrid(*ranges, indexing="ij"))
+        assignments = grids.reshape(len(party_outcomes), -1).T  # (num_lambda_i, M_i)
+        per_party_assignments.append(assignments)
+        num_lambda_per_party.append(assignments.shape[0])
 
-    # Global deterministic lambdas: one assignment per party
-    lambdas = list(product(*party_assignment_spaces))
-    # lambdas[k] is a tuple (lambda_0, ..., lambda_{N-1})
-    # with lambda_i a tuple of predetermined outcomes for party i.
+    # Cartesian product of per-party assignments (global lambdas)
+    party_index_grid = np.array(
+        np.meshgrid(*[np.arange(n) for n in num_lambda_per_party], indexing="ij")
+    )
+    party_indices = party_index_grid.reshape(n_parties, -1).T  # (num_lambdas, n_parties)
+    num_lambdas = party_indices.shape[0]
 
-    # 2) Enumerate all measurement settings:
-    #    For party i, measurement index is in range(len(w[i]))
-    settings_ranges = [range(len(party_outcomes)) for party_outcomes in w]
-    all_settings = list(product(*settings_ranges))
+    # Stitch party assignments into a single array of shape (num_lambdas, total_measurements)
+    total_measurements = sum(len(p) for p in w)
+    lambdas_array = np.empty((num_lambdas, total_measurements), dtype=int)
+    col_offset = 0
+    for party_idx, assignments in enumerate(per_party_assignments):
+        width = assignments.shape[1]
+        lambdas_array[:, col_offset : col_offset + width] = assignments[
+            party_indices[:, party_idx], :
+        ]
+        col_offset += width
 
-    # 3) Compute the total length of the behavior vector (for sanity)
-    expected_length = 0
-    for setting in all_settings:  # setting = (x_0, ..., x_{N-1})
-        num_joint_outcomes = 1
-        for party, meas in enumerate(setting):
-            num_joint_outcomes *= w[party][meas]
-        expected_length += num_joint_outcomes
+    # All measurement settings as an array (num_settings, n_parties)
+    settings_grid = np.array(
+        np.meshgrid(*[np.arange(len(p)) for p in w], indexing="ij")
+    )
+    settings = settings_grid.reshape(n_parties, -1).T
+    num_settings = settings.shape[0]
 
-    # 4) Build the deterministic behaviors
-    behaviors = []
+    counts = np.array(
+        [[w[party][meas] for party, meas in enumerate(setting)] for setting in settings],
+        dtype=int,
+    )  # outcome counts per party for each setting
 
-    for lam in lambdas:
-        # lam[i] is a tuple of predetermined outcomes for party i:
-        # lam[i][m] = outcome that party i outputs when measuring m
-        behavior = []
+    outcomes_per_setting = counts.prod(axis=1)
+    expected_length = int(outcomes_per_setting.sum())
+    offsets = np.cumsum(np.concatenate(([0], outcomes_per_setting[:-1])))
 
-        # Loop over all measurement settings
-        for setting in all_settings:
-            # For this setting, party i chooses measurement setting[i]
-            # and has w[i][setting[i]] possible outcomes.
-            per_party_outcome_ranges = [
-                range(w[party][setting[party]]) for party in range(n_parties)
-            ]
+    # Column indices in lambdas_array corresponding to each party's chosen measurement
+    party_measure_offsets = []
+    offset = 0
+    for party_outcomes in w:
+        party_measure_offsets.append(offset)
+        offset += len(party_outcomes)
+    measurement_cols = np.array(
+        [
+            [party_measure_offsets[p] + meas for p, meas in enumerate(setting)]
+            for setting in settings
+        ],
+        dtype=int,
+    )
 
-            # Loop over all joint outcomes for this setting
-            for outcome_tuple in product(*per_party_outcome_ranges):
-                # outcome_tuple[party] is the output of party i
-                # This deterministic strategy is 1 iff each party outputs its
-                # predetermined outcome for the chosen measurement.
-                is_this_lambda = all(
-                    outcome_tuple[party] == lam[party][setting[party]]
-                    for party in range(n_parties)
-                )
-                behavior.append(1 if is_this_lambda else 0)
+    # Outcomes predicted by each lambda for every setting: (num_lambdas, num_settings, n_parties)
+    chosen_outcomes = np.take_along_axis(
+        lambdas_array[:, None, :], measurement_cols[None, :, :], axis=2
+    )
 
-        if len(behavior) != expected_length:
-            raise RuntimeError(
-                f"Internal error: behavior length {len(behavior)} "
-                f"!= expected {expected_length}"
-            )
+    # Mixed-radix strides within each setting to map joint outcomes to a flat index
+    strides = np.ones_like(counts, dtype=int)
+    for i in range(n_parties - 2, -1, -1):
+        strides[:, i] = strides[:, i + 1] * counts[:, i + 1]
 
-        behaviors.append(behavior)
-    
-    behaviors = np.array(behaviors, dtype=int)
-    return (behaviors, lambdas) if return_lambdas else behaviors
+    index_in_setting = (chosen_outcomes * strides[None, :, :]).sum(axis=2)
+    flat_indices = offsets[None, :] + index_in_setting  # (num_lambdas, num_settings)
 
-def construct_bell_inequality(w, p, dichotomous=False, return_problem=False):
+    behaviors = np.zeros((num_lambdas, expected_length), dtype=int)
+    rows = np.repeat(np.arange(num_lambdas), num_settings)
+    behaviors[rows, flat_indices.reshape(-1)] = 1
+
+    if not return_lambdas:
+        return behaviors
+
+    # Only materialize the tuple-of-tuples form when requested
+    per_party_as_tuples = [
+        [tuple(row.tolist()) for row in assignments] for assignments in per_party_assignments
+    ]
+    lambdas = [
+        tuple(per_party_as_tuples[p][idx] for p, idx in enumerate(row_indices))
+        for row_indices in party_indices
+    ]
+    return behaviors, lambdas
+
+def construct_bell_inequality(w, p, separation=1, dichotomous=False, return_problem=False, deterministic_behaviors=None):
     """Returns a Bell inequality which witnesses the nonclassicality of a joint probability distribution p."""
     n = len(p)
-    deterministic_behaviors = construct_deterministic_behaviors(w)
+    if type(deterministic_behaviors) == type(None):
+        deterministic_behaviors = construct_deterministic_behaviors(w)
     classical_bound_var = cp.Variable()
     if dichotomous:
         b = cp.Variable(n, boolean=True)
@@ -128,11 +173,20 @@ def construct_bell_inequality(w, p, dichotomous=False, return_problem=False):
         bell_functional_var = cp.Variable(n)
     problem = cp.Problem(cp.Maximize(p @ bell_functional_var - classical_bound_var),\
                         [deterministic_behaviors @ bell_functional_var - classical_bound_var <= 0,
-                        p @ bell_functional_var - classical_bound_var <= 1])
+                        p @ bell_functional_var - classical_bound_var <= separation])
     value = problem.solve()
     bell_functional = bell_functional_var.value
     classical_bound = classical_bound_var.value
     return (bell_functional, classical_bound) if not return_problem else (bell_functional, classical_bound, problem)
+
+def construct_hidden_variable_model(w, p, return_problem=False, deterministic_behaviors=None):
+    if type(deterministic_behaviors) == type(None):
+        deterministic_behaviors = construct_deterministic_behaviors(w)
+    deterministic_behaviors = construct_deterministic_behaviors(w)
+    q = cp.Variable(deterministic_behaviors.shape[0], nonneg=True)
+    problem = cp.Problem(cp.Minimize(0), [q @ deterministic_behaviors == p, cp.sum(q) == 1])
+    problem.solve()
+    return (q.value, problem) if return_problem else q.value
 
 ##################################################################
 

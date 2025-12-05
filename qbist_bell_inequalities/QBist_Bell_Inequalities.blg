@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: QBist_Bell_Inequalities.aux
 The style file: plain.bst
 Database file #1: QBist_Bell_Inequalities.bib
-You've used 20 entries,
+You've used 21 entries,
             2118 wiz_defined-function locations,
-            636 strings with 8174 characters,
-and the built_in function-call counts, 6480 in all, are:
-= -- 582
-> -- 412
+            645 strings with 8403 characters,
+and the built_in function-call counts, 6850 in all, are:
+= -- 616
+> -- 435
 < -- 0
-+ -- 162
-- -- 142
-* -- 540
-:= -- 1164
-add.period$ -- 59
-call.type$ -- 20
-change.case$ -- 129
++ -- 171
+- -- 150
+* -- 572
+:= -- 1229
+add.period$ -- 62
+call.type$ -- 21
+change.case$ -- 136
 chr.to.int$ -- 0
-cite$ -- 20
-duplicate$ -- 209
-empty$ -- 437
-format.name$ -- 142
-if$ -- 1271
+cite$ -- 21
+duplicate$ -- 220
+empty$ -- 462
+format.name$ -- 150
+if$ -- 1344
 int.to.chr$ -- 0
-int.to.str$ -- 20
-missing$ -- 21
-newline$ -- 102
-num.names$ -- 40
-pop$ -- 110
+int.to.str$ -- 21
+missing$ -- 22
+newline$ -- 107
+num.names$ -- 42
+pop$ -- 115
 preamble$ -- 1
-purify$ -- 111
+purify$ -- 117
 quote$ -- 0
-skip$ -- 150
+skip$ -- 157
 stack$ -- 0
-substring$ -- 253
-swap$ -- 20
+substring$ -- 276
+swap$ -- 21
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 76
+type$ -- 80
 warning$ -- 0
-while$ -- 48
-width$ -- 22
-write$ -- 217
+while$ -- 51
+width$ -- 23
+write$ -- 228
