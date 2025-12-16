@@ -69,7 +69,7 @@ def P_img(specs, img_dir, base_dir=None, show=False):
     plot_matrix_comparison(plot_title, matrices, labels, filename, inset=inset, show=show)
 
 def Phi_img(specs, img_dir, base_dir=None, show=False):
-    """Generates matrix comparison plot for the \Phi matrix."""
+    """Generates matrix comparison plot for the Phi matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)

@@ -74,3 +74,13 @@ def d4_sic_fiducial_ket(monomial=False):
     H = np.array([[1,1],[1,-1]])/np.sqrt(2)
     P = np.diag([1, np.exp(1j*np.pi*(-1/4)), np.exp(1j*np.pi*(1/4)), np.exp(1j*np.pi*(1/2))]) 
     return np.kron(H, np.eye(2)) @ P @ monomial_fiducial
+
+####################################################################################
+
+def all_d2_fiducials():
+    """Returns all dimension 2 SIC states, which form two antipodal tetrahedra in the Bloch sphere."""
+    D = wh_operators(2)["D"].reshape(-1, 2, 2)
+    phi = np.array([np.sqrt(3 + np.sqrt(3)), np.exp(1j*np.pi/4)*np.sqrt(3 - np.sqrt(3))])/np.sqrt(6)
+    phi_antipodal = np.array([np.exp(-1j*np.pi/4)*np.sqrt(3 - np.sqrt(3)), np.sqrt(3 + np.sqrt(3))])/np.sqrt(6)
+    states = [O @ phi for O in D] + [O @ phi_antipodal for O in D]
+    return np.array(states)

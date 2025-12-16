@@ -7,6 +7,7 @@ import string
 sigma_x = np.array([[0,1], [1,0]])
 sigma_y = np.array([[0,-1j], [1j, 0]]) 
 sigma_z = np.array([[1,0], [0,-1]])
+paulis = [np.eye(2), sigma_x, sigma_y, sigma_z]
 
 def kron(*A):
     """Tensor lots of things together."""
@@ -29,6 +30,14 @@ def ptrace(rho, over, dims):
     for o in over:
         indices[o+len(dims)] = indices[o]
     return np.einsum("".join(indices), rho.reshape(dims*2))
+
+def gram_matrix(E):
+    return np.array([[(a@b).trace() for b in E] for a in E])
+
+def bloch_vector(A):
+    if len(A.shape) == 1:
+        return np.array([A.conj() @ O @ A for O in paulis[1:]]).real
+    return np.array([(O @ A).trace() for O in paulis[1:]]).real
 
 ####################################################################################
 
