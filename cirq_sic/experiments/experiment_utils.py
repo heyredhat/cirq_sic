@@ -15,6 +15,8 @@ from cirq.value import big_endian_bits_to_int
 import bqskit as bq
 from bqskit.ext import bqskit_to_cirq, cirq_to_bqskit
 
+default_project_id = "sic-povms-sandbox-444403"
+
 ####################################################################################
 
 def setup_logger(name, path):
@@ -53,14 +55,14 @@ def abbrev_grid_qubits(qubits):
 
 ####################################################################################
 
-def get_sampler(processor_id, run_type="noisy", PROJECT_ID="cirq_sic"):
+def get_sampler(processor_id, run_type="noisy", project_id=default_project_id):
     """Returns the device, gateset, connectivity graph, and sampler as a dictionary.
         run_type='clean' gives an exact simulator.
         runtype='noisy' gives a simulator with a noise model.
         runtype='real' gives the real thing.
     """
     if run_type == "real":
-        engine = cirq_google.Engine(project_id=PROJECT_ID)
+        engine = cirq_google.Engine(project_id=project_id)
         device = engine.get_processor(processor_id).get_device()
         sampler = engine.get_sampler(processor_id=processor_id) # REWRITE!!!
     else:
