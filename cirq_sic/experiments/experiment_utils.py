@@ -153,7 +153,6 @@ def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
             kept.append(op)
     return cirq.Circuit(kept + trailing)
 
-# Problematic with arbitrary d circuits
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     """Conform the circuit to device topology and gateset."""
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
