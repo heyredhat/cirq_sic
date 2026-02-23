@@ -1,0 +1,96 @@
+{
+  "timestamp": "2026-02-22T02:36:55.677421",
+  "task": {
+    "cirq_type": "recirq.sky_ground.BasisMeasurementAfterWHPOVMOnBasisStatesTask",
+    "dataset_id": "test",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 3
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 3
+      }
+    ],
+    "n_shots": 10000,
+    "optimizer": "cirq",
+    "d": 4,
+    "fiducial_description": "numerical_sic",
+    "fiducial": [
+      {
+        "cirq_type": "complex",
+        "real": 0.15561996860005486,
+        "imag": -0.46010733746335675
+      },
+      {
+        "cirq_type": "complex",
+        "real": -0.16184391789230357,
+        "imag": 0.366723237896651
+      },
+      {
+        "cirq_type": "complex",
+        "real": -0.19058269932469693,
+        "imag": -0.06445990157021791
+      },
+      {
+        "cirq_type": "complex",
+        "real": -0.2338035180008352,
+        "imag": -0.7129259058214025
+      }
+    ],
+    "fiducial_circuit": null
+  },
+  "processed_data": {
+    "p": [
+      [
+        0.393,
+        0.1983,
+        0.2017,
+        0.1941
+      ],
+      [
+        0.2035,
+        0.3965,
+        0.1989,
+        0.201
+      ],
+      [
+        0.2005,
+        0.201,
+        0.4004,
+        0.2097
+      ],
+      [
+        0.203,
+        0.2042,
+        0.199,
+        0.3952
+      ]
+    ]
+  }
+}
