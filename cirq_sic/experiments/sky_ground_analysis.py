@@ -189,6 +189,7 @@ def sky_ground_metrics(specs, base_dir=None):
     born_rule_err = np.linalg.norm(empirical_q - empirical_born_rule)
 
     metrics = {"P_err": P_err, "Phi_err": Phi_err, "rel_quantumness": rel_quantumness,\
+               "quantumness": empirical_quantumness,\
                "q_err": q_err, "born_rule_err": born_rule_err}
     
     if specs["wh_implementation"] == "ak":
