@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-03-14T20:04:33.876780",
+  "task": {
+    "cirq_type": "recirq.sky_ground.BasisMeasurementOnWHStatesTask",
+    "dataset_id": "1param",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      }
+    ],
+    "n_shots": 50000,
+    "optimizer": "cirq",
+    "d": 2,
+    "fiducial_description": "interpolation_0.2759",
+    "fiducial": [
+      {
+        "cirq_type": "complex",
+        "real": 0.9913311759892706,
+        "imag": -1.038489145116989e-17
+      },
+      {
+        "cirq_type": "complex",
+        "real": 0.09290451956640697,
+        "imag": -0.092904519566407
+      }
+    ],
+    "fiducial_circuit": null
+  },
+  "processed_data": {
+    "C": [
+      [
+        0.98172,
+        0.98268,
+        0.01706,
+        0.01768
+      ],
+      [
+        0.01828,
+        0.01732,
+        0.98294,
+        0.98232
+      ]
+    ]
+  }
+}
