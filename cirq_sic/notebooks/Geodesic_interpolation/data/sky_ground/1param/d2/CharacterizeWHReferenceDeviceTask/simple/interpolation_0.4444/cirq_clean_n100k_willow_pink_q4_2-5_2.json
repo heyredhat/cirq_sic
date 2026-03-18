@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-03-18T18:28:39.667035",
+  "task": {
+    "cirq_type": "recirq.sky_ground.CharacterizeWHReferenceDeviceTask",
+    "dataset_id": "1param",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      }
+    ],
+    "n_shots": 100000,
+    "optimizer": "cirq",
+    "d": 2,
+    "fiducial_description": "interpolation_0.4444",
+    "wh_implementation": "simple",
+    "fiducial": [
+      {
+        "cirq_type": "complex",
+        "real": 0.9775504335387009,
+        "imag": -1.6653974105250643e-17
+      },
+      {
+        "cirq_type": "complex",
+        "real": 0.14898850608066713,
+        "imag": -0.1489885060806672
+      }
+    ],
+    "fiducial_circuit": null
+  },
+  "processed_data": {
+    "P": [
+      [
+        0.49832,
+        0.41486,
+        0.04197,
+        0.04226
+      ],
+      [
+        0.4156,
+        0.50071,
+        0.04175,
+        0.04146
+      ],
+      [
+        0.04324,
+        0.04216,
+        0.50043,
+        0.41511
+      ],
+      [
+        0.04284,
+        0.04227,
+        0.41585,
+        0.50117
+      ]
+    ]
+  }
+}
