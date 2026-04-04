@@ -14,6 +14,11 @@ def wh_operators(d):
     D = np.array([[mpow(X, i) @ mpow(Z, j)  for j in range(d)] for i in range(d)])
     return locals()
 
+def wh_frame(phi):
+    d = phi.shape[0]
+    D = wh_operators(d)["D"]
+    return np.array([O @ phi for O in D.reshape(d**2, d, d)]).T
+
 def wh_povm(phi):
 	"""Generate WH-POVM elements from a fiducial ket"""
 	d = phi.shape[0]

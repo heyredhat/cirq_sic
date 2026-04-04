@@ -37,6 +37,12 @@ def frame_potential_minimum(d, t=2):
     """Minimum value of the frame potential. SICs minimize for t=2."""
     return 1/sc.special.binom(d+t-1, t)
 
+def minimum_design_elements(d, t):
+    """Minimum number of elements for a t-design."""
+    return sc.special.binom(d-1+np.floor(t/2), np.floor(t/2))*\
+           sc.special.binom(d-1+np.ceil(t/2), np.ceil(t/2))
+
+######################
 def minimize_wh_frame_potential(d, T=10, method="SLSQP"):
     """Find a SIC fiducial by minimizing the frame potential under assumption of WH covariance."""
     D = wh_operators(d)["D"]
@@ -64,7 +70,15 @@ def wh_2_frame_potential(ket):
     R = jp.einsum("ijkl, l->ijk", D, ket).reshape(d**2, d)
     return (jp.sum(abs(R @ R.conj().T)**4)/d**4 - frame_potential_minimum(d, 2))**2
 
-####################################################################################
+def frame_potential(R, t):
+    """t-th order frame potential for n vectors given as a d x n matrix."""
+    norms = np.linalg.norm(R, axis=0)
+    R = R/norms
+    p = norms/np.sum(norms)
+    P = jp.outer(p, p)
+    return np.sum(P*abs(R.conj().T @ R)**(2*t))
+
+##############################################################
 
 def d4_sic_fiducial_ket(monomial=False):
     """Construct a d=4 SIC fiducial ket from the monomial basis."""
