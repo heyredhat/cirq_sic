@@ -136,6 +136,20 @@ def simple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None, measure
     if measure:
         yield cirq.measure(*(system_qubits+ancilla_qubits), key="result")
 
+def msimple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None):
+    n = len(system_qubits)
+
+    if prepare_fiducial is not None:
+        yield prepare_fiducial(ancilla_qubits, conjugate=True)
+
+    system_keys = {q: f"s_{i}" for i, q in enumerate(system_qubits)}
+    ancilla_keys = {q: f"a_{i}" for i, q in enumerate(ancilla_qubits)}
+
+    yield from qft(system_qubits)
+    yield from CZ(ancilla_qubits, system_qubits, inverse=True)
+    yield from mqft(system_qubits, inverse=True, key_fn=system_keys.__getitem__)
+    yield from mqft(ancilla_qubits, inverse=True, key_fn=ancilla_keys.__getitem__)
+
 ####################################################################################
 
 def CRy(theta):
