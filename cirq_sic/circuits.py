@@ -25,6 +25,35 @@ def qft(qubits, inverse=False):
     for i in range(n // 2):
         yield cirq.SWAP(qubits[i], qubits[n - 1 - i])
 
+def mqft(qubits, inverse=False, key_fn=str):
+    """Semiclassical QFT followed immediately by single-qubit measurements.
+
+    For ``inverse=True`` this matches ``qft(qubits, inverse=True)`` followed by
+    a computational basis measurement. For ``inverse=False`` it implements the
+    no-swap QFT convention.
+    """
+    n = len(qubits)
+    if inverse:
+        for i in range(n // 2):
+            yield cirq.SWAP(qubits[i], qubits[n - 1 - i])
+    indices = range(n) if not inverse else range(n - 1, -1, -1)
+
+    for measured in indices:
+        yield cirq.H(qubits[measured])
+        key = key_fn(qubits[measured])
+        yield cirq.measure(qubits[measured], key=key)
+
+        if inverse:
+            remaining = range(measured)
+        else:
+            remaining = range(measured + 1, n)
+
+        for target in remaining:
+            exponent = 2**(min(measured, target) - max(measured, target))
+            if inverse:
+                exponent *= -1
+            yield cirq.ZPowGate(exponent=exponent)(qubits[target]).with_classical_controls(key)
+
 def Z(qubits, k=1):
     """Qudit shift on n qubits."""
     for j, qubit in enumerate(qubits):
