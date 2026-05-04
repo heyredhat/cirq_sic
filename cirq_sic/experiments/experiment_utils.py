@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import logging 
 from pathlib import Path
@@ -55,40 +56,55 @@ def abbrev_grid_qubits(qubits):
 
 ####################################################################################
 
-def get_sampler(processor_id, run_type="noisy", project_id=default_project_id):
-    """Returns the device, gateset, connectivity graph, and sampler as a dictionary.
-        run_type='clean' gives an exact simulator.
-        runtype='noisy' gives a simulator with a noise model.
-        runtype='real' gives the real thing.
+def get_sampler(processor_id, run_type="noisy", project_id=default_project_id, circuits=None):
+    """Return a sampler appropriate for the requested execution mode.
+
+    Dynamic circuits with mid-circuit measurement and classical feed-forward are
+    routed to Cirq's built-in simulators because qsim and the cirq_google
+    validating sampler do not currently support those operations.
     """
+    if circuits is None:
+        circuit_list = []
+    elif isinstance(circuits, cirq.Circuit):
+        circuit_list = [circuits]
+    else:
+        circuit_list = list(circuits)
+
+    has_dynamic = any(has_dynamic_circuit_features(circuit) for circuit in circuit_list)
+
+    if run_type == "real" and has_dynamic:
+        raise ValueError(
+            "Dynamic circuits with classical feed-forward are not supported by the current "
+            "cirq_google device sampler. Use run_type='clean' or 'noisy' for wh_implementation='msimple'."
+        )
+
     if run_type == "real":
         engine = cirq_google.Engine(project_id=project_id)
-        device = engine.get_processor(processor_id).get_device()
         sampler = engine.get_sampler(processor_id=processor_id) # REWRITE!!!
     else:
-        device = cirq_google.engine.create_device_from_processor_id(processor_id)
         if run_type == "noisy":
             noise_props = cirq_google.engine.load_device_noise_properties(processor_id)
             noise_model = cirq_google.NoiseModelFromGoogleNoiseProperties(noise_props)
-            sim = qsimcirq.QSimSimulator(noise=noise_model)
+            sampler = cirq.Simulator(noise=noise_model) if has_dynamic else qsimcirq.QSimSimulator(noise=noise_model)
         elif run_type == "clean":
-            sim = qsimcirq.QSimSimulator()
-        cal = cirq_google.engine.load_median_device_calibration(processor_id)
-        sim_processor = cirq_google.engine.SimulatedLocalProcessor(
-            processor_id=processor_id, sampler=sim, device=device, calibrations={cal.timestamp // 1000: cal})
-        sim_engine = cirq_google.engine.SimulatedLocalEngine([sim_processor])
-        sampler = sim_engine.get_sampler(processor_id)
+            sampler = cirq.Simulator() if has_dynamic else qsimcirq.QSimSimulator()
     return sampler
 
 ####################################################################################
 
 def exact_simulation(circuit):
     """Returns the exact outcome probabilities for a cirq circuit."""
+    if not are_all_measurements_terminal(circuit):
+        raise ValueError("exact_simulation only supports circuits with terminal measurements.")
     measurements = [op for op in circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
     circuit_sans_measurements = cirq.drop_terminal_measurements(circuit)
-    qubits = list(circuit_sans_measurements.all_qubits())
     result = cirq.Simulator().simulate(circuit_sans_measurements)
-    return np.diag(result.density_matrix_of(measurements[0].qubits)).real
+    if len(measurements) == 1 and measurements[0].gate.key == "result":
+        measured_qubits = list(measurements[0].qubits)
+    else:
+        ordered_measurements = sorted(measurements, key=lambda op: measurement_key_sort_key(op.gate.key))
+        measured_qubits = [qubit for op in ordered_measurements for qubit in op.qubits]
+    return np.diag(result.density_matrix_of(measured_qubits)).real
 
 ####################################################################################
 
@@ -114,6 +130,8 @@ def bqskit_machine_model(qubits, processor_id="willow_pink"):
 
 def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1, server="local"):
     """Optimize cirq circuit using bqskit, given a machine model. Server can be local or localhost (use the latter for runs in parallel)."""
+    if has_dynamic_circuit_features(circuit):
+        raise ValueError("bqskit optimization does not support dynamic circuits with mid-circuit measurement.")
     bq_circuit = cirq_to_bqskit(circuit)
     compiled_bq_circuit, initial_mapping, final_mapping = bq.compile(bq_circuit,\
                                                                      model=machine_model,\
@@ -126,8 +144,7 @@ def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1
 
     measurements = [op for op in compiled_circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
     final_circuit = cirq.drop_terminal_measurements(compiled_circuit)
-    to_measure = {int(measurement.gate.key.split("_")[-1]): measurement.qubits[0] for measurement in measurements}
-    final_circuit.append(cirq.measure(*[to_measure[i] for i in range(len(to_measure))], key="result"))
+    final_circuit.append(sorted(measurements, key=lambda op: measurement_key_sort_key(op.gate.key)))
     return final_circuit
 
 def to_one_and_two_qubit_ops(circuit: cirq.Circuit) -> cirq.Circuit:
@@ -191,9 +208,50 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
 """
 ####################################################################################
 
+MEASUREMENT_PREFIX_ORDER = {"s": 0, "a": 1, "a1": 1, "a2": 2}
+
+def measurement_key_sort_key(key):
+    """Sort measurement keys like s_0, a_0, a1_0, a2_0 into register order."""
+    if key == "result":
+        return (-1, "result", -1)
+    match = re.fullmatch(r"([A-Za-z][A-Za-z0-9]*)_(\d+)", key)
+    if match is None:
+        return (99, key, -1)
+    prefix, index = match.groups()
+    return (MEASUREMENT_PREFIX_ORDER.get(prefix, 98), prefix, int(index))
+
+def ordered_measurement_keys(measurements):
+    """Return measurement keys in the register order used throughout the codebase."""
+    return sorted(measurements.keys(), key=measurement_key_sort_key)
+
+def are_all_measurements_terminal(circuit):
+    """Compatibility helper for Cirq versions without are_all_measurements_terminal."""
+    stripped = cirq.drop_terminal_measurements(circuit)
+    return not any(cirq.is_measurement(op) for op in stripped.all_operations())
+
+def result_measurements_matrix(shots):
+    """Stack a ResultDict's measurements into one big-endian bit matrix."""
+    if "result" in shots.measurements:
+        measurements = shots.measurements["result"]
+        return measurements if measurements.ndim == 2 else measurements.reshape(measurements.shape[0], -1)
+
+    ordered_keys = ordered_measurement_keys(shots.measurements)
+    if not ordered_keys:
+        raise ValueError("No measurements found in shots data.")
+
+    columns = []
+    for key in ordered_keys:
+        values = shots.measurements[key]
+        columns.append(values if values.ndim == 2 else values.reshape(values.shape[0], -1))
+    return np.hstack(columns)
+
+def has_dynamic_circuit_features(circuit):
+    """Whether a circuit uses mid-circuit measurement or classical feed-forward."""
+    return any(getattr(op, "classical_controls", ()) for op in circuit.all_operations()) or not are_all_measurements_terminal(circuit)
+
 def shots_to_freqs(shots):
     """Get frequencies from shots data."""
-    measurements = shots.measurements["result"]
+    measurements = result_measurements_matrix(shots)
     n_outcomes = 2**measurements.shape[1]
     int_outcomes = [big_endian_bits_to_int(bits) for bits in measurements]
     counts = collections.Counter(int_outcomes)

@@ -16,21 +16,77 @@ from .experiment_utils import *
 ####################################################################################
 
 def get_wh_qubits(d, wh_implementation):
-    """Depending on the dimension and the WH implementation (`simple` or `ak`), returns a list of qubits appropriate for the circuit.
+    """Depending on the dimension and WH implementation, returns suitable qubits.
     At the moment these are fixed to be a arbitrary but convienient choice."""
     n = int(np.ceil(np.log2(d)))
     if 2**n == d:
-        cols = 2 if wh_implementation == "simple" else 3
+        cols = 2 if wh_implementation in {"simple", "msimple"} else 3
         return cirq.GridQubit.rect(cols, n, top=4, left=2)
     else:
         n = int(np.ceil(np.log2(d)) + 1)
-        cols = 3 if wh_implementation == "simple" else 4
+        cols = 3 if wh_implementation in {"simple", "msimple"} else 4
         return cirq.GridQubit.rect(cols, n, top=4, left=2)
 
 ####################################################################################
 
 EXPERIMENT_NAME = "sky_ground"
 DEFAULT_BASE_DIR = f"data/{EXPERIMENT_NAME}"
+SIMPLE_WH_IMPLEMENTATIONS = {"simple", "msimple"}
+
+def has_post_measurement_task(wh_implementation):
+    return wh_implementation == "ak"
+
+def wh_povm_circuit(wh_implementation, state_qubits, prepare_fiducial, *, ancilla_qubits=None,\
+                    ancilla1_qubits=None, ancilla2_qubits=None, exact=False, measure=True):
+    """Return the appropriate WH-POVM circuit generator for the chosen implementation."""
+    if wh_implementation == "ak":
+        return arthurs_kelly(
+            state_qubits,
+            ancilla1_qubits,
+            ancilla2_qubits,
+            prepare_fiducial=prepare_fiducial,
+            measure=measure,
+        )
+    if wh_implementation == "simple" or (wh_implementation == "msimple" and exact):
+        return simple_wh_povm(
+            state_qubits,
+            ancilla_qubits,
+            prepare_fiducial=prepare_fiducial,
+            measure=measure,
+        )
+    if wh_implementation == "msimple":
+        return msimple_wh_povm(
+            state_qubits,
+            ancilla_qubits,
+            prepare_fiducial=prepare_fiducial,
+            measure=measure,
+        )
+    raise ValueError(f"Unsupported WH implementation: {wh_implementation}")
+
+def optimize_task_circuits(task, circuits, logger=None):
+    """Optimize circuits, falling back to Cirq for dynamic circuits."""
+    has_dynamic = any(has_dynamic_circuit_features(circuit) for circuit in circuits)
+    if task.optimizer.startswith("cirq") or has_dynamic:
+        if has_dynamic and task.optimizer.startswith("bqskit") and logger is not None:
+            logger.info("Dynamic circuit detected; using cirq optimizer instead of bqskit.")
+        return [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
+
+    if task.optimizer.startswith("bqskit"):
+        tokens = task.optimizer.split("_")
+        optimization_level = int(tokens[-1])
+        machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
+        return [
+            bqskit_optimize_circuit(
+                task.qubits,
+                circuit,
+                machine_model,
+                optimization_level=optimization_level,
+                server=tokens[1],
+            )
+            for circuit in circuits
+        ]
+
+    raise ValueError(f"Unsupported optimizer: {task.optimizer}")
 
 def load_results(task, base_dir=None):
     """Loads the results associated with a task from a directory structure rooted in base_dir."""
@@ -58,7 +114,7 @@ def load_sky_ground_results(specs, base_dir=None, separate=True):
         base_dir = DEFAULT_BASE_DIR
     results = {}
     for task_type in sky_ground_tasks:
-        if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+        if not has_post_measurement_task(specs["wh_implementation"]) and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             continue
         try:
             results[task_type] = recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json")
@@ -75,7 +131,7 @@ def load_sky_ground_results(specs, base_dir=None, separate=True):
 
 def exactify(task, base_dir=None):
     """Given a task, loads its circuits, and performs an exact numerical calculation of the resulting probabilities, which are processed in accordance with the task."""
-    circuits = load_circuits(task, base_dir=base_dir)
+    circuits = task.make_exact_circuits() if hasattr(task, "make_exact_circuits") else task.make_circuits()
     return task.process_results(probs=np.array([exact_simulation(circuit) for i, circuit in enumerate(circuits)]))
 
 ####################################################################################
@@ -95,7 +151,7 @@ def run_sky_ground_tasks(specs, base_dir=None):
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     for task_type in sky_ground_tasks:
-        if specs["wh_implementation"] == "simple" and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+        if not has_post_measurement_task(specs["wh_implementation"]) and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             continue
         run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir)
 
@@ -129,19 +185,13 @@ def run_sky_ground_task(task, base_dir=None):
         logger.info(f"Optimizing circuits...")
         optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
         if not optimized_path.exists():
-            if task.optimizer.startswith("cirq"):
-                optimized_circuits = [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
-            elif task.optimizer.startswith("bqskit"):
-                tokens = task.optimizer.split("_")
-                optimization_level = int(tokens[-1])
-                machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
-                optimized_circuits = [bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level, server=tokens[1]) for circuit in circuits]
+            optimized_circuits = optimize_task_circuits(task, circuits, logger=logger)
             cirq.to_json(optimized_circuits, str(optimized_path))
         else:
             optimized_circuits = cirq.read_json(str(optimized_path))
         
         logger.info(f"Sampling...")
-        sampler = get_sampler(task.processor_id, run_type=task.run_type)
+        sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=optimized_circuits)
         results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
 
         logger.info(f"Processing results...")
@@ -181,13 +231,7 @@ def create_circuits(task, base_dir=None):
         logger.info(f"Optimizing circuits...")
         optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
         if not optimized_path.exists():
-            if task.optimizer.startswith("cirq"):
-                optimized_circuits = [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
-            elif task.optimizer.startswith("bqskit"):
-                tokens = task.optimizer.split("_")
-                optimization_level = int(tokens[-1])
-                machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
-                optimized_circuits = [bqskit_optimize_circuit(task.qubits, circuit, machine_model, optimization_level=optimization_level, server=tokens[1]) for circuit in circuits]
+            optimized_circuits = optimize_task_circuits(task, circuits, logger=logger)
             cirq.to_json(optimized_circuits, str(optimized_path))
         else:
             optimized_circuits = cirq.read_json(str(optimized_path))
@@ -213,7 +257,7 @@ def run_circuits(task, base_dir=None):
         optimized_circuits = cirq.read_json(str(optimized_path))
         
         logger.info(f"Sampling...")
-        sampler = get_sampler(task.processor_id, run_type=task.run_type)
+        sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=optimized_circuits)
         results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
 
         return results
@@ -285,20 +329,64 @@ class CharacterizeWHReferenceDeviceTask:
             prepare_fiducial = self.fiducial_circuit
         else:
             prepare_fiducial = ansatz_circuit(self.fiducial)
-        if self.wh_implementation == "simple":
-            state_qubits = self.qubits[:n]
-            fiducial_qubits = self.qubits[n:2*n]
-            circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
-                                        simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for a1, a2 in a]
-        elif self.wh_implementation == "ak":
-            state_qubits = self.qubits[:n]
+        state_qubits = self.qubits[:n]
+        if self.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
+            ancilla_qubits = self.qubits[n:2*n]
+            return [
+                cirq.Circuit(
+                    wh_state(state_qubits, prepare_fiducial, a1, a2),
+                    wh_povm_circuit(
+                        self.wh_implementation,
+                        state_qubits,
+                        prepare_fiducial,
+                        ancilla_qubits=ancilla_qubits,
+                        measure=True,
+                    ),
+                )
+                for a1, a2 in a
+            ]
+        if self.wh_implementation == "ak":
             ancilla1_qubits = self.qubits[n:2*n]
             ancilla2_qubits = self.qubits[2*n:3*n]
-            circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
-                                        arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                                for a1, a2 in a]
-        return circuits
+            return [
+                cirq.Circuit(
+                    wh_state(state_qubits, prepare_fiducial, a1, a2),
+                    wh_povm_circuit(
+                        self.wh_implementation,
+                        state_qubits,
+                        prepare_fiducial,
+                        ancilla1_qubits=ancilla1_qubits,
+                        ancilla2_qubits=ancilla2_qubits,
+                        measure=True,
+                    ),
+                )
+                for a1, a2 in a
+            ]
+        raise ValueError(f"Unsupported WH implementation: {self.wh_implementation}")
+
+    def make_exact_circuits(self):
+        if self.wh_implementation != "msimple":
+            return self.make_circuits()
+
+        a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
+        n = int(np.log2(self.d))
+        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
+        state_qubits = self.qubits[:n]
+        ancilla_qubits = self.qubits[n:2*n]
+        return [
+            cirq.Circuit(
+                wh_state(state_qubits, prepare_fiducial, a1, a2),
+                wh_povm_circuit(
+                    "msimple",
+                    state_qubits,
+                    prepare_fiducial,
+                    ancilla_qubits=ancilla_qubits,
+                    exact=True,
+                    measure=True,
+                ),
+            )
+            for a1, a2 in a
+        ]
     
     def process_results(self, results=None, probs=None):
         P = results_to_freqs(results) if type(probs) == type(None) else probs  
@@ -348,20 +436,64 @@ class WHPOVMOnBasisStatesTask:
             prepare_fiducial = self.fiducial_circuit
         else:
             prepare_fiducial = ansatz_circuit(self.fiducial)
-        if self.wh_implementation == "simple":
-            state_qubits = self.qubits[:n]
-            fiducial_qubits = self.qubits[n:2*n]
-            circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
-                                      simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for i in m]
-        elif self.wh_implementation == "ak":
-            state_qubits = self.qubits[:n]
+        state_qubits = self.qubits[:n]
+        if self.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
+            ancilla_qubits = self.qubits[n:2*n]
+            return [
+                cirq.Circuit(
+                    qudit_basis_state(state_qubits, i),
+                    wh_povm_circuit(
+                        self.wh_implementation,
+                        state_qubits,
+                        prepare_fiducial,
+                        ancilla_qubits=ancilla_qubits,
+                        measure=True,
+                    ),
+                )
+                for i in m
+            ]
+        if self.wh_implementation == "ak":
             ancilla1_qubits = self.qubits[n:2*n]
             ancilla2_qubits = self.qubits[2*n:3*n]
-            circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
-                                      arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for i in m]
-        return circuits
+            return [
+                cirq.Circuit(
+                    qudit_basis_state(state_qubits, i),
+                    wh_povm_circuit(
+                        self.wh_implementation,
+                        state_qubits,
+                        prepare_fiducial,
+                        ancilla1_qubits=ancilla1_qubits,
+                        ancilla2_qubits=ancilla2_qubits,
+                        measure=True,
+                    ),
+                )
+                for i in m
+            ]
+        raise ValueError(f"Unsupported WH implementation: {self.wh_implementation}")
+
+    def make_exact_circuits(self):
+        if self.wh_implementation != "msimple":
+            return self.make_circuits()
+
+        n = int(np.log2(self.d))
+        m = np.arange(self.d)
+        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
+        state_qubits = self.qubits[:n]
+        ancilla_qubits = self.qubits[n:2*n]
+        return [
+            cirq.Circuit(
+                qudit_basis_state(state_qubits, i),
+                wh_povm_circuit(
+                    "msimple",
+                    state_qubits,
+                    prepare_fiducial,
+                    ancilla_qubits=ancilla_qubits,
+                    exact=True,
+                    measure=True,
+                ),
+            )
+            for i in m
+        ]
     
     def process_results(self, results=None, probs=None):
         r = results_to_freqs(results) if type(probs) == type(None) else probs  
@@ -410,9 +542,13 @@ class BasisMeasurementOnWHStatesTask:
         else:
             prepare_fiducial = ansatz_circuit(self.fiducial)
         state_qubits = self.qubits[:n]
-        circuits = [cirq.Circuit((wh_state(state_qubits, prepare_fiducial, a1, a2),\
-                                  cirq.measure(state_qubits, key="result")))\
-                                        for a1, a2 in a]
+        circuits = [
+            cirq.Circuit(
+                wh_state(state_qubits, prepare_fiducial, a1, a2),
+                measure_register(state_qubits, "s"),
+            )
+            for a1, a2 in a
+        ]
         return circuits
     
     def process_results(self, results=None, probs=None):
@@ -451,8 +587,13 @@ class BasisMeasurementOnBasisStatesTask:
         n = int(np.log2(self.d))
         m = np.arange(self.d)
         state_qubits = self.qubits[:n]
-        circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),
-                                  cirq.measure(state_qubits, key="result"))) for i in m]
+        circuits = [
+            cirq.Circuit(
+                qudit_basis_state(state_qubits, i),
+                measure_register(state_qubits, "s"),
+            )
+            for i in m
+        ]
         return circuits
     
     def process_results(self, results=None, probs=None):
@@ -504,10 +645,20 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
         state_qubits = self.qubits[:n]
         ancilla1_qubits = self.qubits[n:2*n]
         ancilla2_qubits = self.qubits[2*n:3*n]
-        circuits = [cirq.Circuit((qudit_basis_state(state_qubits, i),\
-                                  arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=False),
-                                  cirq.measure(state_qubits, key="result")))\
-                                    for i in m]
+        circuits = [
+            cirq.Circuit(
+                qudit_basis_state(state_qubits, i),
+                arthurs_kelly(
+                    state_qubits,
+                    ancilla1_qubits,
+                    ancilla2_qubits,
+                    prepare_fiducial=prepare_fiducial,
+                    measure=False,
+                ),
+                measure_register(state_qubits, "s"),
+            )
+            for i in m
+        ]
         return circuits
     
     def process_results(self, results=None, probs=None):
@@ -564,20 +715,64 @@ class WHPOVMOnStatesTask:
         else:
             prepare_states = [ansatz_circuit(state) for state in self.states]
 
-        if self.wh_implementation == "simple":
-            state_qubits = self.qubits[:n]
-            fiducial_qubits = self.qubits[n:2*n]
-            circuits = [cirq.Circuit((prepare_state(state_qubits),\
-                                      simple_wh_povm(state_qubits, fiducial_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for prepare_state in prepare_states]
-        elif self.wh_implementation == "ak":
-            state_qubits = self.qubits[:n]
+        state_qubits = self.qubits[:n]
+        if self.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
+            ancilla_qubits = self.qubits[n:2*n]
+            return [
+                cirq.Circuit(
+                    prepare_state(state_qubits),
+                    wh_povm_circuit(
+                        self.wh_implementation,
+                        state_qubits,
+                        prepare_fiducial,
+                        ancilla_qubits=ancilla_qubits,
+                        measure=True,
+                    ),
+                )
+                for prepare_state in prepare_states
+            ]
+        if self.wh_implementation == "ak":
             ancilla1_qubits = self.qubits[n:2*n]
             ancilla2_qubits = self.qubits[2*n:3*n]
-            circuits = [cirq.Circuit((prepare_state(state_qubits),\
-                                      arthurs_kelly(state_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiducial=prepare_fiducial, measure=True)))\
-                                        for prepare_state in prepare_states]
-        return circuits
+            return [
+                cirq.Circuit(
+                    prepare_state(state_qubits),
+                    wh_povm_circuit(
+                        self.wh_implementation,
+                        state_qubits,
+                        prepare_fiducial,
+                        ancilla1_qubits=ancilla1_qubits,
+                        ancilla2_qubits=ancilla2_qubits,
+                        measure=True,
+                    ),
+                )
+                for prepare_state in prepare_states
+            ]
+        raise ValueError(f"Unsupported WH implementation: {self.wh_implementation}")
+
+    def make_exact_circuits(self):
+        if self.wh_implementation != "msimple":
+            return self.make_circuits()
+
+        n = int(np.log2(self.d))
+        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
+        prepare_states = self.states_circuits if type(self.states_circuits) != type(None) else [ansatz_circuit(state) for state in self.states]
+        state_qubits = self.qubits[:n]
+        ancilla_qubits = self.qubits[n:2*n]
+        return [
+            cirq.Circuit(
+                prepare_state(state_qubits),
+                wh_povm_circuit(
+                    "msimple",
+                    state_qubits,
+                    prepare_fiducial,
+                    ancilla_qubits=ancilla_qubits,
+                    exact=True,
+                    measure=True,
+                ),
+            )
+            for prepare_state in prepare_states
+        ]
     
     def process_results(self, results=None, probs=None):
         r = results_to_freqs(results) if type(probs) == type(None) else probs  

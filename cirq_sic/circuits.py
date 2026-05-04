@@ -54,6 +54,10 @@ def mqft(qubits, inverse=False, key_fn=str):
                 exponent *= -1
             yield cirq.ZPowGate(exponent=exponent)(qubits[target]).with_classical_controls(key)
 
+def measure_register(qubits, prefix):
+    """Measure a register one qubit at a time using keys like ``prefix_0``."""
+    return cirq.Moment(cirq.measure(qubit, key=f"{prefix}_{i}") for i, qubit in enumerate(qubits))
+
 def Z(qubits, k=1):
     """Qudit shift on n qubits."""
     for j, qubit in enumerate(qubits):
@@ -123,7 +127,8 @@ def arthurs_kelly(system_qubits, ancilla1_qubits, ancilla2_qubits, prepare_fiduc
         yield from prepare_ancillas(ancilla1_qubits, ancilla2_qubits)
     yield from arthurs_kelly_coupling(system_qubits, ancilla1_qubits, ancilla2_qubits)
     if measure:
-        yield cirq.measure(*[ancilla1_qubits+ancilla2_qubits], key="result")
+        yield measure_register(ancilla1_qubits, "a1")
+        yield measure_register(ancilla2_qubits, "a2")
 
 ####################################################################################
 
@@ -134,13 +139,19 @@ def simple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None, measure
     yield CX(ancilla_qubits, system_qubits, inverse=True)
     yield qft(ancilla_qubits, inverse=True)
     if measure:
-        yield cirq.measure(*(system_qubits+ancilla_qubits), key="result")
+        yield measure_register(system_qubits, "s")
+        yield measure_register(ancilla_qubits, "a")
 
-def msimple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None):
+def msimple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None, measure=True):
+    """Measurement-based simple WH-POVM with mid-circuit feed-forward."""
     n = len(system_qubits)
 
     if prepare_fiducial is not None:
         yield prepare_fiducial(ancilla_qubits, conjugate=True)
+
+    if not measure:
+        yield from simple_wh_povm(system_qubits, ancilla_qubits, prepare_fiducial=None, measure=False)
+        return
 
     system_keys = {q: f"s_{i}" for i, q in enumerate(system_qubits)}
     ancilla_keys = {q: f"a_{i}" for i, q in enumerate(ancilla_qubits)}
@@ -322,7 +333,8 @@ def arthurs_kelly_d(d, system_qubits, ancilla1_qubits, ancilla2_qubits, aux,\
         yield from prepare_ancillas(d, ancilla1_qubits, ancilla2_qubits, aux)
     yield from arthurs_kelly_coupling_d(d, system_qubits, ancilla1_qubits, ancilla2_qubits, aux)
     if measure:
-        yield cirq.measure(*[ancilla1_qubits+ancilla2_qubits], key="result")
+        yield measure_register(ancilla1_qubits, "a1")
+        yield measure_register(ancilla2_qubits, "a2")
 
 ####################################################################################
 
@@ -333,6 +345,7 @@ def simple_wh_povm_d(d, system_qubits, ancilla_qubits, aux, prepare_fiducial=Non
     yield from CX_d(d, ancilla_qubits, system_qubits, aux, inverse=True)
     yield from qft_d(d, ancilla_qubits, inverse=True)
     if measure:
-        yield cirq.measure(*(system_qubits+ancilla_qubits), key="result")
+        yield measure_register(system_qubits, "s")
+        yield measure_register(ancilla_qubits, "a")
 
 ####################################################################################

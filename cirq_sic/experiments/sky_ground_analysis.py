@@ -54,7 +54,7 @@ def P_img(specs, img_dir, base_dir=None, show=False):
     """Generates matrix comparison plot for the P matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
+    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
     task = tasks[CharacterizeWHReferenceDeviceTask]
     plot_title = remove_task_segment(task.fn)
     exact_P = exactify(task)["P"]
@@ -72,7 +72,7 @@ def Phi_img(specs, img_dir, base_dir=None, show=False):
     """Generates matrix comparison plot for the Phi matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
+    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
     task = tasks[CharacterizeWHReferenceDeviceTask]
     plot_title = remove_task_segment(task.fn)
     exact_Phi = np.linalg.pinv(exactify(task)["P"])
@@ -94,7 +94,7 @@ def q_img(specs, img_dir, base_dir=None, show=False):
     """Generates matrix comparison plot for the q matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
+    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
     plot_title = remove_task_segment(tasks[CharacterizeWHReferenceDeviceTask].fn)
     exact_q = exactify(tasks[BasisMeasurementOnBasisStatesTask])["q"]
     empirical_q = sg_results["q"]
@@ -116,7 +116,7 @@ def p_img(specs, img_dir, base_dir=None, show=False):
     """Generates matrix comparison plot for the p matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    tasks, sg_results = load_sky_ground_results(specs, separate=True)
+    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
     plot_title = remove_task_segment(tasks[CharacterizeWHReferenceDeviceTask].fn)
     exact_p = exactify(tasks[BasisMeasurementAfterWHPOVMOnBasisStatesTask])["p"]
     empirical_p = sg_results["p"]
@@ -138,7 +138,7 @@ def pq_img(specs, img_dir, base_dir=None, show=False):
     """Generates matrix comparison plot for p/q matrix."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    tasks, sg_results = load_sky_ground_results(specs, separate=True)
+    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
     plot_title = remove_task_segment(tasks[CharacterizeWHReferenceDeviceTask].fn)
     ltp = sg_results["C"] @ sg_results["r"]
     born = sg_results["C"] @ np.linalg.pinv(sg_results["P"]) @ sg_results["r"]
@@ -160,9 +160,9 @@ def sky_ground_images(specs, img_dir="img", base_dir=None, show=False):
     img_dir = Path(img_dir)
     img_dir.mkdir(parents=True, exist_ok=True)
     for img_func in sky_ground_img_funcs:
-        if specs["wh_implementation"] == "simple" and img_func == p_img:
+        if specs["wh_implementation"] != "ak" and img_func == p_img:
             continue
-        img_func(specs, img_dir, base_dir=None, show=show)
+        img_func(specs, img_dir, base_dir=base_dir, show=show)
 
 ####################################################################################
 
@@ -170,7 +170,7 @@ def sky_ground_metrics(specs, base_dir=None):
     """Given the specification dictionary `specs`, loads the results, and calculates all the sky/ground metrics."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
-    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=None)
+    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
     exact_P = exactify(tasks[CharacterizeWHReferenceDeviceTask])["P"]
     empirical_P = sg_results["P"]
     P_err = np.linalg.norm(exact_P - empirical_P)
