@@ -170,6 +170,13 @@ def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
             kept.append(op)
     return cirq.Circuit(kept + trailing)
 
+def terminal_measurement_ops(circuit: cirq.Circuit):
+    """Collect terminal measurement operations in register order."""
+    return sorted(
+        [op for op in circuit.all_operations() if cirq.is_measurement(op)],
+        key=lambda op: measurement_key_sort_key(op.gate.key),
+    )
+
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     """Conform the circuit to device topology and gateset."""
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
@@ -178,9 +185,18 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
 
     mapping = dict([(q,q) for q in qubits])
     router = cirq.RouteCQC(connectivity_graph)
-    routed_circuit, initial_map, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
+
+    if are_all_measurements_terminal(circuit):
+        measurement_ops = terminal_measurement_ops(circuit)
+        circuit = cirq.drop_terminal_measurements(circuit)
+    else:
+        measurement_ops = []
+
+    routed_circuit, _, _ = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
     finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
                             context=cirq.TransformerContext(deep=True), gateset=gateset)
+    if measurement_ops:
+        finished_circuit.append(cirq.Moment(measurement_ops))
     return finished_circuit
 
 """ WORKING: Need a fix for arbitrary d. 
@@ -226,7 +242,10 @@ def ordered_measurement_keys(measurements):
 
 def are_all_measurements_terminal(circuit):
     """Compatibility helper for Cirq versions without are_all_measurements_terminal."""
-    stripped = cirq.drop_terminal_measurements(circuit)
+    try:
+        stripped = cirq.drop_terminal_measurements(circuit)
+    except ValueError:
+        return False
     return not any(cirq.is_measurement(op) for op in stripped.all_operations())
 
 def result_measurements_matrix(shots):

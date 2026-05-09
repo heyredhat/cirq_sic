@@ -146,3 +146,28 @@ def test_msimple_real_sampler_fails_early():
 
     with pytest.raises(ValueError, match="Dynamic circuits with classical feed-forward"):
         get_sampler(task.processor_id, run_type=task.run_type, circuits=[circuit])
+
+def test_ak_d4_sky_ground_metrics_runs(tmp_path):
+    d = 4
+    specs = {
+        "dataset_id": "tmp_ak_d4",
+        "processor_id": "willow_pink",
+        "run_type": "clean",
+        "qubits": get_wh_qubits(d, "ak"),
+        "n_shots": 16,
+        "optimizer": "cirq",
+        "d": d,
+        "fiducial": load_sic_fiducial(d),
+        "fiducial_description": "numerical_sic",
+        "states": [rand_ket(d)],
+        "states_description": "rand_ket",
+        "wh_implementation": "ak",
+    }
+    base_dir = str(tmp_path)
+
+    for task_type in sky_ground_tasks:
+        task = task_from_specs(task_type, specs)
+        run_sky_ground_task(task, base_dir=base_dir)
+
+    metrics = sky_ground_metrics(specs, base_dir=base_dir)
+    assert {"P_err", "Phi_err", "q_err", "born_rule_err", "p_err", "LTP_err"} <= set(metrics)

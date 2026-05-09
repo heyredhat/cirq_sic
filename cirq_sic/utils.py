@@ -1,4 +1,6 @@
 from functools import reduce
+from pathlib import Path
+import re
 import numpy as np
 import string
 
@@ -139,3 +141,88 @@ def merge_dicts(dicts):
     for d in dicts:
         merged.update(d)
     return merged
+
+####################################################################################
+
+def _chunk_circuit_by_moments(circuit, max_moments_per_chunk):
+    """Split a Cirq circuit into contiguous moment chunks."""
+    if max_moments_per_chunk is None:
+        return [circuit]
+    if max_moments_per_chunk <= 0:
+        raise ValueError("max_moments_per_chunk must be positive or None.")
+
+    return [
+        circuit[start : start + max_moments_per_chunk]
+        for start in range(0, len(circuit), max_moments_per_chunk)
+    ]
+
+
+def _stack_svgs(svg_texts, gap=24):
+    """Stack SVG images vertically into a single SVG canvas."""
+    if not svg_texts:
+        raise ValueError("svg_texts must contain at least one SVG.")
+
+    parsed_svgs = []
+    pattern = re.compile(
+        r"<svg[^>]*width=\"([^\"]+)\"[^>]*height=\"([^\"]+)\"[^>]*>(.*)</svg>",
+        re.DOTALL,
+    )
+    for svg_text in svg_texts:
+        match = pattern.fullmatch(svg_text.strip())
+        if match is None:
+            raise ValueError("Could not parse SVG width/height while stacking panels.")
+        width, height, inner = match.groups()
+        parsed_svgs.append((float(width), float(height), inner))
+
+    total_width = max(width for width, _, _ in parsed_svgs)
+    total_height = sum(height for _, height, _ in parsed_svgs) + gap * (len(parsed_svgs) - 1)
+
+    pieces = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{total_width}" height="{total_height}">'
+    ]
+    y_offset = 0.0
+    for width, height, inner in parsed_svgs:
+        x_offset = (total_width - width) / 2
+        pieces.append(f'<g transform="translate({x_offset},{y_offset})">{inner}</g>')
+        y_offset += height + gap
+    pieces.append("</svg>")
+    return "".join(pieces)
+
+
+def save_svg_circuit(
+    circuit,
+    path,
+    max_moments_per_panel=None,
+    panel_gap=24,
+    transpose=False,
+):
+    """
+    Save a Cirq circuit diagram to disk as SVG.
+
+    When ``max_moments_per_panel`` is set, long circuits are split into multiple
+    contiguous moment ranges and stacked vertically into one SVG file.
+    """
+    from cirq.contrib.svg import circuit_to_svg
+    from cirq.contrib.svg.svg import tdd_to_svg
+
+    path = Path(path)
+
+    if max_moments_per_panel is None and not transpose:
+        svg = circuit_to_svg(circuit)
+    else:
+        panels = []
+        for chunk in _chunk_circuit_by_moments(circuit, max_moments_per_panel):
+            if transpose:
+                tdd = chunk.to_text_diagram_drawer(transpose=True)
+                svg = tdd_to_svg(tdd)
+            else:
+                svg = circuit_to_svg(chunk)
+            if svg:
+                panels.append(svg)
+
+        if not panels:
+            raise ValueError("Can't draw SVG diagram for an empty circuit.")
+        svg = panels[0] if len(panels) == 1 else _stack_svgs(panels, gap=panel_gap)
+
+    path.write_text(svg, encoding="utf-8")
+    return path

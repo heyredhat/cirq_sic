@@ -64,11 +64,14 @@ def wh_povm_circuit(wh_implementation, state_qubits, prepare_fiducial, *, ancill
     raise ValueError(f"Unsupported WH implementation: {wh_implementation}")
 
 def optimize_task_circuits(task, circuits, logger=None):
-    """Optimize circuits, falling back to Cirq for dynamic circuits."""
+    """Optimize circuits, skipping dynamic circuits to preserve feed-forward order."""
     has_dynamic = any(has_dynamic_circuit_features(circuit) for circuit in circuits)
-    if task.optimizer.startswith("cirq") or has_dynamic:
-        if has_dynamic and task.optimizer.startswith("bqskit") and logger is not None:
-            logger.info("Dynamic circuit detected; using cirq optimizer instead of bqskit.")
+    if has_dynamic:
+        if logger is not None:
+            logger.info("Dynamic circuit detected; skipping optimization to preserve measurement/feed-forward order.")
+        return circuits
+
+    if task.optimizer.startswith("cirq"):
         return [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
 
     if task.optimizer.startswith("bqskit"):

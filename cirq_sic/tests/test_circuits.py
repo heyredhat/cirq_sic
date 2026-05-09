@@ -169,3 +169,32 @@ def test_simple_wh_povm_d(n=3, d_s=3):
 	E = wh_povm(phi)
 	p2 = np.array([ket.conj() @ e @ ket for e in E]).real
 	assert np.allclose(p, p2)
+
+def test_save_svg_circuit_wrapped(tmp_path):
+	q = cirq.LineQubit.range(2)
+	circuit = cirq.Circuit(
+		cirq.H(q[0]),
+		cirq.CNOT(q[0], q[1]),
+		cirq.X(q[1]),
+		cirq.measure(*q, key="m"),
+	)
+
+	output_path = tmp_path / "wrapped_circuit.svg"
+	saved_path = save_svg_circuit(circuit, output_path, max_moments_per_panel=2)
+	svg = output_path.read_text(encoding="utf-8")
+
+	assert saved_path == output_path
+	assert output_path.exists()
+	assert svg.startswith("<svg")
+	assert svg.count("<g transform=") == 2
+
+def test_save_svg_circuit_transposed(tmp_path):
+	q = cirq.LineQubit.range(2)
+	circuit = cirq.Circuit(cirq.H(q[0]), cirq.CNOT(q[0], q[1]))
+
+	output_path = tmp_path / "vertical_circuit.svg"
+	save_svg_circuit(circuit, output_path, transpose=True)
+	svg = output_path.read_text(encoding="utf-8")
+
+	assert output_path.exists()
+	assert svg.startswith("<svg")

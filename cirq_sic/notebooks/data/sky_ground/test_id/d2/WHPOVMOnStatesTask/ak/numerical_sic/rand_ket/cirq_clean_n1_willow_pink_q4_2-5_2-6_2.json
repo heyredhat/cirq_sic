@@ -1,0 +1,76 @@
+{
+  "timestamp": "2026-05-09T18:10:36.956499",
+  "task": {
+    "cirq_type": "recirq.sky_ground.WHPOVMOnStatesTask",
+    "dataset_id": "test_id",
+    "processor_id": "willow_pink",
+    "run_type": "clean",
+    "qubits": [
+      {
+        "cirq_type": "GridQubit",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "cirq_type": "GridQubit",
+        "row": 6,
+        "col": 2
+      }
+    ],
+    "n_shots": 1,
+    "optimizer": "cirq",
+    "d": 2,
+    "fiducial_description": "numerical_sic",
+    "states_description": "rand_ket",
+    "wh_implementation": "ak",
+    "fiducial": [
+      {
+        "cirq_type": "complex",
+        "real": 0.11931163933180634,
+        "imag": 0.8800226515918608
+      },
+      {
+        "cirq_type": "complex",
+        "real": 0.36578173735097147,
+        "imag": 0.2784395554257558
+      }
+    ],
+    "fiducial_circuit": null,
+    "states": [
+      [
+        {
+          "cirq_type": "complex",
+          "real": 0.9218804634762887,
+          "imag": 0.05137001085562082
+        },
+        {
+          "cirq_type": "complex",
+          "real": -0.019954788546260004,
+          "imag": -0.383535317095454
+        }
+      ]
+    ],
+    "states_circuits": null
+  },
+  "processed_data": {
+    "r": [
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        1.0
+      ]
+    ]
+  }
+}
