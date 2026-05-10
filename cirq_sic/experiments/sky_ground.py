@@ -149,16 +149,16 @@ def run_sky_ground_task_from_specs(task_type, specs, base_dir=None):
     """Runs a sky ground task of class `task_type` and specification dictionary `specs`."""
     run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir) 
 
-def run_sky_ground_tasks(specs, base_dir=None):
+def run_sky_ground_tasks(specs, sampler=None, base_dir=None):
     """Given a specification dictionary, runs all the sky/ground tasks."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
     for task_type in sky_ground_tasks:
         if not has_post_measurement_task(specs["wh_implementation"]) and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             continue
-        run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir)
+        run_sky_ground_task(task_from_specs(task_type, specs), sampler=sampler, base_dir=base_dir)
 
-def run_sky_ground_task(task, base_dir=None):
+def run_sky_ground_task(task, sampler=None, base_dir=None):
     """Runs the sky/ground task. Builds the directory structure, the circuits, optimizes them, samples them, and processes them."""
     if base_dir is None:
         base_dir = DEFAULT_BASE_DIR
@@ -194,7 +194,8 @@ def run_sky_ground_task(task, base_dir=None):
             optimized_circuits = cirq.read_json(str(optimized_path))
         
         logger.info(f"Sampling...")
-        sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=optimized_circuits)
+        if type(sampler) == type(None):
+            sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=optimized_circuits)
         results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
 
         logger.info(f"Processing results...")
