@@ -1,3 +1,3 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-setup(name='cirq_sic', packages=['cirq_sic'])
+setup(name='cirq_sic', packages=find_packages())
