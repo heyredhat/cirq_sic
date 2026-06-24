@@ -1,4 +1,4 @@
-from importlib.resources import files
+from pathlib import Path
 
 import numpy as np
 import scipy as sc
@@ -17,7 +17,7 @@ def load_sic_fiducial(d):
     Loads a Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$ from the repository provided here:
       http://www.physics.umb.edu/Research/QBism/solutions.html.
     """
-    data_file_path = files("cirq_sic").joinpath("sic_povms/d%d.txt" % d)
+    data_file_path = Path(__file__).resolve().parent / "sic_povms" / f"d{d}.txt"
     with data_file_path.open("r") as f:
         fiducial = []
         for line in f:
