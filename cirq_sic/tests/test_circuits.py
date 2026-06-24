@@ -198,3 +198,30 @@ def test_save_svg_circuit_transposed(tmp_path):
 
 	assert output_path.exists()
 	assert svg.startswith("<svg")
+
+def test_triple_product_measurement_circuit(n=2):
+	d = 2**n
+	kets = [rand_ket(d) for _ in range(3)]
+	preparations = [ansatz_circuit(ket) for ket in kets]
+
+	qubits = cirq.LineQubit.range(1 + 3 * n)
+	control_qubit = qubits[0]
+	register1 = qubits[1 : 1 + n]
+	register2 = qubits[1 + n : 1 + 2 * n]
+	register3 = qubits[1 + 2 * n : 1 + 3 * n]
+
+	circuit = triple_product_measurement_circuit(
+		control_qubit,
+		register1,
+		register2,
+		register3,
+		preparations[0],
+		preparations[1],
+		preparations[2],
+	)
+	probabilities = exact_simulation(circuit)
+	measured_value = real_triple_product_from_probabilities(probabilities)
+
+	states = [np.outer(ket, ket.conj()) for ket in kets]
+	expected_value = np.trace(states[0] @ states[1] @ states[2]).real
+	assert np.isclose(measured_value, expected_value, atol=1e-6)

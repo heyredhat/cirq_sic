@@ -192,10 +192,11 @@ def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
     else:
         measurement_ops = []
 
-    routed_circuit, _, _ = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
+    routed_circuit, _, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
     finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
                             context=cirq.TransformerContext(deep=True), gateset=gateset)
     if measurement_ops:
+        measurement_ops = [op.transform_qubits(final_map) for op in measurement_ops]
         finished_circuit.append(cirq.Moment(measurement_ops))
     return finished_circuit
 

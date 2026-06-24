@@ -1,4 +1,5 @@
 import inspect
+from itertools import combinations_with_replacement, permutations
 from pathlib import Path
 from typing import Optional
 
@@ -784,6 +785,86 @@ class WHPOVMOnStatesTask:
             r = change_conjugate_convention(r)
         r = r.T
         return {"r": r}
+    
+####################################################################################
+
+@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
+                                    registry=recirq.Registry,
+                                    frozen=True)
+class CharacterizeWHTripleProductsTask:
+    """Real parts of WH-orbit triple products via the three-state cycle test."""
+    dataset_id: str
+    processor_id: str
+    run_type: str
+    qubits: list
+    n_shots: int
+    optimizer: str
+
+    d: int
+    fiducial_description: str
+
+    fiducial: Optional[np.array] = None
+    fiducial_circuit: Optional[cirq.Circuit] = None
+
+    @classmethod
+    def filename(cls, **specs):
+        return (f"{specs['dataset_id']}/"
+                f"d{specs['d']}/"
+                f"{cls.__name__}/"
+                f"{specs['fiducial_description']}/"
+                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
+
+    @property
+    def fn(self):
+        return self.__class__.filename(**self.__dict__)
+
+    def symmetric_triples(self):
+        n_states = self.d**2
+        return list(combinations_with_replacement(range(n_states), 3))
+
+    def make_circuits(self):
+        n = int(np.log2(self.d))
+        if 2**n != self.d:
+            raise ValueError("CharacterizeWHTripleProductsTask currently requires d = 2**n.")
+        if len(self.qubits) < 1 + 3 * n:
+            raise ValueError(f"Need at least {1 + 3*n} qubits for the triple-product cycle test.")
+
+        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
+        orbit_indices = [(a1, a2) for a1 in range(self.d) for a2 in range(self.d)]
+        prepare_states = [
+            (lambda qubits, a1=a1, a2=a2: wh_state(qubits, prepare_fiducial, a1, a2))
+            for a1, a2 in orbit_indices
+        ]
+
+        control_qubit = self.qubits[0]
+        register1 = self.qubits[1 : 1 + n]
+        register2 = self.qubits[1 + n : 1 + 2 * n]
+        register3 = self.qubits[1 + 2 * n : 1 + 3 * n]
+
+        return [
+            triple_product_measurement_circuit(
+                control_qubit,
+                register1,
+                register2,
+                register3,
+                prepare_states[i],
+                prepare_states[j],
+                prepare_states[k],
+            )
+            for i, j, k in self.symmetric_triples()
+        ]
+
+    def process_results(self, results=None, probs=None):
+        probabilities = results_to_freqs(results) if type(probs) == type(None) else np.asarray(probs)
+        values = real_triple_product_from_probabilities(probabilities)
+
+        n_states = self.d**2
+        tensor = np.zeros((n_states, n_states, n_states))
+        for value, triple in zip(values, self.symmetric_triples()):
+            for perm in set(permutations(triple)):
+                tensor[perm] = value
+
+        return {"T": tensor}
     
 ####################################################################################
 

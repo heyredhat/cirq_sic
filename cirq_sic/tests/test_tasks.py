@@ -1,4 +1,5 @@
 from cirq_sic import *
+from math import comb
 import numpy as np
 import pytest
 
@@ -171,3 +172,71 @@ def test_ak_d4_sky_ground_metrics_runs(tmp_path):
 
     metrics = sky_ground_metrics(specs, base_dir=base_dir)
     assert {"P_err", "Phi_err", "q_err", "born_rule_err", "p_err", "LTP_err"} <= set(metrics)
+
+def test_wh_triple_products_task(tmp_path):
+    d = 2
+    phi = load_sic_fiducial(d)
+    task = CharacterizeWHTripleProductsTask(
+        dataset_id="tmp_triples",
+        processor_id="willow_pink",
+        run_type="clean",
+        qubits=get_triple_product_qubits(d),
+        n_shots=4000,
+        optimizer="cirq",
+        d=d,
+        fiducial=phi,
+        fiducial_description="numerical_sic",
+    )
+    base_dir = str(tmp_path)
+
+    run_sky_ground_task(task, base_dir=base_dir)
+    exact_tensor = exactify(task, base_dir=base_dir)["T"]
+    sampled_tensor = np.array(load_results(task, base_dir=base_dir)["processed_data"]["T"])
+
+    orbit_states = wh_frame(phi).T
+    orbit_projectors = [np.outer(psi, psi.conj()) for psi in orbit_states]
+    expected_tensor = np.array([
+        [
+            [np.trace(rho_i @ rho_j @ rho_k).real for rho_k in orbit_projectors]
+            for rho_j in orbit_projectors
+        ]
+        for rho_i in orbit_projectors
+    ])
+
+    assert np.allclose(exact_tensor, expected_tensor, atol=1e-6)
+    assert np.allclose(exact_tensor, np.transpose(exact_tensor, (1, 0, 2)), atol=1e-6)
+    assert np.linalg.norm(sampled_tensor - expected_tensor) < 3e-1
+
+def test_wh_triple_products_create_circuits_d4(tmp_path):
+    d = 2
+    task = CharacterizeWHTripleProductsTask(
+        dataset_id="tmp_triples_d2_create",
+        processor_id="willow_pink",
+        run_type="clean",
+        qubits=get_triple_product_qubits(d),
+        n_shots=16,
+        optimizer="cirq",
+        d=d,
+        fiducial=load_sic_fiducial(d),
+        fiducial_description="numerical_sic",
+    )
+
+    circuits = create_circuits(task, base_dir=str(tmp_path))
+    assert len(circuits) == comb(d**2 + 2, 3)
+
+def test_wh_triple_products_single_circuit_optimizes_d4():
+    d = 4
+    task = CharacterizeWHTripleProductsTask(
+        dataset_id="tmp_triples_d4",
+        processor_id="willow_pink",
+        run_type="clean",
+        qubits=get_triple_product_qubits(d),
+        n_shots=16,
+        optimizer="cirq",
+        d=d,
+        fiducial=load_sic_fiducial(d),
+        fiducial_description="numerical_sic",
+    )
+
+    optimized_circuit = optimize_task_circuits(task, [task.make_circuits()[0]])[0]
+    assert all(len(op.qubits) <= 2 for op in optimized_circuit.all_operations() if not cirq.is_measurement(op))

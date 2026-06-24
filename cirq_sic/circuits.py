@@ -4,6 +4,10 @@ import numpy as np
 from .wh import *
 from .ansatz import *
 
+def measure_register(qubits, prefix):
+    """Measure a register one qubit at a time using keys like ``prefix_0``."""
+    return cirq.Moment(cirq.measure(qubit, key=f"{prefix}_{i}") for i, qubit in enumerate(qubits))
+
 def qudit_basis_state(qubits, m):
     """Prepares the qudit basis state |m> on the qubits q."""
     n = len(qubits)
@@ -53,10 +57,6 @@ def mqft(qubits, inverse=False, key_fn=str):
             if inverse:
                 exponent *= -1
             yield cirq.ZPowGate(exponent=exponent)(qubits[target]).with_classical_controls(key)
-
-def measure_register(qubits, prefix):
-    """Measure a register one qubit at a time using keys like ``prefix_0``."""
-    return cirq.Moment(cirq.measure(qubit, key=f"{prefix}_{i}") for i, qubit in enumerate(qubits))
 
 def Z(qubits, k=1):
     """Qudit shift on n qubits."""
@@ -349,3 +349,72 @@ def simple_wh_povm_d(d, system_qubits, ancilla_qubits, aux, prepare_fiducial=Non
         yield measure_register(ancilla_qubits, "a")
 
 ####################################################################################
+
+def get_triple_product_qubits(d):
+    """Convenient qubits for the triple-product cycle test in dimension ``d=2**n``."""
+    n = int(np.log2(d))
+    if 2**n != d:
+        raise ValueError("Triple-product circuits currently require d = 2**n.")
+    grid = cirq.GridQubit.rect(4, n, top=4, left=2)
+    rows = [grid[i * n : (i + 1) * n] for i in range(4)]
+    control_qubit = rows[3][0]
+    return [control_qubit] + rows[0] + rows[1] + rows[2]
+
+def _two_qubit_decomposition(op):
+    """Decompose an operation to one- and two-qubit gates when possible."""
+    return cirq.decompose(
+        op,
+        keep=lambda inner: cirq.is_measurement(inner) or len(inner.qubits) <= 2,
+        on_stuck_raise=ValueError,
+    )
+
+def controlled_register_swap(control_qubit, register1, register2):
+    """Controlled swap between two ``n``-qubit registers, pairwise by qubit."""
+    if len(register1) != len(register2):
+        raise ValueError("Controlled register swap requires equal-length registers.")
+    for qubit1, qubit2 in zip(register1, register2):
+        yield from _two_qubit_decomposition(cirq.CSWAP(control_qubit, qubit1, qubit2))
+
+def controlled_cyclic_permutation(control_qubit, register1, register2, register3):
+    """Controlled three-cycle ``(1 2 3)`` on equal-length qubit registers."""
+    if not (len(register1) == len(register2) == len(register3)):
+        raise ValueError("Controlled cyclic permutation requires equal-length registers.")
+
+    # Two register swaps implement the left cycle:
+    # (register1, register2, register3) -> (register2, register3, register1).
+    yield from controlled_register_swap(control_qubit, register1, register3)
+    yield from controlled_register_swap(control_qubit, register1, register2)
+
+def triple_product_measurement_circuit(
+    control_qubit,
+    register1,
+    register2,
+    register3,
+    prepare_state1,
+    prepare_state2,
+    prepare_state3,
+    *,
+    measure=True,
+):
+    """Cycle-test circuit for the real part of ``tr(sigma1 sigma2 sigma3)``."""
+    if not (len(register1) == len(register2) == len(register3)):
+        raise ValueError("Triple-product circuit requires equal-length registers.")
+
+    circuit = cirq.Circuit(
+        prepare_state1(register1),
+        prepare_state2(register2),
+        prepare_state3(register3),
+        cirq.H(control_qubit),
+        controlled_cyclic_permutation(control_qubit, register1, register2, register3),
+        cirq.H(control_qubit),
+    )
+    if measure:
+        circuit.append(cirq.measure(control_qubit, key="result"))
+    return circuit
+
+def real_triple_product_from_probabilities(probabilities):
+    """Recover ``Re(tr(sigma1 sigma2 sigma3))`` from cycle-test probabilities."""
+    probabilities = np.asarray(probabilities)
+    if probabilities.shape[-1] != 2:
+        raise ValueError("Expected binary probabilities with shape (..., 2).")
+    return 2 * probabilities[..., 0] - 1
