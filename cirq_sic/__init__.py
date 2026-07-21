@@ -4,6 +4,7 @@ from .sics import *
 from .utils import *
 from .wh import *
 from .experiments import *
+from .triples import *
 
 import numpy as np
 from numpy.linalg import matrix_power as mpow
