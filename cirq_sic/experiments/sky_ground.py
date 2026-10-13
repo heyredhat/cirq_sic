@@ -1,45 +1,279 @@
+"""Compatible sky/ground task API with local Cirq JSON persistence.
+
+New applications should use :mod:`cirq_sic.workflow`. These task classes preserve
+historical filenames and the ``recirq.sky_ground`` JSON namespace without
+requiring ReCirq. They describe power-of-two logical dimensions; arbitrary
+embedded dimensions are supported by the unified workflow.
+"""
+
+from dataclasses import dataclass, fields
 import inspect
 from itertools import combinations_with_replacement, permutations
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Optional
 
+import cirq
 import numpy as np
 
-import cirq
-import recirq
-
-from ..wh import *
-from ..sics import *
-from ..circuits import *
-from ..utils import *
-from .experiment_utils import *
-
-####################################################################################
-
-def get_wh_qubits(d, wh_implementation):
-    """Depending on the dimension and WH implementation, returns suitable qubits.
-    At the moment these are fixed to be a arbitrary but convienient choice."""
-    n = int(np.ceil(np.log2(d)))
-    if 2**n == d:
-        cols = 2 if wh_implementation in {"simple", "msimple"} else 3
-        return cirq.GridQubit.rect(cols, n, top=4, left=2)
-    else:
-        n = int(np.ceil(np.log2(d)) + 1)
-        cols = 3 if wh_implementation in {"simple", "msimple"} else 4
-        return cirq.GridQubit.rect(cols, n, top=4, left=2)
-
-####################################################################################
+from ..circuits import (
+    ansatz_circuit,
+    arthurs_kelly,
+    d4_sic_fiducial,
+    measure_register,
+    msimple_wh_povm,
+    qudit_basis_state,
+    real_triple_product_from_probabilities,
+    simple_wh_povm,
+    triple_product_measurement_circuit,
+    wh_state,
+)
+from ..wh import change_conjugate_convention
+from .experiment_utils import (
+    abbrev_grid_qubits,
+    abbrev_n_shots,
+    bqskit_machine_model,
+    bqskit_optimize_circuit,
+    cirq_optimize_circuit,
+    exact_simulation,
+    get_sampler,
+    has_dynamic_circuit_features,
+    results_to_freqs,
+    setup_logger,
+)
 
 EXPERIMENT_NAME = "sky_ground"
 DEFAULT_BASE_DIR = f"data/{EXPERIMENT_NAME}"
 SIMPLE_WH_IMPLEMENTATIONS = {"simple", "msimple"}
+_TASK_REGISTRY = {}
+
+
+def _task_dataclass(cls):
+    cls = dataclass(cls, frozen=True)
+    _TASK_REGISTRY[f"recirq.sky_ground.{cls.__name__}"] = cls
+    return cls
+
+
+def _read_task_json(path):
+    return cirq.read_json(path, resolvers=[_TASK_REGISTRY.get, *cirq.DEFAULT_RESOLVERS])
+
+
+def _result_path(task, base_dir):
+    return Path(DEFAULT_BASE_DIR if base_dir is None else base_dir) / f"{task.fn}.json"
+
+
+def _probabilities(results, probs, expected_shape=None):
+    if (results is None) == (probs is None):
+        raise ValueError("Supply exactly one of results or probs.")
+    probabilities = (
+        results_to_freqs(results) if probs is None else np.asarray(probs, dtype=float)
+    )
+    if expected_shape is not None and probabilities.shape != expected_shape:
+        raise ValueError(
+            f"Expected probabilities of shape {expected_shape}, got {probabilities.shape}."
+        )
+    if probabilities.ndim != 2 or not np.all(np.isfinite(probabilities)):
+        raise ValueError("Probabilities must be a finite (circuits, outcomes) matrix.")
+    if np.any(probabilities < -1e-10) or not np.allclose(probabilities.sum(axis=1), 1):
+        raise ValueError(
+            "Each circuit must have a normalized probability distribution."
+        )
+    return probabilities
+
+
+class _TaskMixin:
+    """Shared validation and JSON support for the legacy dataclasses."""
+
+    @classmethod
+    def filename(cls, **specs):
+        """Return the historical filename stem for this task specification."""
+        segments = [specs["dataset_id"], f"d{specs['d']}", cls.__name__]
+        segments.extend(specs[name] for name in cls._filename_fields)
+        segments.append(
+            f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_"
+            f"{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}"
+        )
+        return "/".join(segments)
+
+    @property
+    def fn(self):
+        """The task filename stem relative to its base directory."""
+        return self.filename(**self.__dict__)
+
+    def __post_init__(self):
+        if (
+            not isinstance(self.d, (int, np.integer))
+            or self.d < 2
+            or self.d & (self.d - 1)
+        ):
+            raise ValueError(
+                "Legacy tasks require a power-of-two dimension d >= 2. "
+                "Use cirq_sic.workflow for arbitrary embedded dimensions."
+            )
+        if not isinstance(self.n_shots, (int, np.integer)) or self.n_shots < 1:
+            raise ValueError("n_shots must be a positive integer.")
+        if len(set(self.qubits)) != len(self.qubits):
+            raise ValueError("qubits must be distinct.")
+        n = self.d.bit_length() - 1 if isinstance(self.d, int) else int(np.log2(self.d))
+        if isinstance(self, CharacterizeWHTripleProductsTask):
+            needed = 1 + 3 * n
+        elif isinstance(self, BasisMeasurementAfterWHPOVMOnBasisStatesTask):
+            needed = 3 * n
+        elif hasattr(self, "wh_implementation"):
+            if self.wh_implementation not in {"ak", "simple", "msimple"}:
+                raise ValueError(
+                    "wh_implementation must be 'ak', 'simple', or 'msimple'."
+                )
+            needed = (3 if self.wh_implementation == "ak" else 2) * n
+        else:
+            needed = n
+        if len(self.qubits) < needed:
+            raise ValueError(f"This task needs at least {needed} qubits.")
+
+    @classmethod
+    def _json_namespace_(cls):
+        return "recirq.sky_ground"
+
+    def _json_dict_(self):
+        values = {field.name: getattr(self, field.name) for field in fields(self)}
+        for name in ("fiducial_circuit", "states_circuits"):
+            value = values.get(name)
+            if callable(value):
+                if value is not d4_sic_fiducial:
+                    raise TypeError(
+                        "Custom callable preparations cannot be saved; supply a Cirq Circuit or state vector."
+                    )
+                values[name] = {"preparation_name": "d4_sic_fiducial"}
+            if isinstance(value, list) and any(callable(item) for item in value):
+                raise TypeError(
+                    "Callable state preparations cannot be saved; supply Cirq Circuits or state vectors."
+                )
+        return values
+
+    @classmethod
+    def _from_json_dict_(cls, **kwargs):
+        kwargs.pop("cirq_type", None)
+        if kwargs.get("fiducial_circuit") == {"preparation_name": "d4_sic_fiducial"}:
+            kwargs["fiducial_circuit"] = d4_sic_fiducial
+        return cls(**kwargs)
+
+
+def get_wh_qubits(d, wh_implementation):
+    """Return grid registers for a legacy power-of-two WH implementation.
+
+    Use the unified workflow's automatic qubit allocation for embedded dimensions.
+    """
+    if not isinstance(d, (int, np.integer)) or d < 2 or d & (d - 1):
+        raise ValueError(
+            "Legacy tasks require a power-of-two dimension; use cirq_sic.workflow for arbitrary d."
+        )
+    if wh_implementation not in {"ak", "simple", "msimple"}:
+        raise ValueError("wh_implementation must be 'ak', 'simple', or 'msimple'.")
+    n = int(np.log2(d))
+    registers = 2 if wh_implementation in SIMPLE_WH_IMPLEMENTATIONS else 3
+    return cirq.GridQubit.rect(registers, n, top=4, left=2)
+
 
 def has_post_measurement_task(wh_implementation):
+    """Return whether the implementation preserves the post-POVM system state."""
     return wh_implementation == "ak"
 
-def wh_povm_circuit(wh_implementation, state_qubits, prepare_fiducial, *, ancilla_qubits=None,\
-                    ancilla1_qubits=None, ancilla2_qubits=None, exact=False, measure=True):
-    """Return the appropriate WH-POVM circuit generator for the chosen implementation."""
+
+def _as_preparation(value):
+    if callable(value):
+        return value
+    if not isinstance(value, cirq.AbstractCircuit):
+        raise TypeError("A preparation must be a callable or Cirq Circuit.")
+    source_qubits = sorted(value.all_qubits())
+
+    def prepare(qubits, conjugate=False):
+        if len(qubits) != len(source_qubits):
+            raise ValueError("Preparation circuit has the wrong number of qubits.")
+        mapped = cirq.Circuit(value).transform_qubits(dict(zip(source_qubits, qubits)))
+        if conjugate:
+            return cirq.Circuit(
+                cirq.MatrixGate(cirq.unitary(mapped).conj()).on(*qubits)
+            )
+        return mapped
+
+    return prepare
+
+
+def _fiducial_preparation(task):
+    if task.fiducial_circuit is not None:
+        return _as_preparation(task.fiducial_circuit)
+    if task.fiducial is None or np.asarray(task.fiducial).shape != (task.d,):
+        raise ValueError(
+            "Supply a fiducial vector of length d or a preparation circuit."
+        )
+    return ansatz_circuit(task.fiducial)
+
+
+def _state_preparations(task):
+    if task.states_circuits is not None:
+        return [_as_preparation(preparation) for preparation in task.states_circuits]
+    if task.states is None:
+        raise ValueError("Supply states or states_circuits.")
+    if any(np.asarray(state).shape != (task.d,) for state in task.states):
+        raise ValueError("Each state must be a ket of length d.")
+    return [ansatz_circuit(state) for state in task.states]
+
+
+def _basis_preparations(task):
+    return [(lambda qubits, i=i: qudit_basis_state(qubits, i)) for i in range(task.d)]
+
+
+def _orbit_preparations(task):
+    prepare_fiducial = _fiducial_preparation(task)
+    return [
+        (lambda qubits, a=a, b=b: wh_state(qubits, prepare_fiducial, a, b))
+        for a in range(task.d)
+        for b in range(task.d)
+    ]
+
+
+def _wh_readout_circuits(task, preparations, *, exact=False):
+    n = int(np.log2(task.d))
+    system = task.qubits[:n]
+    fiducial = _fiducial_preparation(task)
+    if task.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
+        registers = {"ancilla_qubits": task.qubits[n : 2 * n]}
+    else:
+        registers = {
+            "ancilla1_qubits": task.qubits[n : 2 * n],
+            "ancilla2_qubits": task.qubits[2 * n : 3 * n],
+        }
+    return [
+        cirq.Circuit(
+            prepare(system),
+            wh_povm_circuit(
+                task.wh_implementation, system, fiducial, exact=exact, **registers
+            ),
+        )
+        for prepare in preparations
+    ]
+
+
+def _basis_readout_circuits(task, preparations):
+    system = task.qubits[: int(np.log2(task.d))]
+    return [
+        cirq.Circuit(prepare(system), measure_register(system, "s"))
+        for prepare in preparations
+    ]
+
+
+def wh_povm_circuit(
+    wh_implementation,
+    state_qubits,
+    prepare_fiducial,
+    *,
+    ancilla_qubits=None,
+    ancilla1_qubits=None,
+    ancilla2_qubits=None,
+    exact=False,
+    measure=True,
+):
+    """Build the selected legacy WH interaction, optionally its coherent equivalent."""
     if wh_implementation == "ak":
         return arthurs_kelly(
             state_qubits,
@@ -64,242 +298,230 @@ def wh_povm_circuit(wh_implementation, state_qubits, prepare_fiducial, *, ancill
         )
     raise ValueError(f"Unsupported WH implementation: {wh_implementation}")
 
+
 def optimize_task_circuits(task, circuits, logger=None):
-    """Optimize circuits, skipping dynamic circuits to preserve feed-forward order."""
-    has_dynamic = any(has_dynamic_circuit_features(circuit) for circuit in circuits)
-    if has_dynamic:
-        if logger is not None:
-            logger.info("Dynamic circuit detected; skipping optimization to preserve measurement/feed-forward order.")
+    """Compile task circuits, retaining dynamic circuits unchanged.
+
+    ``none`` preserves the circuits; ``cirq_generic`` compiles with cirq-core;
+    ``cirq`` routes to the named Google processor; ``bqskit_local_N`` and
+    ``bqskit_server_N`` use BQSKit optimization level N.
+    """
+    circuits = list(circuits)
+    if task.optimizer == "none":
         return circuits
-
-    if task.optimizer.startswith("cirq"):
-        return [cirq_optimize_circuit(task.qubits, circuit, processor_id=task.processor_id) for circuit in circuits]
-
-    if task.optimizer.startswith("bqskit"):
+    if any(has_dynamic_circuit_features(circuit) for circuit in circuits):
+        if logger is not None:
+            logger.info(
+                "Keeping dynamic circuits unchanged to preserve feed-forward order."
+            )
+        return circuits
+    if task.optimizer in {"cirq", "cirq_generic"}:
+        processor = None if task.optimizer == "cirq_generic" else task.processor_id
+        return [
+            cirq_optimize_circuit(task.qubits, circuit, processor_id=processor)
+            for circuit in circuits
+        ]
+    if task.optimizer.startswith("bqskit_"):
         tokens = task.optimizer.split("_")
-        optimization_level = int(tokens[-1])
-        machine_model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
+        if (
+            len(tokens) != 3
+            or tokens[1] not in {"local", "server", "localhost"}
+            or tokens[2] not in {"1", "2", "3", "4"}
+        ):
+            raise ValueError(
+                "Use bqskit_local_N or bqskit_server_N with N from 1 to 4."
+            )
+        model = bqskit_machine_model(task.qubits, processor_id=task.processor_id)
         return [
             bqskit_optimize_circuit(
                 task.qubits,
                 circuit,
-                machine_model,
-                optimization_level=optimization_level,
+                model,
+                optimization_level=int(tokens[2]),
                 server=tokens[1],
             )
             for circuit in circuits
         ]
-
     raise ValueError(f"Unsupported optimizer: {task.optimizer}")
 
+
 def load_results(task, base_dir=None):
-    """Loads the results associated with a task from a directory structure rooted in base_dir."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
-    return recirq.read_json(f"{base_dir}/{task.fn}.json")
+    """Read a task, its processed arrays, and saved raw results from JSON."""
+    return _read_task_json(_result_path(task, base_dir))
+
 
 def load_circuits(task, base_dir=None, raw=False):
-    """Loads the circuits associated with a task from a directory structure rooted in base_dir. If raw=True, returns the unoptimized circuits."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
-    circuits_directory = Path(f"{base_dir}/{task.fn}").parent / "circuits"
-    if raw:
-        path = circuits_directory / "raw.json"
-        return cirq.read_json(str(path))
-    else:
-        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
-        optimized_circuits = cirq.read_json(str(optimized_path))
-        return optimized_circuits
+    """Read previously built raw or optimized circuits for a task."""
+    name = "raw.json" if raw else f"{task.optimizer}_optimized.json"
+    return cirq.read_json(_result_path(task, base_dir).parent / "circuits" / name)
+
 
 def load_sky_ground_results(specs, base_dir=None, separate=True):
-    """Given a specification dictionary, returns the results from a full battery of sky/ground tasks. 
-    If `separate=True`, returns the a tuple: a task list and a dictionary of results."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
+    """Load existing task records; missing files are skipped, corrupt files raise.
+
+    With ``separate=True``, return the task-type mapping and merged processed
+    data dictionary. Otherwise return records indexed by their task types.
+    """
     results = {}
     for task_type in sky_ground_tasks:
-        if not has_post_measurement_task(specs["wh_implementation"]) and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+        if (
+            not has_post_measurement_task(specs["wh_implementation"])
+            and task_type is BasisMeasurementAfterWHPOVMOnBasisStatesTask
+        ):
             continue
-        try:
-            results[task_type] = recirq.read_json(f"{base_dir}/{task_type.filename(**specs)}.json")
-        except:
-            continue
+        path = (
+            Path(DEFAULT_BASE_DIR if base_dir is None else base_dir)
+            / f"{task_type.filename(**specs)}.json"
+        )
+        if path.exists():
+            results[task_type] = _read_task_json(path)
     if separate:
-        tasks = {task_type: stuff["task"] for task_type, stuff in results.items()}
-        data = [stuff["processed_data"] for task_type, stuff in results.items()]
-        return tasks, {k: np.array(v) for d in data for k, v in d.items()}
-    else:
-        return results
+        tasks = {task_type: record["task"] for task_type, record in results.items()}
+        data = {
+            name: np.asarray(value)
+            for record in results.values()
+            for name, value in record["processed_data"].items()
+        }
+        return tasks, data
+    return results
 
-####################################################################################
 
 def exactify(task, base_dir=None):
-    """Given a task, loads its circuits, and performs an exact numerical calculation of the resulting probabilities, which are processed in accordance with the task."""
-    circuits = task.make_exact_circuits() if hasattr(task, "make_exact_circuits") else task.make_circuits()
-    return task.process_results(probs=np.array([exact_simulation(circuit) for i, circuit in enumerate(circuits)]))
+    """Build ideal coherent circuits and return the task's exact processed arrays.
 
-####################################################################################
+    ``base_dir`` is retained for source compatibility and is not used.
+    """
+    circuits = (
+        task.make_exact_circuits()
+        if hasattr(task, "make_exact_circuits")
+        else task.make_circuits()
+    )
+    return task.process_results(
+        probs=np.array([exact_simulation(circuit) for circuit in circuits])
+    )
+
 
 def task_from_specs(task_type, specs):
-    """Builds a task of class `task_type` given specification dictionary `specs`. """
-    sig = inspect.signature(task_type).parameters
-    task = task_type(**{k: specs[k] for k in sig.keys() if k in specs})
-    return task
+    """Construct a task from the subset of specifications accepted by its class."""
+    parameters = inspect.signature(task_type).parameters
+    return task_type(**{name: specs[name] for name in parameters if name in specs})
+
 
 def run_sky_ground_task_from_specs(task_type, specs, base_dir=None):
-    """Runs a sky ground task of class `task_type` and specification dictionary `specs`."""
-    run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir) 
+    """Construct and execute one task, returning its processed data."""
+    return run_sky_ground_task(task_from_specs(task_type, specs), base_dir=base_dir)
+
 
 def run_sky_ground_tasks(specs, sampler=None, base_dir=None):
-    """Given a specification dictionary, runs all the sky/ground tasks."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
+    """Run the complete applicable task battery and return processed records."""
+    results = {}
     for task_type in sky_ground_tasks:
-        if not has_post_measurement_task(specs["wh_implementation"]) and task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
+        if (
+            not has_post_measurement_task(specs["wh_implementation"])
+            and task_type is BasisMeasurementAfterWHPOVMOnBasisStatesTask
+        ):
             continue
-        run_sky_ground_task(task_from_specs(task_type, specs), sampler=sampler, base_dir=base_dir)
+        results[task_type] = run_sky_ground_task(
+            task_from_specs(task_type, specs), sampler=sampler, base_dir=base_dir
+        )
+    return results
+
 
 def run_sky_ground_task(task, sampler=None, base_dir=None):
-    """Runs the sky/ground task. Builds the directory structure, the circuits, optimizes them, samples them, and processes them."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
+    """Build, compile, sample, analyze, and save one task locally.
 
-    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
-    
-    circuits_directory = experiment_dir / "circuits"
-    try:
-        if recirq.exists(task, base_dir=base_dir) and Path():
-            logger.info(f"Task already exists. Skipping.")
-            return
+    Identical saved tasks are reused. A filename collision with a different
+    specification raises an error, preventing stale random states from being
+    silently reused. Exceptions propagate to the caller.
+    """
+    path = _result_path(task, base_dir)
+    if path.exists():
+        record = _read_task_json(path)
+        if cirq.to_json(record["task"]) != cirq.to_json(task):
+            raise ValueError(
+                "A different task already uses this filename; change dataset_id or the state/fiducial description."
+            )
+        return {
+            name: np.asarray(value) for name, value in record["processed_data"].items()
+        }
+    circuits = create_circuits(task, base_dir=base_dir)
+    if sampler is None:
+        sampler = get_sampler(
+            task.processor_id, run_type=task.run_type, circuits=circuits
+        )
+    results = sampler.run_batch(programs=circuits, repetitions=task.n_shots)
+    return process_task_results(task, results, base_dir=base_dir)
 
-        logger.info(f"Starting task...")    
-
-        logger.info(f"Creating circuits...")
-        circuits_directory = experiment_dir / "circuits"
-        circuits_directory.mkdir(parents=True, exist_ok=True)
-        raw_path = circuits_directory / "raw.json"
-        if not raw_path.exists():
-            circuits = task.make_circuits()
-            cirq.to_json(circuits, str(raw_path))
-        else:
-            circuits = cirq.read_json(str(raw_path))
-        
-        logger.info(f"Optimizing circuits...")
-        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
-        if not optimized_path.exists():
-            optimized_circuits = optimize_task_circuits(task, circuits, logger=logger)
-            cirq.to_json(optimized_circuits, str(optimized_path))
-        else:
-            optimized_circuits = cirq.read_json(str(optimized_path))
-        
-        logger.info(f"Sampling...")
-        if type(sampler) == type(None):
-            sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=optimized_circuits)
-        results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
-
-        logger.info(f"Processing results...")
-        data = task.process_results(results=results)
-
-        logger.info(f"Saving...")
-        recirq.save(task=task, data={"processed_data": data}, base_dir=base_dir)
-    except Exception as e:
-        logger.exception("Help!") 
-
-####################################################################################
 
 def create_circuits(task, base_dir=None):
-    """Creates (and optimizes) circuits for a given task."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
+    """Build and save fresh raw and optimized circuits; return optimized circuits.
 
-    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
+    Rebuilding rather than trusting a description-only cache makes iteration on
+    supplied state vectors reliable.
+    """
+    directory = _result_path(task, base_dir).parent / "circuits"
+    directory.mkdir(parents=True, exist_ok=True)
+    logger = setup_logger(task.fn, directory.parent / "experiment.log")
     try:
-        if recirq.exists(task, base_dir=base_dir) and Path():
-            logger.info(f"Task already exists. Skipping.")
-            return
+        circuits = task.make_circuits()
+        cirq.to_json(circuits, directory / "raw.json")
+        optimized = optimize_task_circuits(task, circuits, logger=logger)
+        cirq.to_json(optimized, directory / f"{task.optimizer}_optimized.json")
+        return optimized
+    finally:
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            handler.close()
 
-        logger.info(f"Creating circuits...")
-        circuits_directory = experiment_dir / "circuits"
-        circuits_directory.mkdir(parents=True, exist_ok=True)
 
-        raw_path = circuits_directory / "raw.json"
-        if not raw_path.exists():
-            circuits = task.make_circuits()
-            cirq.to_json(circuits, str(raw_path))
-        else:
-            circuits = cirq.read_json(str(raw_path))
-        
-        logger.info(f"Optimizing circuits...")
-        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
-        if not optimized_path.exists():
-            optimized_circuits = optimize_task_circuits(task, circuits, logger=logger)
-            cirq.to_json(optimized_circuits, str(optimized_path))
-        else:
-            optimized_circuits = cirq.read_json(str(optimized_path))
+def run_circuits(task, base_dir=None, sampler=None):
+    """Sample saved optimized circuits and return Cirq's nested batch results."""
+    circuits = load_circuits(task, base_dir=base_dir)
+    if sampler is None:
+        sampler = get_sampler(
+            task.processor_id, run_type=task.run_type, circuits=circuits
+        )
+    return sampler.run_batch(programs=circuits, repetitions=task.n_shots)
 
-        return optimized_circuits
-    except Exception as e:
-        logger.exception("Help!") 
-
-def run_circuits(task, base_dir=None):
-    """Loads and runs circuits for a task, returning Results."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
-
-    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
-    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
-    try:
-        if recirq.exists(task, base_dir=base_dir) and Path():
-            logger.info(f"Task already exists. Skipping.")
-            return
-
-        circuits_directory = experiment_dir / "circuits"
-        optimized_path = circuits_directory / f"{task.optimizer}_optimized.json"
-        optimized_circuits = cirq.read_json(str(optimized_path))
-        
-        logger.info(f"Sampling...")
-        sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=optimized_circuits)
-        results = sampler.run_batch(programs=optimized_circuits, repetitions=task.n_shots)
-
-        return results
-
-    except Exception as e:
-        logger.exception("Help!") 
 
 def process_task_results(task, results, base_dir=None):
-    """Given task and results, processes the sky/ground results, saving them to a json file with recirq."""
-    if base_dir is None:
-        base_dir = DEFAULT_BASE_DIR
-
-    experiment_dir = Path(f"{base_dir}/{task.fn}").parent
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-    logger = setup_logger(task.fn, experiment_dir / "experiment.log")
+    """Analyze results and atomically save the task, raw results, and processed data."""
+    data = task.process_results(results=results)
+    path = _result_path(task, base_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # Serialize first: a failing custom callable cannot truncate an existing file.
+    payload = cirq.to_json(
+        {"task": task, "processed_data": data, "raw_results": results}
+    )
+    with NamedTemporaryFile(
+        mode="w",
+        dir=path.parent,
+        prefix=path.name + ".",
+        suffix=".tmp",
+        encoding="utf-8",
+        delete=False,
+    ) as stream:
+        temporary = Path(stream.name)
+        stream.write(payload)
     try:
-        if recirq.exists(task, base_dir=base_dir) and Path():
-            logger.info(f"Task already exists. Skipping.")
-            return
-        
-        logger.info(f"Processing results...")
-        data = task.process_results(results=results)
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+    return data
 
-        logger.info(f"Saving...")
-        recirq.save(task=task, data={"processed_data": data}, base_dir=base_dir)
 
-        return data
-    except Exception as e:
-        logger.exception("Help!") 
+@_task_dataclass
+class CharacterizeWHReferenceDeviceTask(_TaskMixin):
+    """Measure the WH reference matrix ``P[i,j] = Tr(E_i sigma_j)``.
 
-####################################################################################
+    ``E_i`` is a POVM effect and ``sigma_j = d E_j`` its normalized orbit
+    projector. There are ``d**2`` circuits, one per orbit state in displacement
+    order. ``fiducial`` is a length-d ket; alternatively ``fiducial_circuit`` is
+    a callable preparation or a unitary Cirq circuit.
+    """
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class CharacterizeWHReferenceDeviceTask:
-    """For obtaining the probabilities of a WH POVM outcome given a WH covariant state."""
+    _filename_fields = ("wh_implementation", "fiducial_description")
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -311,102 +533,36 @@ class CharacterizeWHReferenceDeviceTask:
     fiducial_description: str
     wh_implementation: str
 
-    fiducial: Optional[np.array] = None
+    fiducial: Optional[np.ndarray] = None
     fiducial_circuit: Optional[cirq.Circuit] = None
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['wh_implementation']}/"
-                f"{specs['fiducial_description']}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return CharacterizeWHReferenceDeviceTask.filename(**self.__dict__)
-
     def make_circuits(self):
-        a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
-        n = int(np.log2(self.d))
-        if type(self.fiducial_circuit) != type(None):
-            prepare_fiducial = self.fiducial_circuit
-        else:
-            prepare_fiducial = ansatz_circuit(self.fiducial)
-        state_qubits = self.qubits[:n]
-        if self.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
-            ancilla_qubits = self.qubits[n:2*n]
-            return [
-                cirq.Circuit(
-                    wh_state(state_qubits, prepare_fiducial, a1, a2),
-                    wh_povm_circuit(
-                        self.wh_implementation,
-                        state_qubits,
-                        prepare_fiducial,
-                        ancilla_qubits=ancilla_qubits,
-                        measure=True,
-                    ),
-                )
-                for a1, a2 in a
-            ]
-        if self.wh_implementation == "ak":
-            ancilla1_qubits = self.qubits[n:2*n]
-            ancilla2_qubits = self.qubits[2*n:3*n]
-            return [
-                cirq.Circuit(
-                    wh_state(state_qubits, prepare_fiducial, a1, a2),
-                    wh_povm_circuit(
-                        self.wh_implementation,
-                        state_qubits,
-                        prepare_fiducial,
-                        ancilla1_qubits=ancilla1_qubits,
-                        ancilla2_qubits=ancilla2_qubits,
-                        measure=True,
-                    ),
-                )
-                for a1, a2 in a
-            ]
-        raise ValueError(f"Unsupported WH implementation: {self.wh_implementation}")
+        """Build WH readout circuits in the documented preparation order."""
+        return _wh_readout_circuits(self, _orbit_preparations(self), exact=False)
 
     def make_exact_circuits(self):
-        if self.wh_implementation != "msimple":
-            return self.make_circuits()
+        """Build coherent equivalents for terminal exact simulation."""
+        return _wh_readout_circuits(self, _orbit_preparations(self), exact=True)
 
-        a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
-        n = int(np.log2(self.d))
-        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
-        state_qubits = self.qubits[:n]
-        ancilla_qubits = self.qubits[n:2*n]
-        return [
-            cirq.Circuit(
-                wh_state(state_qubits, prepare_fiducial, a1, a2),
-                wh_povm_circuit(
-                    "msimple",
-                    state_qubits,
-                    prepare_fiducial,
-                    ancilla_qubits=ancilla_qubits,
-                    exact=True,
-                    measure=True,
-                ),
-            )
-            for a1, a2 in a
-        ]
-    
     def process_results(self, results=None, probs=None):
-        P = results_to_freqs(results) if type(probs) == type(None) else probs  
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        P = _probabilities(results, probs, (self.d**2, self.d**2))
         if self.wh_implementation == "ak":
             P = change_conjugate_convention(P)
         P = P.T
         return {"P": P}
-    
-####################################################################################
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class WHPOVMOnBasisStatesTask:
-    """For obtaining the probabilities of a WH POVM outcome given computational basis states."""
+
+@_task_dataclass
+class WHPOVMOnBasisStatesTask(_TaskMixin):
+    """Measure ``r[i,k] = Tr(E_i |k><k|)`` for computational basis inputs.
+
+    There are ``d`` circuits. Rows of the resulting ``r`` matrix index the
+    ``d**2`` WH outcomes; columns index the prepared basis states.
+    """
+
+    _filename_fields = ("wh_implementation", "fiducial_description")
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -418,102 +574,36 @@ class WHPOVMOnBasisStatesTask:
     fiducial_description: str
     wh_implementation: str
 
-    fiducial: Optional[np.array] = None
+    fiducial: Optional[np.ndarray] = None
     fiducial_circuit: Optional[cirq.Circuit] = None
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['wh_implementation']}/"
-                f"{specs['fiducial_description']}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return self.__class__.filename(**self.__dict__)
-    
     def make_circuits(self):
-        n = int(np.log2(self.d))
-        m = np.arange(self.d)
-        if type(self.fiducial_circuit) != type(None):
-            prepare_fiducial = self.fiducial_circuit
-        else:
-            prepare_fiducial = ansatz_circuit(self.fiducial)
-        state_qubits = self.qubits[:n]
-        if self.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
-            ancilla_qubits = self.qubits[n:2*n]
-            return [
-                cirq.Circuit(
-                    qudit_basis_state(state_qubits, i),
-                    wh_povm_circuit(
-                        self.wh_implementation,
-                        state_qubits,
-                        prepare_fiducial,
-                        ancilla_qubits=ancilla_qubits,
-                        measure=True,
-                    ),
-                )
-                for i in m
-            ]
-        if self.wh_implementation == "ak":
-            ancilla1_qubits = self.qubits[n:2*n]
-            ancilla2_qubits = self.qubits[2*n:3*n]
-            return [
-                cirq.Circuit(
-                    qudit_basis_state(state_qubits, i),
-                    wh_povm_circuit(
-                        self.wh_implementation,
-                        state_qubits,
-                        prepare_fiducial,
-                        ancilla1_qubits=ancilla1_qubits,
-                        ancilla2_qubits=ancilla2_qubits,
-                        measure=True,
-                    ),
-                )
-                for i in m
-            ]
-        raise ValueError(f"Unsupported WH implementation: {self.wh_implementation}")
+        """Build WH readout circuits in the documented preparation order."""
+        return _wh_readout_circuits(self, _basis_preparations(self), exact=False)
 
     def make_exact_circuits(self):
-        if self.wh_implementation != "msimple":
-            return self.make_circuits()
+        """Build coherent equivalents for terminal exact simulation."""
+        return _wh_readout_circuits(self, _basis_preparations(self), exact=True)
 
-        n = int(np.log2(self.d))
-        m = np.arange(self.d)
-        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
-        state_qubits = self.qubits[:n]
-        ancilla_qubits = self.qubits[n:2*n]
-        return [
-            cirq.Circuit(
-                qudit_basis_state(state_qubits, i),
-                wh_povm_circuit(
-                    "msimple",
-                    state_qubits,
-                    prepare_fiducial,
-                    ancilla_qubits=ancilla_qubits,
-                    exact=True,
-                    measure=True,
-                ),
-            )
-            for i in m
-        ]
-    
     def process_results(self, results=None, probs=None):
-        r = results_to_freqs(results) if type(probs) == type(None) else probs  
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        r = _probabilities(results, probs, (self.d, self.d**2))
         if self.wh_implementation == "ak":
             r = change_conjugate_convention(r)
         r = r.T
         return {"r": r}
-    
-####################################################################################
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class BasisMeasurementOnWHStatesTask:
-    """For obtaining the probabilities of a computational basis outcome given WH covariant states."""
+
+@_task_dataclass
+class BasisMeasurementOnWHStatesTask(_TaskMixin):
+    """Measure ``C[k,j] = Tr(|k><k| sigma_j)`` on WH orbit states.
+
+    There are ``d**2`` circuits. Rows index basis outcomes and columns index
+    orbit-state preparations. This conditional matrix enters ``q = C pinv(P) r``.
+    """
+
+    _filename_fields = ("fiducial_description",)
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -524,50 +614,30 @@ class BasisMeasurementOnWHStatesTask:
     d: int
     fiducial_description: str
 
-    fiducial: Optional[np.array] = None
+    fiducial: Optional[np.ndarray] = None
     fiducial_circuit: Optional[cirq.Circuit] = None
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['fiducial_description']}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return self.__class__.filename(**self.__dict__)
-    
     def make_circuits(self):
-        n = int(np.log2(self.d))
-        a = [[a1, a2] for a1 in range(self.d) for a2 in range(self.d)]
-        if type(self.fiducial_circuit) != type(None):
-            prepare_fiducial = self.fiducial_circuit
-        else:
-            prepare_fiducial = ansatz_circuit(self.fiducial)
-        state_qubits = self.qubits[:n]
-        circuits = [
-            cirq.Circuit(
-                wh_state(state_qubits, prepare_fiducial, a1, a2),
-                measure_register(state_qubits, "s"),
-            )
-            for a1, a2 in a
-        ]
-        return circuits
-    
+        """Read the computational basis in the documented preparation order."""
+        return _basis_readout_circuits(self, _orbit_preparations(self))
+
     def process_results(self, results=None, probs=None):
-        C = results_to_freqs(results) if type(probs) == type(None) else probs  
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        C = _probabilities(results, probs, (self.d**2, self.d))
         C = C.T
         return {"C": C}
-    
-####################################################################################
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class BasisMeasurementOnBasisStatesTask:
-    """For obtaining the probabilities of a computational basis outcome given computational basis states."""
+
+@_task_dataclass
+class BasisMeasurementOnBasisStatesTask(_TaskMixin):
+    """Measure the basis readout matrix ``q[k,l] = Pr(k | prepare l)``.
+
+    The ideal result is the d-dimensional identity. Its deviation from the
+    reconstructed ``C pinv(P) r`` is the empirical sky/ground residual.
+    """
+
+    _filename_fields = ()
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -577,44 +647,28 @@ class BasisMeasurementOnBasisStatesTask:
 
     d: int
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return self.__class__.filename(**self.__dict__)
-    
     def make_circuits(self):
-        n = int(np.log2(self.d))
-        m = np.arange(self.d)
-        state_qubits = self.qubits[:n]
-        circuits = [
-            cirq.Circuit(
-                qudit_basis_state(state_qubits, i),
-                measure_register(state_qubits, "s"),
-            )
-            for i in m
-        ]
-        return circuits
-    
+        """Read the computational basis in the documented preparation order."""
+        return _basis_readout_circuits(self, _basis_preparations(self))
+
     def process_results(self, results=None, probs=None):
-        q = results_to_freqs(results) if type(probs) == type(None) else probs  
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        q = _probabilities(results, probs, (self.d, self.d))
         q = q.T
         return {"q": q}
 
-####################################################################################
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
-    """For obtaining the probabilities of a computational basis outcome after a WH-POVM has been performed on computational basis states.
-    Only works in Arthurs-Kelly mode: after the basis state is prepared, the AK interaction is performed (but not the measurement itself), 
-    and then the computational basis measurement."""
+@_task_dataclass
+class BasisMeasurementAfterWHPOVMOnBasisStatesTask(_TaskMixin):
+    """Read the system after an Arthurs--Kelly WH measurement interaction.
+
+    Ancillas are ignored. The ideal post-measurement channel is the WH
+    measure-and-prepare channel, so the basis probabilities satisfy ``p = C r``.
+    Rows are final basis outcomes and columns are initial basis preparations.
+    """
+
+    _filename_fields = ("fiducial_description",)
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -625,31 +679,17 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
     d: int
     fiducial_description: str
 
-    fiducial: Optional[np.array] = None
+    fiducial: Optional[np.ndarray] = None
     fiducial_circuit: Optional[cirq.Circuit] = None
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['fiducial_description']}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return self.__class__.filename(**self.__dict__)
-    
     def make_circuits(self):
+        """Build circuits in the input-state order described by this task."""
         n = int(np.log2(self.d))
         m = np.arange(self.d)
-        if type(self.fiducial_circuit) != type(None):
-            prepare_fiducial = self.fiducial_circuit
-        else:
-            prepare_fiducial = ansatz_circuit(self.fiducial)
+        prepare_fiducial = _fiducial_preparation(self)
         state_qubits = self.qubits[:n]
-        ancilla1_qubits = self.qubits[n:2*n]
-        ancilla2_qubits = self.qubits[2*n:3*n]
+        ancilla1_qubits = self.qubits[n : 2 * n]
+        ancilla2_qubits = self.qubits[2 * n : 3 * n]
         circuits = [
             cirq.Circuit(
                 qudit_basis_state(state_qubits, i),
@@ -665,19 +705,29 @@ class BasisMeasurementAfterWHPOVMOnBasisStatesTask:
             for i in m
         ]
         return circuits
-    
+
     def process_results(self, results=None, probs=None):
-        p = results_to_freqs(results) if type(probs) == type(None) else probs  
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        p = _probabilities(results, probs, (self.d, self.d))
         p = p.T
         return {"p": p}
 
-####################################################################################
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class WHPOVMOnStatesTask:
-    """WH-POVM measurement on an arbitrary set of states."""
+@_task_dataclass
+class WHPOVMOnStatesTask(_TaskMixin):
+    """Measure a WH POVM on an ordered collection of pure input states.
+
+    Supply length-d kets in ``states`` or preparations in ``states_circuits``.
+    The returned ``r`` matrix has WH outcomes as rows and inputs as columns.
+    Use the unified workflow to prepare mixed states.
+    """
+
+    _filename_fields = (
+        "wh_implementation",
+        "fiducial_description",
+        "states_description",
+    )
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -690,109 +740,50 @@ class WHPOVMOnStatesTask:
     states_description: str
     wh_implementation: str
 
-    fiducial: Optional[np.array] = None
+    fiducial: Optional[np.ndarray] = None
     fiducial_circuit: Optional[cirq.Circuit] = None
     states: Optional[list] = None
     states_circuits: Optional[list] = None
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['wh_implementation']}/"
-                f"{specs['fiducial_description']}/"
-                f"{specs['states_description']}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return self.__class__.filename(**self.__dict__)
-    
     def make_circuits(self):
-        n = int(np.log2(self.d))
-        if type(self.fiducial_circuit) != type(None):
-            prepare_fiducial = self.fiducial_circuit
-        else:
-            prepare_fiducial = ansatz_circuit(self.fiducial)
-        if type(self.states_circuits) != type(None):
-            prepare_states = self.states_circuits
-        else:
-            prepare_states = [ansatz_circuit(state) for state in self.states]
-
-        state_qubits = self.qubits[:n]
-        if self.wh_implementation in SIMPLE_WH_IMPLEMENTATIONS:
-            ancilla_qubits = self.qubits[n:2*n]
-            return [
-                cirq.Circuit(
-                    prepare_state(state_qubits),
-                    wh_povm_circuit(
-                        self.wh_implementation,
-                        state_qubits,
-                        prepare_fiducial,
-                        ancilla_qubits=ancilla_qubits,
-                        measure=True,
-                    ),
-                )
-                for prepare_state in prepare_states
-            ]
-        if self.wh_implementation == "ak":
-            ancilla1_qubits = self.qubits[n:2*n]
-            ancilla2_qubits = self.qubits[2*n:3*n]
-            return [
-                cirq.Circuit(
-                    prepare_state(state_qubits),
-                    wh_povm_circuit(
-                        self.wh_implementation,
-                        state_qubits,
-                        prepare_fiducial,
-                        ancilla1_qubits=ancilla1_qubits,
-                        ancilla2_qubits=ancilla2_qubits,
-                        measure=True,
-                    ),
-                )
-                for prepare_state in prepare_states
-            ]
-        raise ValueError(f"Unsupported WH implementation: {self.wh_implementation}")
+        """Build WH readout circuits in the documented preparation order."""
+        return _wh_readout_circuits(self, _state_preparations(self), exact=False)
 
     def make_exact_circuits(self):
-        if self.wh_implementation != "msimple":
-            return self.make_circuits()
+        """Build coherent equivalents for terminal exact simulation."""
+        return _wh_readout_circuits(self, _state_preparations(self), exact=True)
 
-        n = int(np.log2(self.d))
-        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
-        prepare_states = self.states_circuits if type(self.states_circuits) != type(None) else [ansatz_circuit(state) for state in self.states]
-        state_qubits = self.qubits[:n]
-        ancilla_qubits = self.qubits[n:2*n]
-        return [
-            cirq.Circuit(
-                prepare_state(state_qubits),
-                wh_povm_circuit(
-                    "msimple",
-                    state_qubits,
-                    prepare_fiducial,
-                    ancilla_qubits=ancilla_qubits,
-                    exact=True,
-                    measure=True,
-                ),
-            )
-            for prepare_state in prepare_states
-        ]
-    
     def process_results(self, results=None, probs=None):
-        r = results_to_freqs(results) if type(probs) == type(None) else probs  
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        r = _probabilities(
+            results,
+            probs,
+            (
+                len(
+                    self.states_circuits
+                    if self.states_circuits is not None
+                    else self.states
+                ),
+                self.d**2,
+            ),
+        )
         if self.wh_implementation == "ak":
             r = change_conjugate_convention(r)
         r = r.T
         return {"r": r}
-    
-####################################################################################
 
-@recirq.json_serializable_dataclass(namespace="recirq.sky_ground", 
-                                    registry=recirq.Registry,
-                                    frozen=True)
-class CharacterizeWHTripleProductsTask:
-    """Real parts of WH-orbit triple products via the three-state cycle test."""
+
+@_task_dataclass
+class CharacterizeWHTripleProductsTask(_TaskMixin):
+    """Measure ``T[i,j,k] = Re Tr(sigma_i sigma_j sigma_k)`` by cycle tests.
+
+    This legacy task measures only real triple products, which are fully
+    symmetric under index permutations. It samples each unordered triple once
+    and fills the symmetric tensor; the workflow also supports imaginary parts.
+    """
+
+    _filename_fields = ("fiducial_description",)
+
     dataset_id: str
     processor_id: str
     run_type: str
@@ -803,38 +794,27 @@ class CharacterizeWHTripleProductsTask:
     d: int
     fiducial_description: str
 
-    fiducial: Optional[np.array] = None
+    fiducial: Optional[np.ndarray] = None
     fiducial_circuit: Optional[cirq.Circuit] = None
 
-    @classmethod
-    def filename(cls, **specs):
-        return (f"{specs['dataset_id']}/"
-                f"d{specs['d']}/"
-                f"{cls.__name__}/"
-                f"{specs['fiducial_description']}/"
-                f"{specs['optimizer']}_{specs['run_type']}_n{abbrev_n_shots(specs['n_shots'])}_{specs['processor_id']}_q{abbrev_grid_qubits(specs['qubits'])}")
-
-    @property
-    def fn(self):
-        return self.__class__.filename(**self.__dict__)
-
     def symmetric_triples(self):
+        """Return all unordered triples, with repetition, of WH orbit indices."""
         n_states = self.d**2
         return list(combinations_with_replacement(range(n_states), 3))
 
     def make_circuits(self):
+        """Build circuits in the input-state order described by this task."""
         n = int(np.log2(self.d))
         if 2**n != self.d:
-            raise ValueError("CharacterizeWHTripleProductsTask currently requires d = 2**n.")
+            raise ValueError(
+                "CharacterizeWHTripleProductsTask currently requires d = 2**n."
+            )
         if len(self.qubits) < 1 + 3 * n:
-            raise ValueError(f"Need at least {1 + 3*n} qubits for the triple-product cycle test.")
+            raise ValueError(
+                f"Need at least {1 + 3*n} qubits for the triple-product cycle test."
+            )
 
-        prepare_fiducial = self.fiducial_circuit if type(self.fiducial_circuit) != type(None) else ansatz_circuit(self.fiducial)
-        orbit_indices = [(a1, a2) for a1 in range(self.d) for a2 in range(self.d)]
-        prepare_states = [
-            (lambda qubits, a1=a1, a2=a2: wh_state(qubits, prepare_fiducial, a1, a2))
-            for a1, a2 in orbit_indices
-        ]
+        prepare_states = _orbit_preparations(self)
 
         control_qubit = self.qubits[0]
         register1 = self.qubits[1 : 1 + n]
@@ -855,7 +835,12 @@ class CharacterizeWHTripleProductsTask:
         ]
 
     def process_results(self, results=None, probs=None):
-        probabilities = results_to_freqs(results) if type(probs) == type(None) else np.asarray(probs)
+        """Decode outcomes into the task matrix (outcomes by prepared states)."""
+        probabilities = _probabilities(results, probs)
+        if probabilities.shape != (len(self.symmetric_triples()), 2):
+            raise ValueError(
+                "Expected one binary outcome distribution per symmetric triple."
+            )
         values = real_triple_product_from_probabilities(probabilities)
 
         n_states = self.d**2
@@ -865,11 +850,42 @@ class CharacterizeWHTripleProductsTask:
                 tensor[perm] = value
 
         return {"T": tensor}
-    
-####################################################################################
 
-sky_ground_tasks = [CharacterizeWHReferenceDeviceTask,
-                    WHPOVMOnBasisStatesTask,
-                    BasisMeasurementOnWHStatesTask,
-                    BasisMeasurementOnBasisStatesTask,
-                    BasisMeasurementAfterWHPOVMOnBasisStatesTask]
+
+sky_ground_tasks = [
+    CharacterizeWHReferenceDeviceTask,
+    WHPOVMOnBasisStatesTask,
+    BasisMeasurementOnWHStatesTask,
+    BasisMeasurementOnBasisStatesTask,
+    BasisMeasurementAfterWHPOVMOnBasisStatesTask,
+]
+
+
+__all__ = [
+    "EXPERIMENT_NAME",
+    "DEFAULT_BASE_DIR",
+    "SIMPLE_WH_IMPLEMENTATIONS",
+    "get_wh_qubits",
+    "has_post_measurement_task",
+    "wh_povm_circuit",
+    "optimize_task_circuits",
+    "load_results",
+    "load_circuits",
+    "load_sky_ground_results",
+    "exactify",
+    "task_from_specs",
+    "run_sky_ground_task_from_specs",
+    "run_sky_ground_tasks",
+    "run_sky_ground_task",
+    "create_circuits",
+    "run_circuits",
+    "process_task_results",
+    "CharacterizeWHReferenceDeviceTask",
+    "WHPOVMOnBasisStatesTask",
+    "BasisMeasurementOnWHStatesTask",
+    "BasisMeasurementOnBasisStatesTask",
+    "BasisMeasurementAfterWHPOVMOnBasisStatesTask",
+    "WHPOVMOnStatesTask",
+    "CharacterizeWHTripleProductsTask",
+    "sky_ground_tasks",
+]

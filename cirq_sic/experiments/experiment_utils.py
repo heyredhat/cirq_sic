@@ -1,353 +1,503 @@
-import os
+"""Execution, measurement decoding, and optional hardware adapters.
+
+Importing this module requires only NumPy and cirq-core. Google hardware and
+BQSKit are imported only by the adapters that use them.
+"""
+
+import collections
+import importlib
+import logging
+from pathlib import Path
 import re
 import sys
-import logging 
-from pathlib import Path
 
+import cirq
 import numpy as np
-import collections
 
-import cirq 
-import cirq_google
-import qsimcirq
-import recirq
-from cirq.value import big_endian_bits_to_int
-
-import bqskit as bq
-from bqskit.ext import bqskit_to_cirq, cirq_to_bqskit
+__all__ = [
+    "default_project_id",
+    "setup_logger",
+    "abbrev_n_shots",
+    "abbrev_grid_qubits",
+    "get_sampler",
+    "exact_simulation",
+    "bqskit_machine_model",
+    "bqskit_optimize_circuit",
+    "to_one_and_two_qubit_ops",
+    "push_measurements_to_end",
+    "terminal_measurement_ops",
+    "cirq_optimize_circuit",
+    "measurement_key_sort_key",
+    "ordered_measurement_keys",
+    "are_all_measurements_terminal",
+    "result_measurements_matrix",
+    "has_dynamic_circuit_features",
+    "shots_to_freqs",
+    "results_to_freqs",
+    "avg_negativity",
+    "deep_match",
+    "query_records",
+    "collect_circuit_files",
+    "collect_circuits",
+    "get_gate_counts",
+    "print_all_gate_counts",
+]
 
 default_project_id = "sic-povms-sandbox-444403"
+MEASUREMENT_PREFIX_ORDER = {"s": 0, "a": 1, "a1": 1, "a2": 2}
 
-####################################################################################
+
+def _optional_import(name, extra):
+    try:
+        return importlib.import_module(name)
+    except ImportError as error:
+        raise ImportError(
+            f"{name} is required for this operation; install cirq-sic[{extra}]."
+        ) from error
+
 
 def setup_logger(name, path):
-    """Initialize logger."""
-    logger = logging.getLogger(name)
+    """Return a file-and-console logger, reusing handlers for the same path.
+
+    Repeated calls do not leak open file handles or duplicate log messages.
+    """
+    path = Path(path).resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger(f"cirq_sic.{name}.{path}")
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S")
-
-    file_handler = logging.FileHandler(path)
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
-    console_handler.setFormatter(formatter)
-
+    logger.propagate = False
     if not logger.handlers:
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
-        
+        formatter = logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        for handler in (logging.FileHandler(path), logging.StreamHandler(sys.stdout)):
+            handler.setLevel(logging.DEBUG)
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
     return logger
 
-####################################################################################
 
 def abbrev_n_shots(n_shots: int) -> str:
-    """Shorter n_shots component of a filename"""
-    if n_shots % 1000 == 0:
-        return f'{n_shots // 1000}k'
-    return str(n_shots)
+    """Format a shot count, abbreviating positive multiples of 1000 with ``k``."""
+    return f"{n_shots // 1000}k" if n_shots and n_shots % 1000 == 0 else str(n_shots)
+
 
 def abbrev_grid_qubits(qubits):
-    """Formatted grid_qubits component of a filename"""
-    return "-".join([f'{qubit.row}_{qubit.col}' for qubit in qubits])
+    """Format grid qubits as ``row_col`` identifiers for legacy filenames."""
+    return "-".join(f"{qubit.row}_{qubit.col}" for qubit in qubits)
 
-####################################################################################
 
-def get_sampler(processor_id, run_type="noisy", project_id=default_project_id, circuits=None):
-    """Return a sampler appropriate for the requested execution mode.
+def get_sampler(
+    processor_id=None, run_type="noisy", project_id=default_project_id, circuits=None
+):
+    """Return a Cirq sampler for ``clean``, Google ``noisy``, or ``real`` execution.
 
-    Dynamic circuits with mid-circuit measurement and classical feed-forward are
-    routed to Cirq's built-in simulators because qsim and the cirq_google
-    validating sampler do not currently support those operations.
+    Clean simulation uses cirq-core and supports feed-forward. Google modes
+    require the hardware extra; real hardware rejects dynamic circuits before
+    constructing an engine. This function never submits a job itself.
     """
+    if run_type not in {"clean", "noisy", "real"}:
+        raise ValueError("run_type must be 'clean', 'noisy', or 'real'.")
     if circuits is None:
         circuit_list = []
-    elif isinstance(circuits, cirq.Circuit):
+    elif isinstance(circuits, cirq.AbstractCircuit):
         circuit_list = [circuits]
     else:
         circuit_list = list(circuits)
-
     has_dynamic = any(has_dynamic_circuit_features(circuit) for circuit in circuit_list)
-
     if run_type == "real" and has_dynamic:
         raise ValueError(
             "Dynamic circuits with classical feed-forward are not supported by the current "
-            "cirq_google device sampler. Use run_type='clean' or 'noisy' for wh_implementation='msimple'."
+            "cirq_google device sampler. Use run_type='clean' or 'noisy'."
         )
-
+    if run_type == "clean":
+        return cirq.Simulator(dtype=np.complex128)
+    if processor_id is None:
+        raise ValueError("processor_id is required for Google noisy or real execution.")
+    cirq_google = _optional_import("cirq_google", "hardware")
     if run_type == "real":
         engine = cirq_google.Engine(project_id=project_id)
-        sampler = engine.get_sampler(processor_id=processor_id) # REWRITE!!!
-    else:
-        if run_type == "noisy":
-            noise_props = cirq_google.engine.load_device_noise_properties(processor_id)
-            noise_model = cirq_google.NoiseModelFromGoogleNoiseProperties(noise_props)
-            sampler = cirq.Simulator(noise=noise_model) if has_dynamic else qsimcirq.QSimSimulator(noise=noise_model)
-        elif run_type == "clean":
-            sampler = cirq.Simulator() if has_dynamic else qsimcirq.QSimSimulator()
-    return sampler
+        return engine.get_sampler(processor_id=processor_id)
+    properties = cirq_google.engine.load_device_noise_properties(processor_id)
+    noise = cirq_google.NoiseModelFromGoogleNoiseProperties(properties)
+    return cirq.Simulator(noise=noise, dtype=np.complex128)
 
-####################################################################################
 
 def exact_simulation(circuit):
-    """Returns the exact outcome probabilities for a cirq circuit."""
-    if not are_all_measurements_terminal(circuit):
-        raise ValueError("exact_simulation only supports circuits with terminal measurements.")
-    measurements = [op for op in circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
-    circuit_sans_measurements = cirq.drop_terminal_measurements(circuit)
-    result = cirq.Simulator().simulate(circuit_sans_measurements)
-    if len(measurements) == 1 and measurements[0].gate.key == "result":
-        measured_qubits = list(measurements[0].qubits)
+    """Return exact computational outcome probabilities for terminal measurements.
+
+    Measurement keys follow :func:`measurement_key_sort_key`, and bits inside a
+    key follow the measurement's qubit order. Invert masks are honored. With no
+    measurements, all qubits are read in Cirq's default sorted order. Unitary
+    circuits use a state-vector simulator; noisy channels use a density matrix.
+    Mid-circuit measurements and measurement confusion maps raise ``ValueError``.
+    """
+    if has_dynamic_circuit_features(circuit):
+        raise ValueError(
+            "exact_simulation only supports circuits with terminal measurements."
+        )
+    measurements = terminal_measurement_ops(circuit)
+    if any(op.gate.confusion_map for op in measurements):
+        raise ValueError(
+            "exact_simulation does not support measurement confusion maps."
+        )
+    measured_qubits = [q for op in measurements for q in op.qubits]
+    if len(set(measured_qubits)) != len(measured_qubits):
+        raise ValueError("Each qubit may be measured only once in exact_simulation.")
+    if not measurements:
+        measured_qubits = sorted(circuit.all_qubits())
+    if any(q.dimension != 2 for q in measured_qubits):
+        raise ValueError("exact_simulation expects qubit measurements.")
+    stripped = cirq.drop_terminal_measurements(circuit)
+    # Dropping a measurement may remove a qubit that was otherwise idle.
+    stripped.append(cirq.I(q) for q in measured_qubits)
+    if cirq.has_unitary(stripped):
+        result = cirq.Simulator(dtype=np.complex128).simulate(stripped)
+        probabilities = np.diag(result.density_matrix_of(measured_qubits)).real.copy()
     else:
-        ordered_measurements = sorted(measurements, key=lambda op: measurement_key_sort_key(op.gate.key))
-        measured_qubits = [qubit for op in ordered_measurements for qubit in op.qubits]
-    return np.diag(result.density_matrix_of(measured_qubits)).real
+        qubit_order = sorted(stripped.all_qubits())
+        result = cirq.DensityMatrixSimulator(dtype=np.complex128).simulate(
+            stripped, qubit_order=qubit_order
+        )
+        indices = [qubit_order.index(q) for q in measured_qubits]
+        tensor = result.final_density_matrix.reshape((2,) * (2 * len(qubit_order)))
+        reduced = cirq.partial_trace(tensor, keep_indices=indices)
+        probabilities = np.diag(
+            reduced.reshape(2 ** len(indices), 2 ** len(indices))
+        ).real.copy()
+    # drop_terminal_measurements already replaces inverted readouts with X gates.
+    return probabilities
 
-####################################################################################
 
-bqskit_willow_gateset = [bq.ir.gates.PhasedXZGate(),
-                         bq.ir.gates.CZGate(), 
-                         bq.ir.gates.RXGate(),
-                         bq.ir.gates.RYGate(),
-                         bq.ir.gates.RZGate()]
+def _bqskit_willow_gateset():
+    bq = _optional_import("bqskit", "optimize")
+    return [
+        bq.ir.gates.PhasedXZGate(),
+        bq.ir.gates.CZGate(),
+        bq.ir.gates.RXGate(),
+        bq.ir.gates.RYGate(),
+        bq.ir.gates.RZGate(),
+    ]
+
+
+def __getattr__(name):
+    # Preserve the old optional constant without importing BQSKit at module load.
+    if name == "bqskit_willow_gateset":
+        return _bqskit_willow_gateset()
+    raise AttributeError(name)
+
 
 def bqskit_machine_model(qubits, processor_id="willow_pink"):
-    """Construct bqskit machine model for a cirq processor."""
+    """Build a BQSKit model restricted to the requested Google grid qubits."""
+    bq = _optional_import("bqskit", "optimize")
+    cirq_google = _optional_import("cirq_google", "hardware")
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
-    gateset = device.metadata.compilation_target_gatesets[0]
-    connectivity_graph = device.metadata.nx_graph
-    qubit_index = dict([(q, i) for i, q in enumerate(device.metadata.qubit_set)])
-    qubit_pairs = list(device.metadata.nx_graph.edges)
-    full_coupling_graph = [(qubit_index[a], qubit_index[b]) for a, b in qubit_pairs]
-    used_indices = [qubit_index[qubit] for qubit in qubits]
-    restricted_coupling_graph = [pair for pair in full_coupling_graph if pair[0] in used_indices and pair[1] in used_indices]
-    coupling_graph = [(used_indices.index(pair[0]), used_indices.index(pair[1])) for pair in restricted_coupling_graph]
-    model = bq.MachineModel(len(qubits), gate_set=bqskit_willow_gateset, coupling_graph=coupling_graph)
-    return model
-
-def bqskit_optimize_circuit(qubits, circuit, machine_model, optimization_level=1, server="local"):
-    """Optimize cirq circuit using bqskit, given a machine model. Server can be local or localhost (use the latter for runs in parallel)."""
-    if has_dynamic_circuit_features(circuit):
-        raise ValueError("bqskit optimization does not support dynamic circuits with mid-circuit measurement.")
-    bq_circuit = cirq_to_bqskit(circuit)
-    compiled_bq_circuit, initial_mapping, final_mapping = bq.compile(bq_circuit,\
-                                                                     model=machine_model,\
-                                                                     optimization_level=optimization_level,\
-                                                                     with_mapping=True,\
-                                                                     ip = None if server == "local" else "localhost")
-    compiled_circuit = bqskit_to_cirq(compiled_bq_circuit)
-    qubit_map = {cirq.NamedQubit("q_%d" % i): qubit for i, qubit in enumerate(qubits)}
-    compiled_circuit = compiled_circuit.transform_qubits(qubit_map)
-
-    measurements = [op for op in compiled_circuit.all_operations() if isinstance(op.gate, cirq.MeasurementGate)]
-    final_circuit = cirq.drop_terminal_measurements(compiled_circuit)
-    final_circuit.append(sorted(measurements, key=lambda op: measurement_key_sort_key(op.gate.key)))
-    return final_circuit
-
-def to_one_and_two_qubit_ops(circuit: cirq.Circuit) -> cirq.Circuit:
-    """Decompose circuit into one and two qubit operators. (Defunct?)"""
-    def keep(op: cirq.Operation) -> bool:
-        if cirq.is_measurement(op):
-            return True
-        return len(op.qubits) <= 2  # accept only 1- and 2-qubit non-measurement ops
-
-    decomposed_ops = []
-    for op in circuit.all_operations():
-        decomposed_ops.extend(cirq.decompose(op, keep=keep, on_stuck_raise=True))
-    return cirq.Circuit(decomposed_ops)
-
-def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
-    """Push all measurements to end of circuit."""
-    trailing = []
-    kept = []
-    for op in circuit.all_operations():
-        if cirq.is_measurement(op):
-            trailing.append(op)
-        else:
-            kept.append(op)
-    return cirq.Circuit(kept + trailing)
-
-def terminal_measurement_ops(circuit: cirq.Circuit):
-    """Collect terminal measurement operations in register order."""
-    return sorted(
-        [op for op in circuit.all_operations() if cirq.is_measurement(op)],
-        key=lambda op: measurement_key_sort_key(op.gate.key),
+    qubit_index = {q: i for i, q in enumerate(qubits)}
+    if not set(qubits) <= set(device.metadata.qubit_set):
+        raise ValueError("Some requested qubits are not on the device.")
+    coupling_graph = [
+        (qubit_index[a], qubit_index[b])
+        for a, b in device.metadata.nx_graph.edges
+        if a in qubit_index and b in qubit_index
+    ]
+    return bq.MachineModel(
+        len(qubits), gate_set=_bqskit_willow_gateset(), coupling_graph=coupling_graph
     )
 
+
+def bqskit_optimize_circuit(
+    qubits, circuit, machine_model, optimization_level=1, server="local"
+):
+    """Compile a preparation-and-measurement experiment with BQSKit.
+
+    Experiments must start from all-zero qubits. Terminal readouts are restored
+    using BQSKit's final logical-to-physical mapping. The returned circuit uses
+    ``qubits`` as physical device locations. Initial mapping is immaterial for
+    an all-zero input; arbitrary externally supplied input states are unsupported.
+    """
+    if has_dynamic_circuit_features(circuit):
+        raise ValueError(
+            "bqskit optimization does not support dynamic circuits with mid-circuit measurement."
+        )
+    if server not in {"local", "localhost", "server"}:
+        raise ValueError("server must be 'local', 'localhost', or 'server'.")
+    bq = _optional_import("bqskit", "optimize")
+    converters = _optional_import("bqskit.ext", "optimize")
+    qubits = list(qubits)
+    if not set(circuit.all_qubits()) <= set(qubits):
+        raise ValueError("qubits must include every circuit qubit.")
+    measurements = terminal_measurement_ops(circuit)
+    logical = _remove_readouts(circuit).transform_qubits(
+        {q: cirq.LineQubit(i) for i, q in enumerate(qubits)}
+    )
+    logical.append(cirq.I(q) for q in cirq.LineQubit.range(len(qubits)))
+    compiled, _, final_mapping = bq.compile(
+        converters.cirq_to_bqskit(logical),
+        model=machine_model,
+        optimization_level=optimization_level,
+        with_mapping=True,
+        ip=None if server == "local" else "localhost",
+    )
+    final_circuit = converters.bqskit_to_cirq(compiled).transform_qubits(
+        {cirq.NamedQubit(f"q_{i}"): q for i, q in enumerate(qubits)}
+    )
+    output_map = {q: qubits[final_mapping[i]] for i, q in enumerate(qubits)}
+    final_circuit.append(op.transform_qubits(output_map) for op in measurements)
+    return final_circuit
+
+
+def to_one_and_two_qubit_ops(circuit: cirq.Circuit) -> cirq.Circuit:
+    """Decompose unitary gates to at most two qubits, retaining measurements."""
+
+    def keep(op):
+        return cirq.is_measurement(op) or len(op.qubits) <= 2
+
+    return cirq.Circuit(
+        cirq.decompose(op, keep=keep) for op in circuit.all_operations()
+    )
+
+
+def push_measurements_to_end(circuit: cirq.Circuit) -> cirq.Circuit:
+    """Move terminal measurements to the end without changing circuit semantics.
+
+    Dynamic circuits are rejected: moving their readouts can change the state or
+    invalidate classical controls.
+    """
+    if has_dynamic_circuit_features(circuit):
+        raise ValueError("Cannot move mid-circuit measurements or classical controls.")
+    result = _remove_readouts(circuit)
+    result.append(cirq.Moment(terminal_measurement_ops(circuit)))
+    return result
+
+
+def _remove_readouts(circuit):
+    # Unlike drop_terminal_measurements, do not apply classical invert masks;
+    # the original readouts will be appended again after optimization.
+    return cirq.Circuit(
+        op for op in circuit.all_operations() if not cirq.is_measurement(op)
+    )
+
+
+def terminal_measurement_ops(circuit):
+    """Collect measurements in register order, requiring terminal readouts."""
+    if not are_all_measurements_terminal(circuit):
+        raise ValueError("Circuit contains nonterminal measurements.")
+    return sorted(
+        (op for op in circuit.all_operations() if cirq.is_measurement(op)),
+        key=lambda op: measurement_key_sort_key(cirq.measurement_key_name(op)),
+    )
+
+
 def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
-    """Conform the circuit to device topology and gateset."""
+    """Compile to CZ gates, optionally routing onto a Google device.
+
+    ``processor_id=None`` uses cirq-core only and imposes no device topology.
+    An explicit processor requires cirq-google; dynamic circuits are rejected
+    because preserving feed-forward through hardware routing is not supported.
+    """
+    if has_dynamic_circuit_features(circuit):
+        raise ValueError("Hardware routing does not support dynamic circuits.")
+    if processor_id is None:
+        return cirq.optimize_for_target_gateset(circuit, gateset=cirq.CZTargetGateset())
+    cirq_google = _optional_import("cirq_google", "hardware")
     device = cirq_google.engine.create_device_from_processor_id(processor_id)
-    gateset = device.metadata.compilation_target_gatesets[0]
-    connectivity_graph = device.metadata.nx_graph
+    measurements = terminal_measurement_ops(circuit)
+    logical = _remove_readouts(circuit)
+    # Include otherwise idle measured wires so final_map is complete.
+    logical.append(cirq.I(q) for op in measurements for q in op.qubits)
+    logical = to_one_and_two_qubit_ops(logical)
+    router = cirq.RouteCQC(device.metadata.nx_graph)
+    routed, _, final_map = router.route_circuit(
+        logical, initial_mapper=cirq.HardCodedInitialMapper({q: q for q in qubits})
+    )
+    result = cirq.optimize_for_target_gateset(
+        routed,
+        context=cirq.TransformerContext(deep=True),
+        gateset=device.metadata.compilation_target_gatesets[0],
+    )
+    result.append(cirq.Moment(op.transform_qubits(final_map) for op in measurements))
+    return result
 
-    mapping = dict([(q,q) for q in qubits])
-    router = cirq.RouteCQC(connectivity_graph)
-
-    if are_all_measurements_terminal(circuit):
-        measurement_ops = terminal_measurement_ops(circuit)
-        circuit = cirq.drop_terminal_measurements(circuit)
-    else:
-        measurement_ops = []
-
-    routed_circuit, _, final_map = router.route_circuit(circuit, initial_mapper=cirq.HardCodedInitialMapper(mapping))
-    finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
-                            context=cirq.TransformerContext(deep=True), gateset=gateset)
-    if measurement_ops:
-        measurement_ops = [op.transform_qubits(final_map) for op in measurement_ops]
-        finished_circuit.append(cirq.Moment(measurement_ops))
-    return finished_circuit
-
-""" WORKING: Need a fix for arbitrary d. 
-def cirq_optimize_circuit(qubits, circuit, processor_id="willow_pink"):
-    device = cirq_google.engine.create_device_from_processor_id(processor_id)
-    gateset = device.metadata.compilation_target_gatesets[0]
-    connectivity_graph = device.metadata.nx_graph
-
-    mapping = dict([(q,q) for q in qubits])
-    router = cirq.RouteCQC(connectivity_graph)
-
-    prepped_circuit = push_measurements_to_end(to_one_and_two_qubit_ops(circuit))
-    measurement_ops = [op for op in prepped_circuit.all_operations() if cirq.is_measurement(op)]
-    circuit_without_measurements = cirq.drop_terminal_measurements(prepped_circuit)
-
-    routed_circuit, initial_map, final_map = router.route_circuit(circuit_without_measurements,\
-                                                                  initial_mapper=cirq.HardCodedInitialMapper(mapping))
-    finished_circuit = cirq.optimize_for_target_gateset(routed_circuit,\
-                            context=cirq.TransformerContext(deep=True), gateset=gateset)
-
-    if measurement_ops:
-        finished_circuit += cirq.Circuit(measurement_ops)
-
-    return finished_circuit
-"""
-####################################################################################
-
-MEASUREMENT_PREFIX_ORDER = {"s": 0, "a": 1, "a1": 1, "a2": 2}
 
 def measurement_key_sort_key(key):
-    """Sort measurement keys like s_0, a_0, a1_0, a2_0 into register order."""
+    """Order ``result``, then ``s``, ``a``/``a1``, ``a2``, then unknown keys."""
+    key = str(key)
     if key == "result":
         return (-1, "result", -1)
     match = re.fullmatch(r"([A-Za-z][A-Za-z0-9]*)_(\d+)", key)
     if match is None:
         return (99, key, -1)
-    prefix, index = match.groups()
-    return (MEASUREMENT_PREFIX_ORDER.get(prefix, 98), prefix, int(index))
+    prefix, number = match.groups()
+    return (MEASUREMENT_PREFIX_ORDER.get(prefix, 98), prefix, int(number))
+
 
 def ordered_measurement_keys(measurements):
-    """Return measurement keys in the register order used throughout the codebase."""
-    return sorted(measurements.keys(), key=measurement_key_sort_key)
+    """Return keys in the logical register order used by legacy task circuits."""
+    return sorted(measurements, key=measurement_key_sort_key)
+
 
 def are_all_measurements_terminal(circuit):
-    """Compatibility helper for Cirq versions without are_all_measurements_terminal."""
+    """Return whether dropping terminal measurements removes every readout."""
     try:
         stripped = cirq.drop_terminal_measurements(circuit)
     except ValueError:
         return False
     return not any(cirq.is_measurement(op) for op in stripped.all_operations())
 
+
 def result_measurements_matrix(shots):
-    """Stack a ResultDict's measurements into one big-endian bit matrix."""
-    if "result" in shots.measurements:
-        measurements = shots.measurements["result"]
-        return measurements if measurements.ndim == 2 else measurements.reshape(measurements.shape[0], -1)
+    """Stack all measurement keys into a big-endian bit matrix.
 
-    ordered_keys = ordered_measurement_keys(shots.measurements)
-    if not ordered_keys:
+    Each key must occur once per repetition. Repeated-key records cannot be
+    silently flattened into a different outcome alphabet.
+    """
+    measurements = shots.measurements
+    keys = ordered_measurement_keys(measurements)
+    if not keys:
         raise ValueError("No measurements found in shots data.")
+    columns = [np.asarray(measurements[key]) for key in keys]
+    if any(column.ndim != 2 for column in columns):
+        raise ValueError("Each measurement must be a (shots, bits) matrix.")
+    if len({len(column) for column in columns}) != 1:
+        raise ValueError("Measurement keys have inconsistent shot counts.")
+    matrix = np.hstack(columns)
+    if not np.all((matrix == 0) | (matrix == 1)):
+        raise ValueError("Expected binary qubit outcomes.")
+    return matrix
 
-    columns = []
-    for key in ordered_keys:
-        values = shots.measurements[key]
-        columns.append(values if values.ndim == 2 else values.reshape(values.shape[0], -1))
-    return np.hstack(columns)
 
 def has_dynamic_circuit_features(circuit):
-    """Whether a circuit uses mid-circuit measurement or classical feed-forward."""
-    return any(getattr(op, "classical_controls", ()) for op in circuit.all_operations()) or not are_all_measurements_terminal(circuit)
+    """Return whether a circuit uses feed-forward or nonterminal measurement."""
+    return any(
+        getattr(op, "classical_controls", ()) for op in circuit.all_operations()
+    ) or not are_all_measurements_terminal(circuit)
+
 
 def shots_to_freqs(shots):
-    """Get frequencies from shots data."""
+    """Convert a Cirq result to normalized frequencies including zero-count bins."""
     measurements = result_measurements_matrix(shots)
-    n_outcomes = 2**measurements.shape[1]
-    int_outcomes = [big_endian_bits_to_int(bits) for bits in measurements]
-    counts = collections.Counter(int_outcomes)
-    for i in range(n_outcomes):
-        if i not in counts:
-            counts[i] = 0
-    freqs = np.array([v for k, v in sorted(counts.items())])/counts.total()
-    return freqs
+    if len(measurements) == 0:
+        raise ValueError("Cannot estimate frequencies from zero shots.")
+    width = measurements.shape[1]
+    integers = measurements.astype(np.int64) @ (1 << np.arange(width - 1, -1, -1))
+    return np.bincount(integers, minlength=2**width) / len(measurements)
+
 
 def results_to_freqs(results):
-    """Given cirq results, calculate frequencies."""
-    return np.array([shots_to_freqs(r[0]) for i, r in enumerate(results)])
+    """Decode a batch result with one parameterization per circuit.
 
-def avg_negativity(M):
-    """Average negativity of the columns of M."""
-    return np.sum((abs(M)-M)/2)/M.shape[1]
+    Both ``Sampler.run_batch``'s nested lists and a flat sequence of results are
+    accepted. Parameter sweeps require an explicit selection by the caller.
+    """
+    frequencies = []
+    for result in results:
+        if isinstance(result, (list, tuple)):
+            if len(result) != 1:
+                raise ValueError("Expected one parameterization per circuit.")
+            result = result[0]
+        frequencies.append(shots_to_freqs(result))
+    return np.asarray(frequencies)
 
-####################################################################################
+
+def avg_negativity(matrix):
+    """Return the mean total negative mass per column of a real matrix."""
+    matrix = np.asarray(matrix, dtype=float)
+    if matrix.ndim != 2 or not matrix.shape[1] or not np.all(np.isfinite(matrix)):
+        raise ValueError("matrix must be a finite matrix with at least one column.")
+    return np.maximum(-matrix, 0).sum() / matrix.shape[1]
+
 
 def deep_match(obj, criteria):
-    """Recursively checks if obj matches all key-value pairs in criteria at any depth."""
-    if isinstance(obj, dict):
-        if all((deep_match(obj.get(k, None), v) if isinstance(v, dict) else obj.get(k, None) == v) for k, v in criteria.items()):
-            return True
-        for v in obj.values():
-            if deep_match(v, criteria):
+    """Test whether an object contains a nested match for a criteria dictionary.
+
+    Dictionaries, object attributes, and lists are traversed. Cycles are ignored
+    after their first visit; NumPy values are compared by array equality.
+    """
+    if not isinstance(criteria, dict):
+        raise TypeError("criteria must be a dictionary.")
+    seen = set()
+
+    def visit(value, requested):
+        identity = (id(value), id(requested))
+        if identity in seen:
+            return False
+        seen.add(identity)
+        attrs = (
+            value
+            if isinstance(value, dict)
+            else vars(value)
+            if hasattr(value, "__dict__")
+            else None
+        )
+        if attrs is not None:
+            if all(
+                key in attrs
+                and (
+                    visit(attrs[key], expected)
+                    if isinstance(expected, dict)
+                    else np.array_equal(attrs[key], expected)
+                )
+                for key, expected in requested.items()
+            ):
                 return True
-    elif hasattr(obj, '__dict__'):
-        attrs = vars(obj)
-        if all((deep_match(getattr(obj, k, None), v) if isinstance(v, dict) else getattr(obj, k, None) == v) for k, v in criteria.items()):
-            return True
-        for v in attrs.values():
-            if deep_match(v, criteria):
-                return True
-    elif isinstance(obj, (list, tuple)):
-        for v in obj:
-            if deep_match(v, criteria):
-                return True
-    return False
+            return any(visit(item, requested) for item in attrs.values())
+        if isinstance(value, (list, tuple)):
+            return any(visit(item, requested) for item in value)
+        return False
+
+    return visit(obj, criteria)
+
 
 def query_records(records, query):
-    """Yields records that satisfy the query function."""
+    """Return records matching the nested criteria dictionary ``query``."""
     return [record for record in records if deep_match(record, query)]
 
-####################################################################################
 
 def collect_circuit_files(base_dir):
-    """Return {circuits_dir_path: [file names]} for every 'circuits' folder under base_dir."""
-    base_path = Path(base_dir).expanduser().resolve()
-    circuit_dirs: dict[Path, list[str]] = {}
-    for dirpath, dirnames, filenames in os.walk(base_path):
-        if Path(dirpath).name == "circuits":
-            circuit_dirs[Path(dirpath)] = sorted(filenames)
-    return circuit_dirs
+    """Find JSON files in every directory named ``circuits`` below ``base_dir``."""
+    base = Path(base_dir).expanduser().resolve()
+    directories = [base] if base.name == "circuits" else []
+    directories += sorted(path for path in base.rglob("circuits") if path.is_dir())
+    return {
+        path: sorted(file.name for file in path.glob("*.json")) for path in directories
+    }
+
 
 def collect_circuits(base_dir):
-    circuit_files = collect_circuit_files(base_dir)
-    circuits = {}
-    for k, v in circuit_files.items():
-        before, during, after = str(k).partition(base_dir.rsplit("/", 1)[-1]+"/")
-        circuits[during+after.removesuffix("/circuits")] = {f: cirq.read_json(k / f) for f in v}
-    return circuits
+    """Read saved circuit JSON, keyed by paths relative to the base directory."""
+    base = Path(base_dir).expanduser().resolve()
+    return {
+        str(path.parent.relative_to(base))
+        if path != base
+        else ".": {name: cirq.read_json(path / name) for name in names}
+        for path, names in collect_circuit_files(base).items()
+    }
+
 
 def get_gate_counts(circuit, return_str=False):
-    """Get gate counts for a cirq circuit."""
-    counts = collections.Counter([type(op.gate).__name__ for op in circuit.all_operations() if not cirq.is_measurement(op)])
+    """Count nonmeasurement operations by gate class, optionally formatting text."""
+    counts = collections.Counter(
+        type(op.gate).__name__
+        for op in circuit.all_operations()
+        if not cirq.is_measurement(op)
+    )
     if return_str:
-        s = ", ".join([f"{gate_type}: {count}" for gate_type, count in counts.items()])
-        return s + f". Total: {counts.total()}"
-    else:
-        return counts
-    
+        return (
+            ", ".join(f"{gate}: {count}" for gate, count in counts.items())
+            + f". Total: {sum(counts.values())}"
+        )
+    return counts
+
+
 def print_all_gate_counts(base_dir):
-    circuits = collect_circuits(base_dir)
-    for task_spec, circs in circuits.items():
+    """Print counts for each circuit stored beneath a legacy task directory."""
+    for task_spec, files in collect_circuits(base_dir).items():
         print(task_spec)
-        for circ_type, circuits in circs.items():
+        for circuit_type, circuits in files.items():
+            if isinstance(circuits, cirq.AbstractCircuit):
+                circuits = [circuits]
             for i, circuit in enumerate(circuits):
-                print(f"\t{circ_type} ({i}): [{get_gate_counts(circuit, return_str=True)}]")
+                print(
+                    f"\t{circuit_type} ({i}): [{get_gate_counts(circuit, return_str=True)}]"
+                )

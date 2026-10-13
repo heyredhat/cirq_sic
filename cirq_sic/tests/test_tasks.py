@@ -1,242 +1,184 @@
-from cirq_sic import *
+"""End-to-end legacy task checks with deterministic local simulation."""
+
 from math import comb
+
+import cirq
 import numpy as np
 import pytest
 
-def test_sg():
-    base_dir = "cirq_sic/tests/data/"
-    specs = {"dataset_id": "test",
-         "processor_id": "willow_pink",
-         "run_type": "clean",
-         "qubits": get_wh_qubits(2, "ak"),
-         "n_shots": 50000,
-         "optimizer": "cirq",
-         "d": 2,
-         "fiducial": rand_ket(2),
-         "fiducial_description": "rand_ket",
-         "wh_implementation": "ak"}
-    
+from cirq_sic.circuits import get_triple_product_qubits
+from cirq_sic.experiments.experiment_utils import get_sampler, shots_to_freqs
+from cirq_sic.experiments.sky_ground import (
+    BasisMeasurementAfterWHPOVMOnBasisStatesTask,
+    BasisMeasurementOnBasisStatesTask,
+    BasisMeasurementOnWHStatesTask,
+    CharacterizeWHReferenceDeviceTask,
+    CharacterizeWHTripleProductsTask,
+    WHPOVMOnBasisStatesTask,
+    WHPOVMOnStatesTask,
+    create_circuits,
+    exactify,
+    get_wh_qubits,
+    load_results,
+    load_sky_ground_results,
+    optimize_task_circuits,
+    run_sky_ground_task,
+    sky_ground_tasks,
+    task_from_specs,
+)
+from cirq_sic.experiments.sky_ground_analysis import sky_ground_metrics
+from cirq_sic.sics import load_sic_fiducial
+from cirq_sic.utils import rand_ket
+from cirq_sic.wh import wh_frame, wh_povm
+
+
+def _specs(d=2, implementation="simple", shots=4000):
+    return dict(
+        dataset_id="test",
+        processor_id="willow_pink",
+        run_type="clean",
+        qubits=get_wh_qubits(d, implementation),
+        n_shots=shots,
+        optimizer="none",
+        d=d,
+        fiducial=load_sic_fiducial(d),
+        fiducial_description="numerical_sic",
+        wh_implementation=implementation,
+    )
+
+
+@pytest.mark.parametrize("implementation", ["ak", "simple", "msimple"])
+def test_sky_ground_battery(tmp_path, implementation):
+    """Every task agrees with operator algebra and persists isolated raw data."""
+    specs = _specs(implementation=implementation)
+    sampler = cirq.Simulator(seed=31, dtype=np.complex128)
     for task_type in sky_ground_tasks:
-          task = task_from_specs(task_type, specs)
-          run_sky_ground_task(task, base_dir=base_dir)
+        if (
+            implementation != "ak"
+            and task_type is BasisMeasurementAfterWHPOVMOnBasisStatesTask
+        ):
+            continue
+        run_sky_ground_task(
+            task_from_specs(task_type, specs), sampler=sampler, base_dir=tmp_path
+        )
+    tasks, observed = load_sky_ground_results(specs, base_dir=tmp_path)
+    effects = wh_povm(specs["fiducial"])
+    basis = [np.diag(vector) for vector in np.eye(specs["d"])]
+    reference = np.array(
+        [[np.trace(a @ b) / np.trace(b) for b in effects] for a in effects]
+    ).real
+    sky = np.array([[np.trace(a @ b) for b in basis] for a in effects]).real
+    conditional = np.array(
+        [[np.trace(a @ b) / np.trace(b) for b in effects] for a in basis]
+    ).real
+    expected = {
+        CharacterizeWHReferenceDeviceTask: ("P", reference),
+        WHPOVMOnBasisStatesTask: ("r", sky),
+        BasisMeasurementOnWHStatesTask: ("C", conditional),
+        BasisMeasurementOnBasisStatesTask: ("q", np.eye(specs["d"])),
+    }
+    if implementation == "ak":
+        expected[BasisMeasurementAfterWHPOVMOnBasisStatesTask] = (
+            "p",
+            conditional @ sky,
+        )
+    for task_type, (key, prediction) in expected.items():
+        assert np.allclose(exactify(tasks[task_type])[key], prediction, atol=1e-10)
+        assert np.linalg.norm(observed[key] - prediction) < 0.1
+        assert "raw_results" in load_results(tasks[task_type], base_dir=tmp_path)
+    assert (
+        np.linalg.norm(conditional @ np.linalg.pinv(reference) @ sky - np.eye(2)) < 1e-9
+    )
 
-    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
-    tol = 1e-1
 
-    task = tasks[CharacterizeWHReferenceDeviceTask]
-    E = wh_povm(np.array(task.fiducial))
-    P = np.array([[(a@b).trace()/b.trace() for b in E] for a in E]).real
-    assert np.allclose(P, exactify(task, base_dir=base_dir)["P"])
-    assert np.linalg.norm(sg_results["P"] - P) < 1e-1
+def _state_task(d=4, run_type="clean"):
+    specs = _specs(d=d, implementation="msimple", shots=128)
+    return WHPOVMOnStatesTask(
+        **specs, states=[rand_ket(d)], states_description="random"
+    )
 
-    task = tasks[WHPOVMOnBasisStatesTask]
-    E = wh_povm(np.array(task.fiducial))
-    Pi = [np.diag(np.eye(task.d)[i]) for i in range(task.d)]
-    r = np.array([[(a@b).trace() for b in Pi] for a in E]).real
-    assert np.allclose(r, exactify(task, base_dir=base_dir)["r"])
-    assert np.linalg.norm(sg_results["r"] - r) < 1e-1
-
-    task = tasks[BasisMeasurementOnWHStatesTask]
-    E = wh_povm(np.array(task.fiducial))
-    Pi = [np.diag(np.eye(task.d)[i]) for i in range(task.d)]
-    C = np.array([[(a@b).trace()/b.trace() for b in E] for a in Pi]).real
-    assert np.allclose(C, exactify(task, base_dir=base_dir)["C"])
-    assert np.linalg.norm(sg_results["C"] - C) < 1e-1
-
-    task = tasks[BasisMeasurementOnBasisStatesTask]
-    q = np.eye(task.d)
-    assert np.allclose(q, exactify(task, base_dir=base_dir)["q"])
-    assert np.linalg.norm(sg_results["q"] - q) < 1e-1
-    
-    task = tasks[BasisMeasurementAfterWHPOVMOnBasisStatesTask]
-    E = wh_povm(np.array(task.fiducial))
-    Pi = [np.diag(np.eye(task.d)[i]) for i in range(task.d)]
-    post_measurement = np.array([sum([(a@b).trace()*b/b.trace() for b in E]) for a in Pi]).real
-    p = np.array([[(pi @ rho).trace() for pi in Pi] for rho in post_measurement])
-    assert np.allclose(p, exactify(task, base_dir=base_dir)["p"])
-    assert np.linalg.norm(sg_results["p"] - p) < tol
-
-def test_sg_msimple():
-    base_dir = "cirq_sic/tests/data/"
-    specs = {"dataset_id": "test_msimple_fixed",
-         "processor_id": "willow_pink",
-         "run_type": "clean",
-         "qubits": get_wh_qubits(2, "msimple"),
-         "n_shots": 20000,
-         "optimizer": "cirq",
-         "d": 2,
-         "fiducial": load_sic_fiducial(2),
-         "fiducial_description": "numerical_sic",
-         "wh_implementation": "msimple"}
-
-    for task_type in sky_ground_tasks:
-          if task_type == BasisMeasurementAfterWHPOVMOnBasisStatesTask:
-              continue
-          task = task_from_specs(task_type, specs)
-          run_sky_ground_task(task, base_dir=base_dir)
-
-    tasks, sg_results = load_sky_ground_results(specs, separate=True, base_dir=base_dir)
-    tol = 1e-1
-
-    task = tasks[CharacterizeWHReferenceDeviceTask]
-    E = wh_povm(np.array(task.fiducial))
-    P = np.array([[(a@b).trace()/b.trace() for b in E] for a in E]).real
-    assert np.allclose(P, exactify(task, base_dir=base_dir)["P"])
-    assert np.linalg.norm(sg_results["P"] - P) < tol
-
-    task = tasks[WHPOVMOnBasisStatesTask]
-    E = wh_povm(np.array(task.fiducial))
-    Pi = [np.diag(np.eye(task.d)[i]) for i in range(task.d)]
-    r = np.array([[(a@b).trace() for b in Pi] for a in E]).real
-    assert np.allclose(r, exactify(task, base_dir=base_dir)["r"])
-    assert np.linalg.norm(sg_results["r"] - r) < tol
-
-    task = tasks[BasisMeasurementOnWHStatesTask]
-    E = wh_povm(np.array(task.fiducial))
-    Pi = [np.diag(np.eye(task.d)[i]) for i in range(task.d)]
-    C = np.array([[(a@b).trace()/b.trace() for b in E] for a in Pi]).real
-    assert np.allclose(C, exactify(task, base_dir=base_dir)["C"])
-    assert np.linalg.norm(sg_results["C"] - C) < tol
-
-    task = tasks[BasisMeasurementOnBasisStatesTask]
-    q = np.eye(task.d)
-    assert np.allclose(q, exactify(task, base_dir=base_dir)["q"])
-    assert np.linalg.norm(sg_results["q"] - q) < tol
 
 def test_msimple_d4_clean_sampler_runs():
-    d = 4
-    task = WHPOVMOnStatesTask(
-        dataset_id="tmp",
-        processor_id="willow_pink",
-        run_type="clean",
-        qubits=get_wh_qubits(d, "msimple"),
-        n_shots=128,
-        optimizer="cirq",
-        d=d,
-        fiducial=load_sic_fiducial(d),
-        fiducial_description="numerical_sic",
-        states=[rand_ket(d)],
-        states_description="rand_ket",
-        wh_implementation="msimple",
-    )
+    task = _state_task()
     circuit = optimize_task_circuits(task, task.make_circuits())[0]
-    sampler = get_sampler(task.processor_id, run_type=task.run_type, circuits=[circuit])
-    shots = sampler.run(circuit, repetitions=task.n_shots)
-    freqs = shots_to_freqs(shots)
+    sampler = get_sampler(task.processor_id, run_type="clean", circuits=[circuit])
+    frequencies = shots_to_freqs(sampler.run(circuit, repetitions=task.n_shots))
+    assert np.isclose(frequencies.sum(), 1)
+    assert frequencies.shape == (task.d**2,)
 
-    assert np.isclose(freqs.sum(), 1.0)
-    assert freqs.shape == (d**2,)
 
 def test_msimple_real_sampler_fails_early():
-    d = 4
-    task = WHPOVMOnStatesTask(
-        dataset_id="tmp",
-        processor_id="willow_pink",
-        run_type="real",
-        qubits=get_wh_qubits(d, "msimple"),
-        n_shots=16,
-        optimizer="cirq",
-        d=d,
-        fiducial=load_sic_fiducial(d),
-        fiducial_description="numerical_sic",
-        states=[rand_ket(d)],
-        states_description="rand_ket",
-        wh_implementation="msimple",
-    )
-    circuit = optimize_task_circuits(task, task.make_circuits())[0]
+    task = _state_task()
+    with pytest.raises(
+        ValueError, match="Dynamic circuits with classical feed-forward"
+    ):
+        get_sampler(task.processor_id, run_type="real", circuits=task.make_circuits())
 
-    with pytest.raises(ValueError, match="Dynamic circuits with classical feed-forward"):
-        get_sampler(task.processor_id, run_type=task.run_type, circuits=[circuit])
 
 def test_ak_d4_sky_ground_metrics_runs(tmp_path):
-    d = 4
-    specs = {
-        "dataset_id": "tmp_ak_d4",
-        "processor_id": "willow_pink",
-        "run_type": "clean",
-        "qubits": get_wh_qubits(d, "ak"),
-        "n_shots": 16,
-        "optimizer": "cirq",
-        "d": d,
-        "fiducial": load_sic_fiducial(d),
-        "fiducial_description": "numerical_sic",
-        "states": [rand_ket(d)],
-        "states_description": "rand_ket",
-        "wh_implementation": "ak",
-    }
-    base_dir = str(tmp_path)
-
+    specs = _specs(d=4, implementation="ak", shots=16)
+    sampler = cirq.Simulator(seed=9, dtype=np.complex128)
     for task_type in sky_ground_tasks:
-        task = task_from_specs(task_type, specs)
-        run_sky_ground_task(task, base_dir=base_dir)
+        run_sky_ground_task(
+            task_from_specs(task_type, specs), sampler=sampler, base_dir=tmp_path
+        )
+    metrics = sky_ground_metrics(specs, base_dir=tmp_path)
+    assert {
+        "P_err",
+        "Phi_err",
+        "q_err",
+        "born_rule_err",
+        "p_err",
+        "LTP_err",
+    } <= metrics.keys()
+    assert all(np.isfinite(value) for value in metrics.values())
 
-    metrics = sky_ground_metrics(specs, base_dir=base_dir)
-    assert {"P_err", "Phi_err", "q_err", "born_rule_err", "p_err", "LTP_err"} <= set(metrics)
+
+def _triple_task(d=2, optimizer="none"):
+    specs = _specs(d=d)
+    specs.pop("wh_implementation")
+    specs["qubits"] = get_triple_product_qubits(d)
+    specs["optimizer"] = optimizer
+    return CharacterizeWHTripleProductsTask(**specs)
+
 
 def test_wh_triple_products_task(tmp_path):
-    d = 2
-    phi = load_sic_fiducial(d)
-    task = CharacterizeWHTripleProductsTask(
-        dataset_id="tmp_triples",
-        processor_id="willow_pink",
-        run_type="clean",
-        qubits=get_triple_product_qubits(d),
-        n_shots=4000,
-        optimizer="cirq",
-        d=d,
-        fiducial=phi,
-        fiducial_description="numerical_sic",
+    task = _triple_task()
+    run_sky_ground_task(
+        task, sampler=cirq.Simulator(seed=15, dtype=np.complex128), base_dir=tmp_path
     )
-    base_dir = str(tmp_path)
-
-    run_sky_ground_task(task, base_dir=base_dir)
-    exact_tensor = exactify(task, base_dir=base_dir)["T"]
-    sampled_tensor = np.array(load_results(task, base_dir=base_dir)["processed_data"]["T"])
-
-    orbit_states = wh_frame(phi).T
-    orbit_projectors = [np.outer(psi, psi.conj()) for psi in orbit_states]
-    expected_tensor = np.array([
+    exact = exactify(task)["T"]
+    sampled = np.asarray(load_results(task, base_dir=tmp_path)["processed_data"]["T"])
+    orbit = wh_frame(task.fiducial).T
+    projectors = [np.outer(ket, ket.conj()) for ket in orbit]
+    expected = np.array(
         [
-            [np.trace(rho_i @ rho_j @ rho_k).real for rho_k in orbit_projectors]
-            for rho_j in orbit_projectors
+            [[np.trace(a @ b @ c).real for c in projectors] for b in projectors]
+            for a in projectors
         ]
-        for rho_i in orbit_projectors
-    ])
-
-    assert np.allclose(exact_tensor, expected_tensor, atol=1e-6)
-    assert np.allclose(exact_tensor, np.transpose(exact_tensor, (1, 0, 2)), atol=1e-6)
-    assert np.linalg.norm(sampled_tensor - expected_tensor) < 3e-1
-
-def test_wh_triple_products_create_circuits_d4(tmp_path):
-    d = 2
-    task = CharacterizeWHTripleProductsTask(
-        dataset_id="tmp_triples_d2_create",
-        processor_id="willow_pink",
-        run_type="clean",
-        qubits=get_triple_product_qubits(d),
-        n_shots=16,
-        optimizer="cirq",
-        d=d,
-        fiducial=load_sic_fiducial(d),
-        fiducial_description="numerical_sic",
     )
+    assert np.allclose(exact, expected, atol=1e-10)
+    assert np.allclose(exact, exact.transpose(1, 0, 2), atol=1e-10)
+    assert np.linalg.norm(sampled - expected) < 0.3
 
-    circuits = create_circuits(task, base_dir=str(tmp_path))
-    assert len(circuits) == comb(d**2 + 2, 3)
 
-def test_wh_triple_products_single_circuit_optimizes_d4():
-    d = 4
-    task = CharacterizeWHTripleProductsTask(
-        dataset_id="tmp_triples_d4",
-        processor_id="willow_pink",
-        run_type="clean",
-        qubits=get_triple_product_qubits(d),
-        n_shots=16,
-        optimizer="cirq",
-        d=d,
-        fiducial=load_sic_fiducial(d),
-        fiducial_description="numerical_sic",
+def test_triple_products_create_circuits(tmp_path):
+    task = _triple_task()
+    circuits = create_circuits(task, base_dir=tmp_path)
+    assert len(circuits) == comb(task.d**2 + 2, 3)
+
+
+def test_triple_product_circuit_generic_compilation_preserves_probability():
+    task = _triple_task(d=2, optimizer="cirq_generic")
+    circuit = task.make_circuits()[3]
+    optimized = optimize_task_circuits(task, [circuit])[0]
+    from cirq_sic.experiments.experiment_utils import exact_simulation
+
+    assert all(
+        len(op.qubits) <= 2
+        for op in optimized.all_operations()
+        if not cirq.is_measurement(op)
     )
-
-    optimized_circuit = optimize_task_circuits(task, [task.make_circuits()[0]])[0]
-    assert all(len(op.qubits) <= 2 for op in optimized_circuit.all_operations() if not cirq.is_measurement(op))
+    assert np.allclose(
+        exact_simulation(circuit), exact_simulation(optimized), atol=1e-8
+    )

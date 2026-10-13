@@ -1,678 +1,291 @@
+"""Complex triple-product measurements and SIC state-space reconstruction.
+
+The convention throughout is ``T[i,j,k] = Tr(Pi_i Pi_j Pi_k)`` for trace-one
+projectors. Cyclic permutations leave T unchanged; odd permutations complex
+conjugate it. Real triples suffice for the state-space positivity pencil,
+while imaginary triples retain the orientation of the operator algebra.
+
+Legacy section/plotting helpers are re-exported from :mod:`cirq_sic.geometry`.
+"""
+
+from __future__ import annotations
+
+import cirq
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import plotly.graph_objects as go
 
-from scipy.linalg import eigh
+from .analysis import _density_matrix, _probabilities
+from .geometry import (
+    make_sum_zero_section,
+    section_coordinates,
+    probability_spectrahedron_section_2D,
+    probability_spectrahedron_section_3D,
+    make_icosphere,
+    plot_section_2D_matplotlib,
+    plot_section_3D_matplotlib,
+    mesh_edges_trace,
+    plot_section_3D_plotly,
+)
+from .measurements import prepare_state
 
-#################################################################
+__all__ = [
+    "triple_products",
+    "triple_product_circuit",
+    "triple_product_estimate",
+    "assemble_triple_products",
+    "sic_state_moments",
+    "sic_state_constraints",
+    "triple_product_state_space",
+    "make_sum_zero_section",
+    "section_coordinates",
+    "probability_spectrahedron_section_2D",
+    "probability_spectrahedron_section_3D",
+    "make_icosphere",
+    "plot_section_2D_matplotlib",
+    "plot_section_3D_matplotlib",
+    "mesh_edges_trace",
+    "plot_section_3D_plotly",
+]
 
-def make_sum_zero_section(directions, tol=1e-12):
+
+def triple_products(states):
+    """Return ``Tr(rho_i rho_j rho_k)`` for a sequence of kets or matrices.
+
+    Kets have shape ``(n_states, d)``; density matrices have shape
+    ``(n_states, d, d)``. SIC *projectors*, not effects scaled by 1/d,
+    produce the tensor required by the SIC reconstruction functions below.
+    Dense output has ``n_states**3`` complex entries; avoid allocating full
+    tensors for large dimensions and instead select experimental triplets.
     """
-    Convert candidate directions into an orthonormal basis lying
-    in the sum-zero hyperplane.
-    """
-    directions = np.asarray(directions, dtype=float).T
-    n = directions.shape[0]
-    ones = np.ones(n)
-
-    projected = directions - np.outer(
-        ones,
-        np.sum(directions, axis=0) / n,
-    )
-
-    Q, R = np.linalg.qr(projected)
-
-    if np.abs(R[0, 0]) < tol or np.abs(R[1, 1]) < tol:
-        raise ValueError("The projected directions are not independent.")
-
-    return Q[:, :len(directions)]
-
-#################################################################
-
-def section_coordinates(
-    probability_vectors,
-    x_center,
-    B,
-    tol=1e-8,
-    require_in_section=True,
-):
-    """
-    Convert probability vectors p into intrinsic section coordinates y,
-    where p = x_center + B @ y.
-
-    Parameters
-    ----------
-    probability_vectors:
-        A single vector of shape (n,) or an array of shape (k, n).
-
-    x_center:
-        Center of the affine section, shape (n,).
-
-    B:
-        Section basis, shape (n, section_dimension).
-
-    tol:
-        Maximum allowed reconstruction residual.
-
-    require_in_section:
-        If True, raise an error when a point does not lie in the section.
-
-    Returns
-    -------
-    coordinates:
-        Array of shape (k, section_dimension).
-
-    residuals:
-        Euclidean distance of each point from the affine section.
-    """
-    points = np.asarray(probability_vectors, dtype=float)
-    x_center = np.asarray(x_center, dtype=float)
-    B = np.asarray(B, dtype=float)
-
-    single_point = points.ndim == 1
-    points = np.atleast_2d(points)
-
-    if points.shape[1] != len(x_center):
-        raise ValueError("Each probability vector must have the same size as x_center.")
-
-    # Works for both orthonormal and non-orthonormal columns of B.
-    B_pinv = np.linalg.pinv(B)
-
-    coordinates = (B_pinv @ (points - x_center).T).T
-    reconstructed = x_center + coordinates @ B.T
-    residuals = np.linalg.norm(points - reconstructed, axis=1)
-
-    if require_in_section and np.any(residuals > tol):
-        bad = np.flatnonzero(residuals > tol)
+    matrices = np.asarray([_density_matrix(state) for state in states])
+    if matrices.ndim != 3 or not len(matrices):
         raise ValueError(
-            f"Points {bad.tolist()} do not lie in the section. "
-            f"Residuals: {residuals[bad]}"
+            "states must be a nonempty sequence of equal-dimensional states."
         )
+    pair_products = np.einsum("iab,jbc->ijac", matrices, matrices)
+    return np.einsum("ijac,kca->ijk", pair_products, matrices)
 
-    if single_point:
-        return coordinates[0], residuals[0]
 
-    return coordinates, residuals
+def triple_product_circuit(states, *, component="real", key="triple", measure=True):
+    """Build a Hadamard cycle test for three logical states in any dimension.
 
-#################################################################
+    ``states`` is exactly three normalized kets or density matrices of the
+    same dimension d. Each is embedded in ``n=ceil(log2(d))`` qubits. The
+    control is LineQubit(0), followed by the three n-qubit system registers.
+    Density matrices add n purification qubits each, after all three system
+    registers; these environments are neither swapped nor measured. All
+    qubits begin in zero. Thus mixed inputs describe actual preparations,
+    with the same ``Tr(rho1 rho2 rho3)`` expectation as the pure-state test.
 
-def probability_spectrahedron_section_2D(
-    A_matrices,
-    x_center,
-    B,
-    num_angles=1000,
-    tol=1e-10,
-):
+    Two controlled register swaps implement ``|a,b,c> -> |b,c,a>``. Measuring
+    control X returns the real part and control Y the imaginary part;
+    ``P(0)-P(1)`` has the requested sign in both cases. Set ``measure=False``
+    to return the circuit just before its final computational measurement.
+    Dense preparation gates and CSWAPs require compilation for a hardware
+    native gateset; this routine does not assume a particular topology.
     """
-    Ray-shoot the two-dimensional section
-
-        x = x_center + B @ y
-
-    of the probability spectrahedron
-
-        x >= 0,
-        sum(x) = 1,
-        sum_i x_i A_i >= 0.
-
-    Parameters
-    ----------
-    A_matrices:
-        Array or list with shape (n, m, m), where A_matrices[i] = A_i.
-
-    x_center:
-        Interior probability vector of shape (n,).
-
-    B:
-        Section direction matrix of shape (n, 2).
-        Each column should sum to zero.
-
-    num_angles:
-        Number of ray directions.
-
-    tol:
-        Numerical tolerance.
-
-    Returns
-    -------
-    boundary_y:
-        Boundary points in the two-dimensional y coordinates.
-
-    boundary_x:
-        Corresponding probability vectors.
-
-    active_constraint:
-        "simplex" or "PSD" for each sampled boundary point.
-    """
-    A = np.asarray(A_matrices, dtype=float)
-    x_center = np.asarray(x_center, dtype=float)
-    B = np.asarray(B, dtype=float)
-
-    n = len(x_center)
-
-    if A.shape[0] != n:
-        raise ValueError("There must be one matrix A_i per component of x.")
-
-    if B.shape != (n, 2):
-        raise ValueError("B must have shape (n, 2).")
-
-    if not np.isclose(np.sum(x_center), 1.0):
-        raise ValueError("x_center must sum to 1.")
-
-    if np.min(x_center) <= tol:
-        raise ValueError(
-            "x_center should have strictly positive entries for ray shooting."
-        )
-
-    if not np.allclose(np.sum(B, axis=0), 0.0):
-        raise ValueError("Each column of B must sum to zero.")
-
-    # Symmetrize the matrices to suppress numerical asymmetry.
-    A = 0.5 * (A + np.swapaxes(A, 1, 2))
-
-    M0 = np.einsum("i,ijk->jk", x_center, A)
-
-    if np.min(np.linalg.eigvalsh(M0)) <= tol:
-        raise ValueError(
-            "A(x_center) must be positive definite for the "
-            "generalized-eigenvalue formula."
-        )
-
-    angles = np.linspace(0, 2 * np.pi, num_angles, endpoint=False)
-
-    boundary_y = []
-    boundary_x = []
-    active_constraint = []
-
-    for theta in angles:
-        d = np.array([np.cos(theta), np.sin(theta)])
-
-        # Direction in the original probability coordinates.
-        v = B @ d
-
-        # Simplex radius: first coordinate to reach zero.
-        decreasing = v < -tol
-
-        if np.any(decreasing):
-            r_simplex = np.min(-x_center[decreasing] / v[decreasing])
-        else:
-            r_simplex = np.inf
-
-        # PSD radius.
-        Mv = np.einsum("i,ijk->jk", v, A)
-
-        generalized_eigenvalues = eigh(
-            Mv,
-            M0,
-            eigvals_only=True,
-            check_finite=False,
-        )
-
-        lambda_min = generalized_eigenvalues[0]
-
-        if lambda_min < -tol:
-            r_psd = -1.0 / lambda_min
-        else:
-            r_psd = np.inf
-
-        radius = min(r_simplex, r_psd)
-
-        if not np.isfinite(radius):
-            # This should not generally happen for a nonzero direction
-            # inside the probability-normalization hyperplane.
-            boundary_y.append([np.nan, np.nan])
-            boundary_x.append(np.full(n, np.nan))
-            active_constraint.append("unbounded")
-            continue
-
-        y_boundary = radius * d
-        x_boundary = x_center + radius * v
-
-        boundary_y.append(y_boundary)
-        boundary_x.append(x_boundary)
-
-        if r_simplex < r_psd - tol:
-            active_constraint.append("simplex")
-        elif r_psd < r_simplex - tol:
-            active_constraint.append("PSD")
-        else:
-            active_constraint.append("both")
-
-    return {"boundary_y": np.asarray(boundary_y),
-            "boundary_x": np.asarray(boundary_x),
-            "active_constraint": np.asarray(active_constraint),
-            "A_matrices": A_matrices,
-            "x_center": x_center,
-            "B": B}
-
-#################################################################
-
-def make_icosphere(subdivisions=3):
-    """
-    Return approximately uniform vertices on S^2 and triangular faces.
-    """
-
-    phi = (1.0 + np.sqrt(5.0)) / 2.0
-
-    vertices = np.array([
-        [-1,  phi, 0],
-        [ 1,  phi, 0],
-        [-1, -phi, 0],
-        [ 1, -phi, 0],
-        [0, -1,  phi],
-        [0,  1,  phi],
-        [0, -1, -phi],
-        [0,  1, -phi],
-        [ phi, 0, -1],
-        [ phi, 0,  1],
-        [-phi, 0, -1],
-        [-phi, 0,  1],
-    ], dtype=float)
-
-    vertices /= np.linalg.norm(vertices, axis=1, keepdims=True)
-
-    faces = np.array([
-        [0, 11, 5],
-        [0, 5, 1],
-        [0, 1, 7],
-        [0, 7, 10],
-        [0, 10, 11],
-        [1, 5, 9],
-        [5, 11, 4],
-        [11, 10, 2],
-        [10, 7, 6],
-        [7, 1, 8],
-        [3, 9, 4],
-        [3, 4, 2],
-        [3, 2, 6],
-        [3, 6, 8],
-        [3, 8, 9],
-        [4, 9, 5],
-        [2, 4, 11],
-        [6, 2, 10],
-        [8, 6, 7],
-        [9, 8, 1],
-    ], dtype=int)
-
-    for _ in range(subdivisions):
-        midpoint_cache = {}
-        new_vertices = vertices.tolist()
-        new_faces = []
-
-        def midpoint_index(i, j):
-            key = tuple(sorted((i, j)))
-
-            if key in midpoint_cache:
-                return midpoint_cache[key]
-
-            midpoint = (vertices[i] + vertices[j]) / 2.0
-            midpoint /= np.linalg.norm(midpoint)
-
-            index = len(new_vertices)
-            new_vertices.append(midpoint.tolist())
-            midpoint_cache[key] = index
-            return index
-
-        for i, j, k in faces:
-            a = midpoint_index(i, j)
-            b = midpoint_index(j, k)
-            c = midpoint_index(k, i)
-
-            new_faces.extend([
-                [i, a, c],
-                [j, b, a],
-                [k, c, b],
-                [a, b, c],
-            ])
-
-        vertices = np.asarray(new_vertices, dtype=float)
-        faces = np.asarray(new_faces, dtype=int)
-
-    return vertices, faces
-
-def probability_spectrahedron_section_3D(
-    A_matrices,
-    x_center,
-    B,
-    subdivisions=3,
-    tol=1e-10,
-):
-    """
-    Compute a triangulated 3D cross section of
-
-        x >= 0,
-        sum(x) = 1,
-        sum_i x_i A_i >= 0,
-
-    restricted to
-
-        x = x_center + B @ y,
-        y in R^3.
-
-    Parameters
-    ----------
-    A_matrices:
-        Array of shape (n, m, m).
-
-    x_center:
-        Strictly positive probability vector of shape (n,).
-
-    B:
-        Matrix of shape (n, 3), whose columns sum to zero.
-
-    subdivisions:
-        Number of icosphere subdivisions.
-
-        0 -> 12 vertices
-        1 -> 42 vertices
-        2 -> 162 vertices
-        3 -> 642 vertices
-        4 -> 2562 vertices
-
-    Returns
-    -------
-    boundary_y:
-        Boundary vertices in intrinsic R^3 coordinates.
-
-    boundary_x:
-        Corresponding probability vectors.
-
-    faces:
-        Triangular faces inherited from the icosphere.
-
-    active:
-        Active constraint at each vertex:
-        "simplex", "PSD", or "both".
-    """
-    A = np.asarray(A_matrices, dtype=float)
-    x_center = np.asarray(x_center, dtype=float)
-    B = np.asarray(B, dtype=float)
-
-    n = len(x_center)
-
-    if A.shape[0] != n:
-        raise ValueError("There must be one A_i for each component of x.")
-
-    if B.shape != (n, 3):
-        raise ValueError("B must have shape (n, 3).")
-
-    if not np.isclose(np.sum(x_center), 1.0):
-        raise ValueError("x_center must sum to 1.")
-
-    if np.min(x_center) <= tol:
-        raise ValueError("x_center should be strictly positive.")
-
-    if not np.allclose(np.sum(B, axis=0), 0.0):
-        raise ValueError("Each column of B must sum to zero.")
-
-    # Numerical symmetrization.
-    A = 0.5 * (A + np.swapaxes(A, 1, 2))
-
-    M0 = np.einsum("i,ijk->jk", x_center, A)
-
-    if np.min(np.linalg.eigvalsh(M0)) <= tol:
-        raise ValueError(
-            "A(x_center) must be positive definite for this formula."
-        )
-
-    directions, faces = make_icosphere(subdivisions=subdivisions)
-
-    boundary_y = np.empty_like(directions)
-    boundary_x = np.empty((len(directions), n))
-    active = []
-
-    for index, d in enumerate(directions):
-        v = B @ d
-
-        # First simplex facet reached.
-        decreasing = v < -tol
-
-        if np.any(decreasing):
-            r_simplex = np.min(
-                -x_center[decreasing] / v[decreasing]
+    if component not in ("real", "imag"):
+        raise ValueError("component must be 'real' or 'imag'.")
+    if not isinstance(key, str) or not key:
+        raise ValueError("key must be a nonempty string.")
+    states = tuple(np.asarray(state, dtype=complex) for state in states)
+    if len(states) != 3:
+        raise ValueError("Exactly three states are required.")
+    matrices = tuple(_density_matrix(state) for state in states)
+    d = len(matrices[0])
+    if any(matrix.shape != (d, d) for matrix in matrices):
+        raise ValueError("All states must have the same dimension.")
+    n = (d - 1).bit_length()
+    control = cirq.LineQubit(0)
+    registers = [
+        tuple(cirq.LineQubit.range(1 + i * n, 1 + (i + 1) * n)) for i in range(3)
+    ]
+    next_qubit = 1 + 3 * n
+    circuit = cirq.Circuit()
+    for state, register in zip(states, registers):
+        environment = ()
+        if state.ndim == 2:
+            environment = tuple(cirq.LineQubit.range(next_qubit, next_qubit + n))
+            next_qubit += n
+        if n:
+            circuit.append(
+                prepare_state(state, register, environment_qubits=environment)
             )
-        else:
-            r_simplex = np.inf
+    circuit.append(cirq.H(control))
+    for first, second in ((registers[0], registers[2]), (registers[0], registers[1])):
+        circuit.append(cirq.CSWAP(control, a, b) for a, b in zip(first, second))
+    if component == "imag":
+        circuit.append(cirq.S(control) ** -1)
+    circuit.append(cirq.H(control))
+    if measure:
+        circuit.append(cirq.measure(control, key=key))
+    return circuit
 
-        # First PSD singularity reached.
-        Md = np.einsum("i,ijk->jk", v, A)
 
-        eigenvalues = eigh(
-            Md,
-            M0,
-            eigvals_only=True,
-            check_finite=False,
-        )
+def triple_product_estimate(probabilities):
+    """Convert binary cycle-test probabilities to ``P(0)-P(1)``.
 
-        lambda_min = eigenvalues[0]
+    Leading batch axes are supported. The same expression applies to the
+    real and imaginary tests; combining them is the caller's responsibility.
+    For N shots, a plug-in standard error is ``sqrt((1-estimate**2)/N)``.
+    """
+    probabilities = _probabilities(probabilities)
+    if probabilities.shape[-1] != 2:
+        raise ValueError("Cycle-test probabilities must have final axis of size two.")
+    return probabilities[..., 0] - probabilities[..., 1]
 
-        if lambda_min < -tol:
-            r_psd = -1.0 / lambda_min
-        else:
-            r_psd = np.inf
 
-        radius = min(r_simplex, r_psd)
+def assemble_triple_products(estimates, triplets, n_states, *, atol=1e-7):
+    """Expand complex triple estimates using cyclic/conjugation symmetry.
 
-        if not np.isfinite(radius):
-            raise RuntimeError(
-                "An unbounded direction was found. This should not occur "
-                "for a nonzero sum-zero direction inside the simplex."
-            )
-
-        boundary_y[index] = radius * d
-        boundary_x[index] = x_center + radius * v
-
-        scale = max(1.0, abs(r_simplex), abs(r_psd))
-
-        if abs(r_simplex - r_psd) <= tol * scale:
-            active.append("both")
-        elif r_simplex < r_psd:
-            active.append("simplex")
-        else:
-            active.append("PSD")
-
-    return {"boundary_y": boundary_y, "boundary_x": boundary_x, "faces": faces,
-            "active": np.asarray(active), "A_matrices": A_matrices, "x_center": x_center, "B": B}
-
-#################################################################
-
-def plot_section_2D_matplotlib(sections, section_labels=[]):
-    plt.figure(figsize=(7, 7))
-
-    for i, section in enumerate(sections):
-        boundary_y, boundary_x, B, x_center, marked_probabilities, labels = \
-            section["boundary_y"], section["boundary_x"], section["B"],\
-            section["x_center"], section["marked_probabilities"], section["labels"]
-
-        lines = plt.plot(boundary_y[:, 0], boundary_y[:, 1], label=section_labels[i] if len(section_labels) != 0 else None)
-        plt.fill(boundary_y[:, 0], boundary_y[:, 1], alpha=0.15)
-        fill_color = lines[0].get_color()
-
-        if len(marked_probabilities) != 0:
-            marked_y, residuals = section_coordinates(
-                probability_vectors=marked_probabilities,
-                x_center=x_center,
-                B=B, 
-            )
-
-            plt.scatter(
-                marked_y[:, 0],
-                marked_y[:, 1],
-                s=60,
-                marker="o",
-                zorder=5,
-                color=fill_color
-            )
-
-            for label, y in zip(labels, marked_y):
-                plt.annotate(
-                    label,
-                    xy=(y[0], y[1]),
-                    xytext=(5, 5),
-                    textcoords="offset points",
+    Pass one complex estimate per unordered triplet, typically those from
+    ``combinations_with_replacement(range(n_states), 3)``. Each triplet's
+    supplied order fixes the sign of its imaginary component. Triplets with
+    repeated indices are real: their sampled imaginary component is
+    discarded because that component is exactly zero. Duplicate estimates
+    must agree within ``atol``. Incomplete coverage raises ValueError rather
+    than silently replacing unmeasured tensor entries with zeros.
+    """
+    if (
+        isinstance(n_states, (bool, np.bool_))
+        or not isinstance(n_states, (int, np.integer))
+        or n_states < 1
+    ):
+        raise ValueError("n_states must be a positive integer.")
+    estimates, triplets = list(estimates), list(triplets)
+    if len(estimates) != len(triplets):
+        raise ValueError("Supply one estimate per triplet.")
+    tensor = np.full((n_states,) * 3, np.nan + 1j * np.nan, dtype=complex)
+    for estimate, triplet in zip(estimates, triplets):
+        if len(triplet) != 3 or any(
+            not isinstance(i, (int, np.integer)) or i < 0 or i >= n_states
+            for i in triplet
+        ):
+            raise ValueError("Every triplet must contain three valid state indices.")
+        value = complex(estimate)
+        if not np.isfinite(value):
+            raise ValueError("Triple estimates must be finite.")
+        i, j, k = triplet
+        if len(set(triplet)) < 3:
+            value = complex(value.real)
+        for index, entry in (
+            ((i, j, k), value),
+            ((j, k, i), value),
+            ((k, i, j), value),
+            ((j, i, k), value.conjugate()),
+            ((i, k, j), value.conjugate()),
+            ((k, j, i), value.conjugate()),
+        ):
+            if np.isfinite(tensor[index]) and not np.isclose(
+                tensor[index], entry, atol=atol, rtol=0
+            ):
+                raise ValueError(
+                    "Duplicate triple estimates disagree with tensor symmetries."
                 )
-    if len(section_labels) != 0:
-        plt.legend()
-    plt.gca().set_aspect("equal")
-    plt.show()
+            tensor[index] = entry
+    if np.isnan(tensor).any():
+        raise ValueError("Triplets do not cover the complete tensor.")
+    return tensor
 
-#################################################################
 
-def plot_section_3D_matplotlib(sections, section_labels=[]):
-    fig = plt.figure(figsize=(9, 8))
-    ax = fig.add_subplot(111, projection="3d")
+def _sic_tensor(triples, dimension):
+    if (
+        isinstance(dimension, (bool, np.bool_))
+        or not isinstance(dimension, (int, np.integer))
+        or dimension < 1
+    ):
+        raise ValueError("dimension must be a positive integer.")
+    tensor = np.asarray(triples, dtype=complex)
+    if tensor.shape != (dimension * dimension,) * 3 or not np.all(np.isfinite(tensor)):
+        raise ValueError("Triple tensor must be finite with shape (d**2, d**2, d**2).")
+    return tensor
 
-    for i, section in enumerate(sections):
-        boundary_y, boundary_x, faces, B, x_center, marked_probabilities, labels = \
-            section["boundary_y"], section["boundary_x"], section["faces"], section["B"],\
-            section["x_center"], section["marked_probabilities"], section["labels"]
 
-        triangles = boundary_y[faces]
-        surface = Poly3DCollection(
-            triangles,
-            alpha=0.7,
-            edgecolor="black",
-            linewidth=0.15,
-            label=section_labels[i] if len(section_labels) != 0 else None,
-            facecolors=np.random.rand(3)
-        )
-        ax.add_collection3d(surface)
+def sic_state_moments(probabilities, triples, dimension):
+    """Compute ``Tr(rho²)`` and ``Tr(rho³)`` from SIC probabilities/triples.
 
-        if len(marked_probabilities) != 0:
-            marked_y, residuals = section_coordinates(
-                probability_vectors=marked_probabilities,
-                x_center=x_center,
-                B=B, 
-            )
-
-            ax.scatter(
-                marked_y[:, 0],
-                marked_y[:, 1],
-                marked_y[:, 2],
-                s=70,
-                marker="o",
-                depthshade=False,
-                color="red"
-            )
-            for label, y in zip(labels, marked_y):
-                ax.text(
-                    y[0],
-                    y[1],
-                    y[2],
-                    label,
-                )
-
-        ax.set_xlim(boundary_y[:, 0].min(), boundary_y[:, 0].max())
-        ax.set_ylim(boundary_y[:, 1].min(), boundary_y[:, 1].max())
-        ax.set_zlim(boundary_y[:, 2].min(), boundary_y[:, 2].max())
-
-        ax.set_box_aspect([
-            np.ptp(boundary_y[:, 0]),
-            np.ptp(boundary_y[:, 1]),
-            np.ptp(boundary_y[:, 2]),
-        ])
-
-    if len(section_labels) != 0:
-        plt.legend()
-    plt.show()   
-
-#################################################################
-
-def mesh_edges_trace(vertices, faces, width=1):
+    Write ``rho = sum_i a_i Pi_i`` with ``a_i=(d+1)p_i-1/d``. Contract
+    ``a_i a_j`` with the analytic SIC Gram matrix and ``a_i a_j a_k`` with
+    T. The cubic contraction uses the real tensor component; imaginary
+    contributions cancel. The input may be an experimentally estimated
+    tensor, so no assertion that it describes an exact SIC is made.
     """
-    Create a Plotly trace of the unique mesh edges.
+    tensor = _sic_tensor(triples, dimension)
+    p = _probabilities(probabilities)
+    if p.shape[-1] != dimension**2:
+        raise ValueError("SIC probabilities must have final axis d**2.")
+    coefficients = (dimension + 1) * p - 1 / dimension
+    gram = (np.ones((dimension**2,) * 2) + dimension * np.eye(dimension**2)) / (
+        dimension + 1
+    )
+    purity = np.einsum("...i,...j,ij->...", coefficients, coefficients, gram)
+    cubic = np.einsum(
+        "...i,...j,...k,ijk->...",
+        coefficients,
+        coefficients,
+        coefficients,
+        tensor.real,
+        optimize=True,
+    )
+    return {"purity": purity, "cubic": cubic}
+
+
+def triple_product_state_space(triples, dimension, *, real=True):
+    r"""Reconstruct a positivity pencil from SIC triple measurements alone.
+
+    Return matrices ``A[i]`` with shape ``(d²,d²,d²)`` such that a normalized
+    probability vector describes a quantum state iff ``sum_i p_i A[i]`` is
+    positive semidefinite, assuming exact SIC triple data. Explicitly,
+
+    ``A[i,j,k] = (d+1) T[j,i,k] - G[j,k]``,
+
+    where ``G[j,k]=Tr(Pi_j Pi_k)=(d*delta_jk+1)/(d+1)``. For any coefficient
+    vector x and ``X=sum_k x_k Pi_k``, the resulting quadratic form is
+    ``Tr(X† rho X)``. It is nonnegative for all X iff rho is positive.
+    With ``real=True``, real x span all Hermitian X and suffice for the same
+    test; the real symmetric pencil therefore needs only real triples.
+
+    Measured noise may violate tensor identities. The returned pencil is
+    Hermitianized, but this does not fit or certify a valid SIC geometry.
+    Its feasible set is an experimental estimate and can even be empty.
+    This is reconstruction of the probability state space, not recovery of
+    a unique Hilbert-space orientation or SIC fiducial.
     """
-    edges = set()
-
-    for i, j, k in faces:
-        edges.add(tuple(sorted((i, j))))
-        edges.add(tuple(sorted((j, k))))
-        edges.add(tuple(sorted((k, i))))
-
-    edge_x = []
-    edge_y = []
-    edge_z = []
-
-    for i, j in edges:
-        edge_x.extend([vertices[i, 0], vertices[j, 0], None])
-        edge_y.extend([vertices[i, 1], vertices[j, 1], None])
-        edge_z.extend([vertices[i, 2], vertices[j, 2], None])
-
-    return go.Scatter3d(
-        x=edge_x,
-        y=edge_y,
-        z=edge_z,
-        mode="lines",
-        line=dict(
-            color="black",
-            width=width,
-        ),
-        hoverinfo="skip",
-        showlegend=False,
+    tensor = _sic_tensor(triples, dimension)
+    gram = (np.ones((dimension**2,) * 2) + dimension * np.eye(dimension**2)) / (
+        dimension + 1
     )
+    matrices = (dimension + 1) * tensor.transpose(1, 0, 2) - gram
+    matrices = (matrices + matrices.conj().swapaxes(-1, -2)) / 2
+    return matrices.real if real else matrices
 
-def plot_section_3D_plotly(sections, section_labels=[]):
-    fig = go.Figure()
 
-    for i, section in enumerate(sections):
-        boundary_y, boundary_x, faces, B, x_center, marked_probabilities, labels = \
-            section["boundary_y"], section["boundary_x"], section["faces"], section["B"],\
-            section["x_center"], section["marked_probabilities"], section["labels"]
+def sic_state_constraints(probabilities, triples, dimension, *, atol=1e-8):
+    """Evaluate moment and complete positivity constraints in SIC coordinates.
 
-        fig.add_trace(
-            go.Mesh3d(
-                x=boundary_y[:, 0],
-                y=boundary_y[:, 1],
-                z=boundary_y[:, 2],
-                i=faces[:, 0],
-                j=faces[:, 1],
-                k=faces[:, 2],
-                opacity=0.6,
-                flatshading=True,
-                showlegend=True if len(section_labels) != 0 else False,
-                name=section_labels[i] if len(section_labels) != 0 else "",
-                hovertemplate=(
-                    "y₁=%{x:.4f}<br>"
-                    "y₂=%{y:.4f}<br>"
-                    "y₃=%{z:.4f}"
-                    "<extra></extra>"
-                ),
-            )
-        )
+    Return purity, cubic moment, their residuals from one, the minimum
+    eigenvalue of the triple-derived positivity pencil, and booleans
+    ``is_physical``/``is_pure``. The two unit-moment equations characterize
+    pure states for exact SIC data, but mixed-state moment bounds alone
+    do not characterize positivity in general dimensions. The matrix
+    pencil supplies that missing check. Noisy triples yield diagnostics,
+    not a certificate about an unknown exact SIC.
 
-        fig.add_trace(
-            mesh_edges_trace(boundary_y, faces, width=1)
-        )
-
-        if len(marked_probabilities) != 0:
-            marked_y, residuals = section_coordinates(
-                probability_vectors=marked_probabilities,
-                x_center=x_center,
-                B=B, 
-            )
-
-            fig.add_trace(
-                go.Scatter3d(
-                    x=marked_y[:, 0],
-                    y=marked_y[:, 1],
-                    z=marked_y[:, 2],
-                    mode="markers+text",
-                    text=labels,
-                    textposition="top center",
-                    marker=dict(size=6),
-                )
-            )
-            fig.update_traces(showlegend=False, selector=dict(type="scatter3d"))
-
-    fig.update_layout(
-        width=1000,
-        height=850,
-        margin=dict(l=0, r=0, b=0, t=30),
-        scene=dict(
-            aspectmode="data",
-            camera=dict(
-                eye=dict(x=1.4, y=1.4, z=1.2)
-            ),
-        ),
-    )
-    fig.show(config={"responsive": True})
+    The pure-state moment characterization is discussed in Appleby,
+    Ericsson and Fuchs, https://arxiv.org/abs/0910.2750.
+    """
+    p = _probabilities(probabilities)
+    moments = sic_state_moments(p, triples, dimension)
+    pencil = triple_product_state_space(triples, dimension)
+    matrices = np.einsum("...i,ijk->...jk", p, pencil)
+    minimum = np.linalg.eigvalsh(matrices)[..., 0]
+    physical = minimum >= -atol
+    return {
+        **moments,
+        "purity_residual": moments["purity"] - 1,
+        "cubic_residual": moments["cubic"] - 1,
+        "minimum_eigenvalue": minimum,
+        "is_physical": physical,
+        "is_pure": physical
+        & (np.abs(moments["purity"] - 1) <= atol)
+        & (np.abs(moments["cubic"] - 1) <= atol),
+    }

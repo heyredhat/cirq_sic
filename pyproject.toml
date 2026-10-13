@@ -1,16 +1,36 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cirq_sic"
-version = "0.1.0"
-dependencies = ["numpy", "scipy", "matplotlib", "cirq", "cirq-google", "qsimcirq", "recirq @ git+https://github.com/quantumlib/ReCirq", "ipykernel", "pytest", "jax", "bqskit", "qiskit", "ply", "mpmath", "cvxpy", "plotly"]
+version = "0.2.0"
+description = "SIC and Weyl–Heisenberg measurements, reproducible Cirq experiments, and probability-space analysis"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.23", "scipy>=1.9", "cirq-core>=1.3,<2"]
 
-[pytest]
-testpaths = "tests/"
+[project.optional-dependencies]
+notebooks = ["matplotlib>=3.6", "plotly>=5", "nbformat>=5", "nbclient>=0.8", "ipykernel>=6", "jupyterlab>=4"]
+test = ["pytest>=7", "pytest-cov>=4", "nbformat>=5", "nbclient>=0.8", "ipykernel>=6", "build>=1"]
+optimize = ["bqskit>=1"]
+hardware = ["cirq-google>=1.3,<2", "qsimcirq>=0.17"]
+
+[tool.setuptools.packages.find]
+include = ["cirq_sic*"]
+exclude = ["cirq_sic.tests*", "cirq_sic.notebooks*"]
+
+[tool.setuptools.package-data]
+cirq_sic = ["sic_povms/*.txt"]
 
 [tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-]
+testpaths = ["tests", "cirq_sic/tests"]
+addopts = ["--import-mode=importlib", "-ra"]
+markers = ["notebook: executes maintained demonstration notebooks"]
+
+[tool.coverage.run]
+source = ["cirq_sic"]
+omit = ["*/tests/*", "*/notebooks/*"]
+
+[tool.coverage.report]
+show_missing = true

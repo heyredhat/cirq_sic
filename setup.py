@@ -1,3 +1,4 @@
-from setuptools import setup, find_packages
+"""Compatibility entry point; project configuration lives in pyproject.toml."""
+from setuptools import setup
 
-setup(name='cirq_sic', packages=find_packages())
+setup()

@@ -1,75 +1,147 @@
-## circ_sic
+# cirq_sic
 
-Implementing SIC's in `cirq`. 
+SIC and Weyl–Heisenberg measurements on qubit hardware, with a shared workflow
+for constructing circuits, simulating or sampling them, saving experiments,
+and analyzing probability data.
 
-### Installation
+The library supports four connected experiments:
 
-I recommend starting a new conda environment. Then install by navigating to the folder with `setup.py` and running `pip install -e .` Finally you can import from the library with `import cirq_sic`. Check out `notebooks/TaskExample.ipynb` for a walkthrough.
+| Experiment | Builder | Analysis |
+| --- | --- | --- |
+| SIC/IC state tomography | `tomography_experiment` | Linear inversion, optional physical projection |
+| Stabilizer Rényi entropy | `wh_entropy_experiment`, `entropy_experiment` | Direct WH two-copy Rényi-2 estimate or tomography-based Pauli/WH entropy; mixed inputs supported |
+| QBist sky/ground consistency | `sky_ground_experiment` | Calibrated Born-rule predictions and residuals across input states |
+| Triple-product characterization | `triple_product_experiment` | Complex triple tensor, SIC moments, reconstructed probability state-space positivity |
 
-### A brief tour of the code
+Start with the executed **[tutorial notebook](notebooks/Tutorial.ipynb)**. It
+walks through all four use cases, shows probability and state-space plots, saves
+and reloads experiments, and compiles a qutrit SIC into one-/two-qubit gates.
 
-At the top level,
+## Install and test locally
 
-* `circuits.py` contains the building blocks for the `cirq` circuits, e.g. the controlled shift operator `CX` and at a higher level, `arthurs_kelly`. The functions are all generators which yield `cirq` gates. 
+Python 3.9 or later is supported. Use a fresh environment:
 
-* `wh.py` contains helper funtions for explicitly constructing the matrix representations of Weyl-Heisenberg displacement operators, and WH-covariant POVMs from fiducial states. 
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[test,notebooks]'
+python -m pytest
+python tools/execute_notebooks.py
+jupyter lab notebooks/Tutorial.ipynb
+```
 
-* `sics.py` contains `load_sic_fiducial` allowing you to instantly have a numerical representation of a SIC fiducial in all dimensions up to $d=151$. The fiducials are stored as text files in the `sic_povms` folder. It also contains an optimization routine for finding your own.
+The notebook runner executes each notebook in a fresh kernel using the Python
+interpreter that invokes it. Executed copies go into `artifacts/notebooks`;
+add `--write` to refresh the source notebooks after editing them. Tests and
+examples use seeded randomness and temporary data directories.
 
-* `ansatz.py` implements an arbitrary state preparation ansatz which has the virtue that it is as easy to prepare the conjugate of a state as the state itself.
+A minimal runtime install is `python -m pip install -e .`: NumPy, SciPy, and
+`cirq-core`. Optional extras are `notebooks`, `test`, `optimize` (BQSKit), and
+`hardware` (Cirq Google/qsim). Importing `cirq_sic` does not load these optional
+integrations, initialize JAX, change NumPy printing, or connect to hardware.
 
-* `utils.py` contains a variety of useful methods, e.g. `rand_ket` for generating random states, `ptrace` for partial tracing, etc.
+## A qutrit SIC in a few lines
 
-In `experiments`:
+```python
+import numpy as np
+from cirq_sic import Experiment, sic_povm, tomography_experiment
 
-* `sky_ground.py` defines the basic `recirq` task functions which (a) specify the parameters for a battery of experiments, (b) construct the requisite circuits (`make_circuits`), and (c) process the data (`process_results`). So far we have: `CharacterizeWHReferenceDeviceTask`, `WHPOVMOnBasisStatesTask`, `BasisMeasurementOnWHStatesTask`, `BasisMeasurementOnBasisStatesTask`, `BasisMeasurementAfterWHPOVMOnBasisStatesTask`, and finally the more general, `WHPOVMOnStatesTask`. A task can be run with `run_sky_ground_task`: this builds the circuits, optimizes them, samples the circuits, and processes the results, saving the data, circuits, and logs in a particular file structure. 
+psi = np.array([1, 1j, -0.5], dtype=complex)
+psi /= np.linalg.norm(psi)
+plan = tomography_experiment(psi, sic_povm(3))
 
-* `sky_ground_analysis.py` provides functions for calculating the basic metrics for consistency in the QBist sky/ground scenario, and for generating plots of the results.
+exact = plan.simulate()
+observed = plan.run(repetitions=10_000, seed=7)
+rho = plan.analyze(observed, physical=True)["density_matrix"]
 
-* `experiment_utils.py` provides helper functions for processing data, setting up samplers, and compiling circuits. In particular, `get_sampler` will have to be rewritten to run the circuits on the real quantum processor.
+plan.save("artifacts/qutrit-plan.json")
+observed.save("artifacts/qutrit-data.json")
+restored = Experiment.load("artifacts/qutrit-plan.json")
+```
 
-In `experiments/runners`:
+All experiment builders return an `Experiment`. Its named `CircuitSpec` objects
+contain ordinary Cirq circuits and explicit register/measurement layouts.
+`simulate()` returns exact distributions; `run()` accepts any `cirq.Sampler`.
+`plan.with_noise(model)` creates an explicit noisy circuit plan shared by exact
+and sampled execution. Saved plans and results use versioned JSON, preserving numeric analysis inputs,
+raw counts, output order, and execution provenance.
 
-* `sky_ground_run.py` is meant to be run from the command line. From its command line arguments, it builds a dictionary which specifies a sky/ground experiment (a full set of sky/ground tasks), runs all the sky/ground tasks, and then generates the plots of the results.
+## Any logical dimension, explicit encoding
 
-* `sky_ground_args.py`: edit this to generate an `args.txt` specifying all the experiments you want to run in parallel (as command line arguments for `sky_ground_run.py`).
+The new measurement construction embeds the first `d` basis states into
+`ceil(log2(d))` system qubits. For a rank-one POVM with `m` outcomes it constructs
+a Naimark unitary on `ceil(log2(m))` measured qubits. WH outcome `k = a*d + b`
+always means `D[a,b] = X**a @ Z**b`. A qutrit SIC therefore has outcomes 0–8 in
+a 16-output binary register. Outcomes 9–15 are retained as leakage, never
+postselected away or merged into valid outcomes.
 
-* `parallel_runner.sh` is meant to be run from the command line e.g. as `./parallel_runner.sh args.txt sky_ground_run.py`. It spawns off a bunch of instances of `sky_ground_run.py`, one for each line of arguments in `args.txt`. If you do this and want to use bqskit, you'll have to first run `bqskit-manager` and then `bqskit-server localhost`, for example, do deal with the multiple processes.
+A density matrix is prepared by a unitary purification with a separate
+unmeasured environment. The same probability convention applies to pure and
+mixed inputs. For an already prepared unknown input, use
+`build_measurement_circuit(measurement, state=None, ...)`.
 
-In `tests`:
+```python
+from cirq_sic import compile_circuit
 
-* `test_circuits.py`, `test_sic.py`, and `test_tasks.py` provide unit tests for most of the functionality of `cirq_sic`. 
+compiled = plan.transform(compile_circuit)
+# Inspect gate counts and perform device placement/routing before hardware use.
+# observed = compiled.run(your_sampler, repetitions=10_000)
+```
 
-In `text`:
+This is an exact **dense reference implementation**, not a low-depth synthesis
+claim: a SIC dilation needs O(d⁴) matrix storage and roughly O(d⁶) dense completion
+work. Hardware feasibility depends on compiled depth and device connectivity.
+The encoding has no power-of-two restriction. SIC existence in all dimensions
+is not assumed: bundled fiducials cover dimensions 2–151 except 72, and supplied
+valid fiducials/frames are supported. Some original files are approximate;
+`sic_povm` refines and caches bundled dimensions through 32 before validation.
+`load_sic_fiducial` preserves the original normalized data.
 
-* TeX files for my notes `QuditArthursKelly` and for the slides `QuditArthursKellyPresentation`.
+## Scientific conventions that matter
 
-In `notebooks`:
+- Cyclic-qudit WH entropy and tensor-product Pauli entropy differ for `d >= 4`.
+  Choose `basis="wh"` or `basis="pauli"` explicitly for tomographic entropy.
+- The mixed-state purity-corrected entropy is a defined diagnostic, not a
+  faithful magic measure on arbitrary mixtures of stabilizer states. Direct
+  two-copy estimation requires preparation of the conjugate state.
+- Finite-shot inversions, collision estimates, ratios, and logarithms have
+  different statistical properties. The library keeps raw data and reports
+  residuals without clipping negative predictions or discarding leakage.
+- A POVM specifies outcome probabilities, not a unique post-measurement state.
+  The default destructive Naimark measurement does not promise the
+  Arthurs–Kelly instrument's state update.
+- Triple-derived geometry from noisy measurements is an estimate. Complete
+  positivity is checked through a matrix pencil; purity/cubic bounds alone
+  are not a general mixed-state positivity test.
 
-* `TaskExample.ipynb`: Basic tutorial on how to run a sky/ground task or a whole battery of them, generating plots along the way. Also explains the directory structure of the saved data.
+See [mathematical conventions](docs/mathematics.md) for formulas and references,
+[the API guide](docs/api.md) for shapes and examples, and [migration notes](docs/migration.md)
+for compatibility details. The [validation report](docs/validation.md) records
+local test results, notebook execution, packaging checks and remaining limits.
 
-* `CircuitImages.ipynb`: generates images used in the TeX documents.
+## Repository layout
 
-* `CircuitComparisons.ipynb`: work in progress. Comparing gate counts using the different optimizers.
+```text
+cirq_sic/
+    measurements.py    POVMs, embeddings, preparation, Bell overlaps
+    workflow.py        experiment plans, execution, persistence, compilation
+    analysis.py        tomography, entropy, Born-rule diagnostics
+    triples.py         cycle tests and state-space reconstruction
+    geometry.py        section geometry and optional plotting
+    wh.py, sics.py      operators, fiducials, numerical diagnostics
+    circuits.py        composable and compatibility circuit primitives
+    ansatz.py, utils.py state preparation and numerical helpers
+    experiments/       compatibility task runners and analyses
+    sic_povms/         bundled numerical fiducials
+notebooks/             maintained, executable demonstrations
+tests/                 mathematical and workflow regressions
+cirq_sic/tests/        retained compatibility regressions
+docs/                  API, mathematics, migration and validation
+research/notebooks/    original research notebooks and saved outputs
+```
 
-* `EmbeddingTest.ipynb`: work in progress. Ironing out the kinks in doing a SIC in arbitrary dimensions.
-
-* In `interpolation`: work in progress. Interpolating between stabilizer states and SICs and comparing sky/ground metrics.
-
-### To come:
-
-* Fix some bugs in the arbitrary dimension SIC code, and judge whether it is efficiently implementable.
-
-* Nice visualization of gate count comparisons.
-
-* Best way of generating a 1-parameter family of states with increasing magic?
-
-* Best way of judging noncontextuality in the sky/ground scenario: average negativity? Which states have maximal negativity?
-
-
-
-
-
-
-
-
+The original exploratory notebooks and their data are preserved in
+[`research/notebooks`](research/README.md). They are historical records with
+external-data and old-API assumptions; they are not the maintained demonstration
+suite. The separate Bell-inequality studies and triple-product notes remain
+research material.
