@@ -1,0 +1,15 @@
+{
+  "seed": 20261018,
+  "states": 384,
+  "shots_per_setting": 4096,
+  "ordered_triples_d2": true,
+  "d2_settings": 64,
+  "d4_ordered": false,
+  "d4_settings": 816,
+  "quick": false,
+  "python": "3.14.2",
+  "numpy": "2.3.5",
+  "scipy": "1.16.3",
+  "cirq": "1.6.1",
+  "seconds": 65.4272973537445
+}

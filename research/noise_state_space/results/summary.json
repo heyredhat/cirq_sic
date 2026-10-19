@@ -1,0 +1,3710 @@
+[
+  {
+    "name": "ideal",
+    "rate": 0,
+    "placement": "none",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 8.249213580801647e-17,
+      "diagonal_rms": 0.0,
+      "repeated_rms": 6.632363072827397e-16,
+      "closure_rms": 1.4475537224895361e-15,
+      "center_min_eigenvalue": 0.33333333333333004,
+      "max_vertex_trace": 1.9999999999999993,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 2.5012222193246857e-16,
+      "tensor_max_error": 4.440892098500626e-16
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.011399449058445664,
+      "diagonal_rms": 0.0,
+      "repeated_rms": 0.010785794613303583,
+      "closure_rms": 0.02350859983830219,
+      "center_min_eigenvalue": 0.3291340164755353,
+      "max_vertex_trace": 2.09912109375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.013821913910144824,
+      "tensor_max_error": 0.02962239583333387
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 3.34524449781428e-17,
+      "radial_rmse": 3.96207765880988e-16,
+      "max_radial_error": 9.43689570931383e-16,
+      "relative_volume": 0.9999999999999964,
+      "jaccard": 0.9999999999999964,
+      "relative_radius_min": 0.9999999999999968,
+      "relative_radius_max": 1.0000000000000018
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0014843311959715601,
+      "radial_rmse": 0.009254258692598123,
+      "max_radial_error": 0.02337923642842854,
+      "relative_volume": 1.0250895063185768,
+      "jaccard": 0.921139660714199,
+      "relative_radius_min": 0.9452267032814545,
+      "relative_radius_max": 1.0809880506724068
+    },
+    "tomography": {
+      "paired_tv_mean": 1.423996674349658e-16,
+      "centroid_shift": 1.3018518929051675e-16,
+      "covariance_axis_ratios": [
+        0.9999999999999996,
+        0.9999999999999996,
+        0.9999999999999998
+      ],
+      "triple_acceptance_fraction": 1.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": -9.992007221626409e-16,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.1881473535257942e-16,
+      "affine_singular_values": [
+        1.0000000000000002,
+        1.0,
+        0.9999999999999996
+      ],
+      "affine_center_shift": 1.188198330979362e-16,
+      "affine_ball_volume_ratio": 1.0,
+      "hull_volume": 0.09763918495330755,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9999999999999991,
+      "hull_relative_to_true_body": 0.9689634718234396,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.00986728914843388,
+      "centroid_shift": 0.00038951457843054287,
+      "covariance_axis_ratios": [
+        0.999488388317759,
+        0.9998446925194415,
+        1.0004466661160583
+      ],
+      "triple_acceptance_fraction": 0.6328125,
+      "nominal_physical_fraction": 0.515625,
+      "minimum_nominal_eigenvalue": -0.032874037245781,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007401288998955142,
+      "affine_singular_values": [
+        0.9996973856255806,
+        0.998971559460375,
+        0.998126652365908
+      ],
+      "affine_center_shift": 0.0003468717901676274,
+      "affine_ball_volume_ratio": 0.9967984016183034,
+      "hull_volume": 0.10055417538872766,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0298547190537695,
+      "hull_relative_to_true_body": 0.9978916040480942,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 0,
+      "volume_percentiles_conditional_on_valid_center": [
+        0.9642827528565729,
+        1.01678502931179,
+        1.0588163985908732
+      ]
+    },
+    "data": "00_ideal_none_0.npz"
+  },
+  {
+    "name": "depolarizing",
+    "rate": 0.01,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 1.1707355427599283e-16,
+      "diagonal_rms": 0.019866666666666255,
+      "repeated_rms": 0.010115611534050457,
+      "closure_rms": 0.015293367130534058,
+      "center_min_eigenvalue": 0.30684444444444176,
+      "max_vertex_trace": 1.920533333333336,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.006622222222222306,
+      "tensor_max_error": 0.0198666666666667
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012882274273296954,
+      "diagonal_rms": 0.022211430498864954,
+      "repeated_rms": 0.019552219578046925,
+      "closure_rms": 0.04137115190557303,
+      "center_min_eigenvalue": 0.2777482994069341,
+      "max_vertex_trace": 1.9326171875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.017327213308086974,
+      "tensor_max_error": 0.04573567708333387
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 2.4344214443535743e-17,
+      "radial_rmse": 0.00417123469742886,
+      "max_radial_error": 0.004171234697429416,
+      "relative_volume": 0.957274611669416,
+      "jaccard": 0.957274611669416,
+      "relative_radius_min": 0.9855504191475162,
+      "relative_radius_max": 0.9855504191475202
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0015557930132983947,
+      "radial_rmse": 0.01234037706957657,
+      "max_radial_error": 0.028448655610115392,
+      "relative_volume": 0.9317042748498718,
+      "jaccard": 0.9032017341191467,
+      "relative_radius_min": 0.9014509661525016,
+      "relative_radius_max": 1.0459371452131605
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0033431420184139456,
+      "centroid_shift": 0.00025560621152807925,
+      "covariance_axis_ratios": [
+        0.9866666666666667,
+        0.9866666666666667,
+        0.9866666666666665
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.006666666666665544,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.3788418581336709e-16,
+      "affine_singular_values": [
+        0.986666666666667,
+        0.9866666666666666,
+        0.9866666666666659
+      ],
+      "affine_center_shift": 1.4241028064324398e-17,
+      "affine_ball_volume_ratio": 0.9605309629629627,
+      "hull_volume": 0.09378546034611933,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.960530962962962,
+      "hull_relative_to_true_body": 0.9307194166665042,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.01061559858289217,
+      "centroid_shift": 0.0005726899759832218,
+      "covariance_axis_ratios": [
+        0.9868398365660268,
+        0.9885855928853128,
+        0.9867670832741963
+      ],
+      "triple_acceptance_fraction": 0.3723958333333333,
+      "nominal_physical_fraction": 0.71875,
+      "minimum_nominal_eigenvalue": -0.025490109692680955,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007475844807552793,
+      "affine_singular_values": [
+        0.9895536183616215,
+        0.9852778437790624,
+        0.9842772253590528
+      ],
+      "affine_center_shift": 0.0005609788694955753,
+      "affine_ball_volume_ratio": 0.9596557819541579,
+      "hull_volume": 0.0974406183377142,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9979663224791523,
+      "hull_relative_to_true_body": 0.9669929125922705,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "01_depolarizing_preparation_0.01.npz"
+  },
+  {
+    "name": "depolarizing",
+    "rate": 0.01,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.00288018398663074,
+      "diagonal_rms": 0.08332381679595224,
+      "repeated_rms": 0.04640152169369966,
+      "closure_rms": 0.07866717992527518,
+      "center_min_eigenvalue": 0.2396602831197967,
+      "max_vertex_trace": 1.5621524997297764,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.026972393356328152,
+      "tensor_max_error": 0.08332381679595269
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.009365764678483731,
+      "diagonal_rms": 0.08362128258897343,
+      "repeated_rms": 0.04724772931585229,
+      "closure_rms": 0.07380278621779479,
+      "center_min_eigenvalue": 0.23161550907013595,
+      "max_vertex_trace": 1.615234375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.028435920559684535,
+      "tensor_max_error": 0.09130859375000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 2.146554781427722e-17,
+      "radial_rmse": 0.04068115242714739,
+      "max_radial_error": 0.040681152427147954,
+      "relative_volume": 0.6340088149014099,
+      "jaccard": 0.6340088149014099,
+      "relative_radius_min": 0.8590763541714518,
+      "relative_radius_max": 0.8590763541714557
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0009850771322505376,
+      "radial_rmse": 0.04080816610638635,
+      "max_radial_error": 0.05506110705016121,
+      "relative_volume": 0.6415215706398952,
+      "jaccard": 0.6415215706398952,
+      "relative_radius_min": 0.809262730136264,
+      "relative_radius_max": 0.9139541419471832
+    },
+    "tomography": {
+      "paired_tv_mean": 0.009367496610244835,
+      "centroid_shift": 0.0008320830200598125,
+      "covariance_axis_ratios": [
+        0.9594638092963267,
+        0.9614261330376763,
+        0.9687835207954912
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.014502786878495516,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.7332879682324744e-16,
+      "affine_singular_values": [
+        0.9710569905119353,
+        0.9628871809320771,
+        0.9557650369952888
+      ],
+      "affine_center_shift": 1.4821547323833313e-16,
+      "affine_ball_volume_ratio": 0.8936578269653787,
+      "hull_volume": 0.08725602185204347,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8936578269653773,
+      "hull_relative_to_true_body": 0.8659217906385634,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.01349421863958862,
+      "centroid_shift": 0.0008269357223263849,
+      "covariance_axis_ratios": [
+        0.9610658646787578,
+        0.9642957983515987,
+        0.9708311863903503
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9296875,
+      "minimum_nominal_eigenvalue": -0.02296255399226449,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007393987612008328,
+      "affine_singular_values": [
+        0.9740873155817067,
+        0.961029144831505,
+        0.9580311574905528
+      ],
+      "affine_center_shift": 0.0006629429249950854,
+      "affine_ball_volume_ratio": 0.8968381626358914,
+      "hull_volume": 0.09091787539849364,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9311617609464047,
+      "hull_relative_to_true_body": 0.9022617327158567,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "02_depolarizing_moment_all_0.01.npz"
+  },
+  {
+    "name": "depolarizing",
+    "rate": 0.05,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 5.580851038989244e-17,
+      "diagonal_rms": 0.09666666666666734,
+      "repeated_rms": 0.04922025746434092,
+      "closure_rms": 0.07441403469555191,
+      "center_min_eigenvalue": 0.20444444444444107,
+      "max_vertex_trace": 1.613333333333326,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03222222222222238,
+      "tensor_max_error": 0.09666666666666779
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012349077917855639,
+      "diagonal_rms": 0.09543650330708196,
+      "repeated_rms": 0.050142427086554676,
+      "closure_rms": 0.08418336109427016,
+      "center_min_eigenvalue": 0.1735179690813637,
+      "max_vertex_trace": 1.69921875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03485584838733416,
+      "tensor_max_error": 0.10058593750000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 4.071572453683661e-17,
+      "radial_rmse": 0.02914720156706146,
+      "max_radial_error": 0.029147201567062242,
+      "relative_volume": 0.7266481842934503,
+      "jaccard": 0.7266481842934503,
+      "relative_radius_min": 0.899031131974794,
+      "relative_radius_max": 0.8990311319748006
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0008520461556858318,
+      "radial_rmse": 0.03204209111738649,
+      "max_radial_error": 0.04494743804115528,
+      "relative_volume": 0.7096530908999222,
+      "jaccard": 0.7096530908999222,
+      "relative_radius_min": 0.8442975072853302,
+      "relative_radius_max": 0.9297880938250235
+    },
+    "tomography": {
+      "paired_tv_mean": 0.016715710092069513,
+      "centroid_shift": 0.0012780310576420177,
+      "covariance_axis_ratios": [
+        0.9333333333333329,
+        0.933333333333333,
+        0.9333333333333332
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.03333333333333224,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.0047540117037027e-16,
+      "affine_singular_values": [
+        0.9333333333333333,
+        0.933333333333333,
+        0.9333333333333329
+      ],
+      "affine_center_shift": 5.713574769615035e-17,
+      "affine_ball_volume_ratio": 0.8130370370370368,
+      "hull_volume": 0.0793842736331484,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8130370370370361,
+      "hull_relative_to_true_body": 0.7878031901284497,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.01951351982048216,
+      "centroid_shift": 0.0015360242480449173,
+      "covariance_axis_ratios": [
+        0.9312223773823987,
+        0.9363380559860939,
+        0.9334090211990161
+      ],
+      "triple_acceptance_fraction": 0.11197916666666667,
+      "nominal_physical_fraction": 0.9947916666666666,
+      "minimum_nominal_eigenvalue": -0.008159342938966474,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007441412600301001,
+      "affine_singular_values": [
+        0.9373056165560206,
+        0.9317950039063178,
+        0.928652594181689
+      ],
+      "affine_center_shift": 0.0009184515158124306,
+      "affine_ball_volume_ratio": 0.8110635294608693,
+      "hull_volume": 0.08263186252346108,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8462981595245469,
+      "hull_relative_to_true_body": 0.8200320028506928,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 0,
+      "volume_percentiles_conditional_on_valid_center": [
+        0.6584446924819715,
+        0.7087684796902474,
+        0.7627642087994213
+      ]
+    },
+    "data": "03_depolarizing_preparation_0.05.npz"
+  },
+  {
+    "name": "depolarizing",
+    "rate": 0.05,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.010040836407709247,
+      "diagonal_rms": 0.3571191014052768,
+      "repeated_rms": 0.19949927423138084,
+      "closure_rms": 0.34370654606752155,
+      "center_min_eigenvalue": -0.06243699117411257,
+      "max_vertex_trace": 0.08919273018134222,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.11629918575928937,
+      "tensor_max_error": 0.35711910140527725
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.016225768968466475,
+      "diagonal_rms": 0.36192132867393834,
+      "repeated_rms": 0.20049246467626963,
+      "closure_rms": 0.345994865751945,
+      "center_min_eigenvalue": -0.08350209128294864,
+      "max_vertex_trace": 0.17822265625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.11755351551497865,
+      "tensor_max_error": 0.37304687500000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.04439153102174059,
+      "centroid_shift": 0.0038952560024785887,
+      "covariance_axis_ratios": [
+        0.8042965433379499,
+        0.8163000177557713,
+        0.8555687309312975
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.06997244463158105,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 8.818526127910566e-17,
+      "affine_singular_values": [
+        0.8603732569197722,
+        0.8235757862480294,
+        0.792739392719191
+      ],
+      "affine_center_shift": 3.6758131435223557e-17,
+      "affine_ball_volume_ratio": 0.5617213253770399,
+      "hull_volume": 0.05484601238070581,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.561721325377039,
+      "hull_relative_to_true_body": 0.5442874456346002,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.04522487632807323,
+      "centroid_shift": 0.00366044954214391,
+      "covariance_axis_ratios": [
+        0.8045888068311297,
+        0.8193860687647733,
+        0.8590068996221027
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.034058784484326615,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007636768015877214,
+      "affine_singular_values": [
+        0.8633124619367578,
+        0.8276970584222888,
+        0.7888263840418037
+      ],
+      "affine_center_shift": 0.0003995885201620354,
+      "affine_ball_volume_ratio": 0.5636647159329331,
+      "hull_volume": 0.05835766823050416,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.5976869661336438,
+      "hull_relative_to_true_body": 0.5791368377684745,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 100,
+      "volume_percentiles_conditional_on_valid_center": null
+    },
+    "data": "04_depolarizing_moment_all_0.05.npz"
+  },
+  {
+    "name": "depolarizing",
+    "rate": 0.15,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 6.68262677287001e-17,
+      "diagonal_rms": 0.27,
+      "repeated_rms": 0.13747727084867523,
+      "closure_rms": 0.2078460969082652,
+      "center_min_eigenvalue": -0.026666666666668788,
+      "max_vertex_trace": 0.9199999999999986,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.0900000000000001,
+      "tensor_max_error": 0.27000000000000046
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012760289509457587,
+      "diagonal_rms": 0.27374609835557234,
+      "repeated_rms": 0.1385282211184852,
+      "closure_rms": 0.2104441206241539,
+      "center_min_eigenvalue": -0.03997110096249583,
+      "max_vertex_trace": 1.05908203125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.08941533041261043,
+      "tensor_max_error": 0.28369140625000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.05014713027620846,
+      "centroid_shift": 0.0038340931729261346,
+      "covariance_axis_ratios": [
+        0.8000000000000002,
+        0.8,
+        0.8
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.09999999999999903,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.0451850322187197e-16,
+      "affine_singular_values": [
+        0.8000000000000005,
+        0.8000000000000005,
+        0.7999999999999998
+      ],
+      "affine_center_shift": 4.177475272299588e-17,
+      "affine_ball_volume_ratio": 0.5120000000000003,
+      "hull_volume": 0.049991262696093476,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.5119999999999997,
+      "hull_relative_to_true_body": 0.49610929757360117,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.050708413272952814,
+      "centroid_shift": 0.003591315674187945,
+      "covariance_axis_ratios": [
+        0.7993023448709442,
+        0.8021010085412923,
+        0.8056173869568821
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.059349369226386284,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007459574226903048,
+      "affine_singular_values": [
+        0.8047482232957627,
+        0.8011198205690034,
+        0.7973842712495436
+      ],
+      "affine_center_shift": 0.0008402407305319853,
+      "affine_ball_volume_ratio": 0.5140734421225683,
+      "hull_volume": 0.05324114924102708,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.54528465458297,
+      "hull_relative_to_true_body": 0.5283609120367602,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "05_depolarizing_preparation_0.15.npz"
+  },
+  {
+    "name": "depolarizing",
+    "rate": 0.15,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.011121828002841925,
+      "diagonal_rms": 0.7481779199999994,
+      "repeated_rms": 0.42172199516926834,
+      "closure_rms": 0.7612094888336278,
+      "center_min_eigenvalue": -0.771199999999994,
+      "max_vertex_trace": -2.173511679999994,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.2489709785663669,
+      "tensor_max_error": 0.7481779199999998
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.018619991292528056,
+      "diagonal_rms": 0.7513858785899986,
+      "repeated_rms": 0.4248367940528043,
+      "closure_rms": 0.762548265597195,
+      "center_min_eigenvalue": -0.7688801192070175,
+      "max_vertex_trace": -2.11181640625,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.24951385875364,
+      "tensor_max_error": 0.7617187500000004
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.1162179668021015,
+      "centroid_shift": 0.009893983487598882,
+      "covariance_axis_ratios": [
+        0.4838017313010621,
+        0.5272759071280757,
+        0.6126717856081061
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.19117585924087566,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 7.668325065753786e-17,
+      "affine_singular_values": [
+        0.6177128549217354,
+        0.5351956667170565,
+        0.4727526792732892
+      ],
+      "affine_center_shift": 8.673617379884035e-18,
+      "affine_ball_volume_ratio": 0.15629073249712577,
+      "hull_volume": 0.015260099736774804,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.1562907324971259,
+      "hull_relative_to_true_body": 0.1514400107742437,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.11709472515122282,
+      "centroid_shift": 0.010061143665960216,
+      "covariance_axis_ratios": [
+        0.4872259179247788,
+        0.5265672984482207,
+        0.6119588332934973
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.15750524650192702,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007574523821834974,
+      "affine_singular_values": [
+        0.6160050877884395,
+        0.533111267293433,
+        0.47274097590976655
+      ],
+      "affine_center_shift": 0.0005019216972418626,
+      "affine_ball_volume_ratio": 0.15524778335603195,
+      "hull_volume": 0.017094912022002976,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.17508249408450094,
+      "hull_relative_to_true_body": 0.169648541323625,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "06_depolarizing_moment_all_0.15.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.01,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 9.530994305047335e-17,
+      "diagonal_rms": 0.019799999999999707,
+      "repeated_rms": 0.011431535329954525,
+      "closure_rms": 0.018667619023324762,
+      "center_min_eigenvalue": 0.29373333333333074,
+      "max_vertex_trace": 1.9208000000000018,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.008083316151184466,
+      "tensor_max_error": 0.019800000000000262
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.010728191158551083,
+      "diagonal_rms": 0.020092343294492075,
+      "repeated_rms": 0.014080833916768053,
+      "closure_rms": 0.03677322999457911,
+      "center_min_eigenvalue": 0.287896701203611,
+      "max_vertex_trace": 1.94970703125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.015685758081109148,
+      "tensor_max_error": 0.029785156249999986
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.00030375214646429996,
+      "radial_rmse": 0.004824167443099325,
+      "max_radial_error": 0.0065157692134075185,
+      "relative_volume": 0.9548387492352897,
+      "jaccard": 0.9548387492352897,
+      "relative_radius_min": 0.9774287133439702,
+      "relative_radius_max": 0.9999875581410697
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0010208211021377298,
+      "radial_rmse": 0.007923167541049608,
+      "max_radial_error": 0.019174496767032756,
+      "relative_volume": 0.9549657442277766,
+      "jaccard": 0.9363225823199638,
+      "relative_radius_min": 0.9335775947798682,
+      "relative_radius_max": 1.0435550451726734
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0041623493564680696,
+      "centroid_shift": 0.0003834069624249362,
+      "covariance_axis_ratios": [
+        0.9923546689897144,
+        0.9846980314294466,
+        0.9828385087849271
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 2.6318644021361415e-05,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.5228347432213226e-16,
+      "affine_singular_values": [
+        0.9999999999999999,
+        0.9800000000000002,
+        0.9799999999999996
+      ],
+      "affine_center_shift": 5.553824967135427e-17,
+      "affine_ball_volume_ratio": 0.9603999999999999,
+      "hull_volume": 0.09377267322915653,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9603999999999988,
+      "hull_relative_to_true_body": 0.930592518339231,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.010953196424763702,
+      "centroid_shift": 0.000711045657157365,
+      "covariance_axis_ratios": [
+        0.993057086140514,
+        0.9863637987268477,
+        0.9837675369171309
+      ],
+      "triple_acceptance_fraction": 0.453125,
+      "nominal_physical_fraction": 0.71875,
+      "minimum_nominal_eigenvalue": -0.029072619012995654,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007506422506325885,
+      "affine_singular_values": [
+        1.0016150315685957,
+        0.9807838423339386,
+        0.9778387101482381
+      ],
+      "affine_center_shift": 0.0006005906813944924,
+      "affine_ball_volume_ratio": 0.9605973007756878,
+      "hull_volume": 0.09736331050711068,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.997174551934975,
+      "hull_relative_to_true_body": 0.9662257158568969,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "07_bit_flip_preparation_0.01.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.01,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.00358642320009025,
+      "diagonal_rms": 0.05182773439999977,
+      "repeated_rms": 0.02930328593686011,
+      "closure_rms": 0.0499582343063725,
+      "center_min_eigenvalue": 0.24967786453332982,
+      "max_vertex_trace": 1.7526890624000024,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.018379036759570384,
+      "tensor_max_error": 0.051827734400000214
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.01147350008316839,
+      "diagonal_rms": 0.046132242972841915,
+      "repeated_rms": 0.026702444890414248,
+      "closure_rms": 0.05365926395424245,
+      "center_min_eigenvalue": 0.2449490415282531,
+      "max_vertex_trace": 1.79833984375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.021128010888880742,
+      "tensor_max_error": 0.04915364583333415
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0005213715492079435,
+      "radial_rmse": 0.02069521757281836,
+      "max_radial_error": 0.024333750578946767,
+      "relative_volume": 0.8033878729927117,
+      "jaccard": 0.8033878729927117,
+      "relative_radius_min": 0.9157054153171112,
+      "relative_radius_max": 0.9591588405672622
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0012572186824195252,
+      "radial_rmse": 0.024007375743899946,
+      "max_radial_error": 0.03583907582083684,
+      "relative_volume": 0.7883006363472345,
+      "jaccard": 0.7883006363472345,
+      "relative_radius_min": 0.8758497995639948,
+      "relative_radius_max": 0.9958994609980086
+    },
+    "tomography": {
+      "paired_tv_mean": 0.01270709461427672,
+      "centroid_shift": 0.0012381008943894774,
+      "covariance_axis_ratios": [
+        0.9500384609533088,
+        0.9466437879442953,
+        0.9580167429005501
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.01538423239437084,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.2219430419250734e-16,
+      "affine_singular_values": [
+        0.9697758443295064,
+        0.9499169463936964,
+        0.9352848037737064
+      ],
+      "affine_center_shift": 8.542522420166517e-17,
+      "affine_ball_volume_ratio": 0.8615904487543332,
+      "hull_volume": 0.08412498917992764,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.861590448754333,
+      "hull_relative_to_true_body": 0.8348496725149145,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.01619439143358396,
+      "centroid_shift": 0.001096008865671346,
+      "covariance_axis_ratios": [
+        0.9474334449309868,
+        0.9450945164736141,
+        0.9579722478975534
+      ],
+      "triple_acceptance_fraction": 0.2421875,
+      "nominal_physical_fraction": 0.9817708333333334,
+      "minimum_nominal_eigenvalue": -0.013987281189237394,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007093958196327711,
+      "affine_singular_values": [
+        0.9708776506955683,
+        0.9447729185005607,
+        0.9323290425764699
+      ],
+      "affine_center_shift": 0.0005411721979016967,
+      "affine_ball_volume_ratio": 0.8551871228044535,
+      "hull_volume": 0.08655009516708868,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.886427874305568,
+      "hull_relative_to_true_body": 0.8589162306081954,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "08_bit_flip_moment_all_0.01.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.05,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 8.90472610073259e-17,
+      "diagonal_rms": 0.09500000000000075,
+      "repeated_rms": 0.054848275573014985,
+      "closure_rms": 0.08956685895029635,
+      "center_min_eigenvalue": 0.14333333333333007,
+      "max_vertex_trace": 1.6199999999999926,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03878358759406712,
+      "tensor_max_error": 0.0950000000000013
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012396223705887398,
+      "diagonal_rms": 0.09685738926449058,
+      "repeated_rms": 0.055143228566163355,
+      "closure_rms": 0.0996631402414604,
+      "center_min_eigenvalue": 0.11525961958777321,
+      "max_vertex_trace": 1.67578125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.0436219504282425,
+      "tensor_max_error": 0.10742187500000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.001988650482870616,
+      "radial_rmse": 0.0422521897467783,
+      "max_radial_error": 0.05497520251617338,
+      "relative_volume": 0.65207163390877,
+      "jaccard": 0.65207163390877,
+      "relative_radius_min": 0.8095603121711986,
+      "relative_radius_max": 0.9998599937887559
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0024905897295572008,
+      "radial_rmse": 0.048320244391670104,
+      "max_radial_error": 0.08172868014971582,
+      "relative_volume": 0.6229815890049716,
+      "jaccard": 0.6218020540876522,
+      "relative_radius_min": 0.7168835470902926,
+      "relative_radius_max": 1.0228439479924856
+    },
+    "tomography": {
+      "paired_tv_mean": 0.020811746782340174,
+      "centroid_shift": 0.0019170348121259656,
+      "covariance_axis_ratios": [
+        0.9301304238381187,
+        0.914459125129638,
+        0.952306768031429
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.00012628894780075672,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.2292025677759036e-16,
+      "affine_singular_values": [
+        1.0,
+        0.9000000000000004,
+        0.8999999999999999
+      ],
+      "affine_center_shift": 1.1983411512519015e-16,
+      "affine_ball_volume_ratio": 0.8100000000000003,
+      "hull_volume": 0.07908773981217923,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8100000000000005,
+      "hull_relative_to_true_body": 0.7848604121769872,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.02245329821372473,
+      "centroid_shift": 0.0015685628524655171,
+      "covariance_axis_ratios": [
+        0.9335226903274801,
+        0.9128967375843184,
+        0.9539308933595796
+      ],
+      "triple_acceptance_fraction": 0.049479166666666664,
+      "nominal_physical_fraction": 0.9375,
+      "minimum_nominal_eigenvalue": -0.020435435575383187,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007138986447395814,
+      "affine_singular_values": [
+        1.0005098298767514,
+        0.9028099946961112,
+        0.8971283499980317
+      ],
+      "affine_center_shift": 0.0006977220167646278,
+      "affine_ball_volume_ratio": 0.8103493706992962,
+      "hull_volume": 0.0824488513171673,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8444237972346393,
+      "hull_relative_to_true_body": 0.8182158142588091,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "09_bit_flip_preparation_0.05.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.05,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.013328130964242412,
+      "diagonal_rms": 0.23167000000000337,
+      "repeated_rms": 0.1304957821955712,
+      "closure_rms": 0.21994870114036957,
+      "center_min_eigenvalue": -0.03000666666667041,
+      "max_vertex_trace": 0.8733199999999663,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.08069471621488103,
+      "tensor_max_error": 0.23167000000000382
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.019851741258020802,
+      "diagonal_rms": 0.23222509436628544,
+      "repeated_rms": 0.13324345996927175,
+      "closure_rms": 0.21288763854938927,
+      "center_min_eigenvalue": -0.022319385704498332,
+      "max_vertex_trace": 0.9296875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.08127354561931983,
+      "tensor_max_error": 0.23876953125000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.05882330190272589,
+      "centroid_shift": 0.005606619144987674,
+      "covariance_axis_ratios": [
+        0.7324303566350168,
+        0.7582529185713438,
+        0.830120009301173
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.07461193729571727,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.2631878666835736e-16,
+      "affine_singular_values": [
+        0.8532727441872304,
+        0.7647648817808275,
+        0.7064891536125586
+      ],
+      "affine_center_shift": 3.7367087251761353e-17,
+      "affine_ball_volume_ratio": 0.46102163738230106,
+      "hull_volume": 0.045013776919847176,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.4610216373823006,
+      "hull_relative_to_true_body": 0.4467131263436812,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.05931648215990207,
+      "centroid_shift": 0.005846672559360063,
+      "covariance_axis_ratios": [
+        0.7375526288243903,
+        0.759694258931506,
+        0.828669675900058
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.05780194837670752,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0075663882608251855,
+      "affine_singular_values": [
+        0.85099470423801,
+        0.7660769706522248,
+        0.7084936560500189
+      ],
+      "affine_center_shift": 0.000988222595658812,
+      "affine_ball_volume_ratio": 0.4618864590325575,
+      "hull_volume": 0.04807623172625122,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.492386655513787,
+      "hull_relative_to_true_body": 0.47710468320617144,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "10_bit_flip_moment_all_0.05.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.15,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 6.816381731413086e-17,
+      "diagonal_rms": 0.25499999999999945,
+      "repeated_rms": 0.14722431864335442,
+      "closure_rms": 0.24041630560342608,
+      "center_min_eigenvalue": -0.1766666666666678,
+      "max_vertex_trace": 0.9800000000000035,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10410331406828503,
+      "tensor_max_error": 0.2549999999999999
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.014126925005314102,
+      "diagonal_rms": 0.24948962089492951,
+      "repeated_rms": 0.14497206882044672,
+      "closure_rms": 0.2392058231674114,
+      "center_min_eigenvalue": -0.19825202573875914,
+      "max_vertex_trace": 1.0458984375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10606488950964071,
+      "tensor_max_error": 0.25732421875000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.062435240347020436,
+      "centroid_shift": 0.005751104436379175,
+      "covariance_axis_ratios": [
+        0.7273868173698975,
+        0.712623113578283,
+        0.9453023764782923
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.0003390582733565073,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.2692441489091125e-16,
+      "affine_singular_values": [
+        0.9999999999999997,
+        0.7000000000000002,
+        0.6999999999999996
+      ],
+      "affine_center_shift": 1.1443916996305594e-16,
+      "affine_ball_volume_ratio": 0.48999999999999966,
+      "hull_volume": 0.047843200627120656,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.48999999999999916,
+      "hull_relative_to_true_body": 0.47479210119348497,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.062481105180954476,
+      "centroid_shift": 0.005850806773508839,
+      "covariance_axis_ratios": [
+        0.7299701561604008,
+        0.7152093877136264,
+        0.9486457380408139
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9921875,
+      "minimum_nominal_eigenvalue": -0.0063025694502946705,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007531173298877394,
+      "affine_singular_values": [
+        1.0026178113122657,
+        0.7035433118315705,
+        0.6984510915018158
+      ],
+      "affine_center_shift": 0.0005655222467705837,
+      "affine_ball_volume_ratio": 0.4926769619234538,
+      "hull_volume": 0.051273960780235904,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.5251371240425224,
+      "hull_relative_to_true_body": 0.5088386908956193,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "11_bit_flip_preparation_0.15.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.15,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.016832647098223588,
+      "diagonal_rms": 0.5368099999999988,
+      "repeated_rms": 0.30041082044010914,
+      "closure_rms": 0.5037873283440129,
+      "center_min_eigenvalue": -0.4402866666666671,
+      "max_vertex_trace": -0.7472399999999888,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.18088762817008766,
+      "tensor_max_error": 0.5368099999999993
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.02030679793897872,
+      "diagonal_rms": 0.5319941301882462,
+      "repeated_rms": 0.29980078579727776,
+      "closure_rms": 0.48949508345073045,
+      "center_min_eigenvalue": -0.4463394124993426,
+      "max_vertex_trace": -0.61328125,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.18012793094227947,
+      "tensor_max_error": 0.5375976562500004
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.14557601826721264,
+      "centroid_shift": 0.013086982375160823,
+      "covariance_axis_ratios": [
+        0.3257869185053559,
+        0.3986452436660357,
+        0.5726355333967307
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.20633626224499624,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 6.91957835929069e-17,
+      "affine_singular_values": [
+        0.5919065469000085,
+        0.402242288197069,
+        0.31236160956837716
+      ],
+      "affine_center_shift": 2.359479019930958e-17,
+      "affine_ball_volume_ratio": 0.07437012683871229,
+      "hull_volume": 0.007261438569405965,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.07437012683871216,
+      "hull_relative_to_true_body": 0.07206193630158816,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.14592885279679005,
+      "centroid_shift": 0.012745077156982127,
+      "covariance_axis_ratios": [
+        0.3323501108267016,
+        0.4003068827339139,
+        0.5710174853104414
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.19392534721560623,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0077286678126156985,
+      "affine_singular_values": [
+        0.5890333820910005,
+        0.4009836289026581,
+        0.3149026021526589
+      ],
+      "affine_center_shift": 0.0003670354465041517,
+      "affine_ball_volume_ratio": 0.0743777094103963,
+      "hull_volume": 0.008788390114204956,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.09000884346185072,
+      "hull_relative_to_true_body": 0.08721528145560745,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "12_bit_flip_moment_all_0.15.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.01,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 9.829427362568301e-17,
+      "diagonal_rms": 0.01980000000000004,
+      "repeated_rms": 0.011431535329954317,
+      "closure_rms": 0.018667619023323936,
+      "center_min_eigenvalue": 0.29373333333333446,
+      "max_vertex_trace": 1.9207999999999996,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.008083316151184548,
+      "tensor_max_error": 0.019800000000000484
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.011746532567729544,
+      "diagonal_rms": 0.021332638441133048,
+      "repeated_rms": 0.01721220264237985,
+      "closure_rms": 0.032559991511727324,
+      "center_min_eigenvalue": 0.28090837759063236,
+      "max_vertex_trace": 2.03466796875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.01653046436762587,
+      "tensor_max_error": 0.04589843750000003
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0003107290897793725,
+      "radial_rmse": 0.0047790462305350055,
+      "max_radial_error": 0.006515769222317946,
+      "relative_volume": 0.9555373750543625,
+      "jaccard": 0.9555373750543625,
+      "relative_radius_min": 0.9774287133131035,
+      "relative_radius_max": 0.9999819212580883
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0011715767171415787,
+      "radial_rmse": 0.0072758224270323205,
+      "max_radial_error": 0.018551228322770064,
+      "relative_volume": 0.9959279281710585,
+      "jaccard": 0.9412184543853915,
+      "relative_radius_min": 0.9357366600043029,
+      "relative_radius_max": 1.0550770284461706
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0040462178948551765,
+      "centroid_shift": 0.0003579908888557333,
+      "covariance_axis_ratios": [
+        0.9836647375503257,
+        0.9813350714354064,
+        0.9949190079935044
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 8.313945748605021e-05,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.4286884732076585e-16,
+      "affine_singular_values": [
+        1.0,
+        0.9800000000000002,
+        0.9799999999999998
+      ],
+      "affine_center_shift": 1.1888868841264692e-16,
+      "affine_ball_volume_ratio": 0.9604,
+      "hull_volume": 0.09377267322915653,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9603999999999988,
+      "hull_relative_to_true_body": 0.930592518339231,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.010981924491094695,
+      "centroid_shift": 0.0004966491319589459,
+      "covariance_axis_ratios": [
+        0.9848910744283528,
+        0.98141009580226,
+        0.9951978908053618
+      ],
+      "triple_acceptance_fraction": 0.6510416666666666,
+      "nominal_physical_fraction": 0.7421875,
+      "minimum_nominal_eigenvalue": -0.027769129107814344,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007562602718890556,
+      "affine_singular_values": [
+        0.9983988803878322,
+        0.9810546086329021,
+        0.9789467257141066
+      ],
+      "affine_center_shift": 0.000507209908652562,
+      "affine_ball_volume_ratio": 0.9588624812771783,
+      "hull_volume": 0.09716741431232846,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9951682243025197,
+      "hull_relative_to_true_body": 0.9642816576685378,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "13_phase_flip_preparation_0.01.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.01,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.003444400841366604,
+      "diagonal_rms": 0.08937535611775926,
+      "repeated_rms": 0.05046597084707224,
+      "closure_rms": 0.0877911401521442,
+      "center_min_eigenvalue": 0.21339062109781448,
+      "max_vertex_trace": 1.5248825755289672,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.02999149148658437,
+      "tensor_max_error": 0.08937535611775971
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.015170848475155936,
+      "diagonal_rms": 0.09453382252116893,
+      "repeated_rms": 0.05285372003896119,
+      "closure_rms": 0.08788904259281513,
+      "center_min_eigenvalue": 0.20272444819731394,
+      "max_vertex_trace": 1.5771484375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.033145630368119655,
+      "tensor_max_error": 0.10009765625000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0005018866698848413,
+      "radial_rmse": 0.04602359086939,
+      "max_radial_error": 0.05049882294327887,
+      "relative_volume": 0.5959645238932559,
+      "jaccard": 0.5959645238932559,
+      "relative_radius_min": 0.8250669458796324,
+      "relative_radius_max": 0.8749928070689703
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0007325904359747021,
+      "radial_rmse": 0.04316687525335986,
+      "max_radial_error": 0.05904939886686317,
+      "relative_volume": 0.6197243109810975,
+      "jaccard": 0.6197243109810975,
+      "relative_radius_min": 0.7954468820123861,
+      "relative_radius_max": 0.9020891586941441
+    },
+    "tomography": {
+      "paired_tv_mean": 0.004046217894855175,
+      "centroid_shift": 0.00035799088885571937,
+      "covariance_axis_ratios": [
+        0.9836647375503255,
+        0.9813350714354063,
+        0.9949190079935043
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 8.313945748582513e-05,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.4387369378616788e-16,
+      "affine_singular_values": [
+        1.0000000000000002,
+        0.9800000000000002,
+        0.9799999999999998
+      ],
+      "affine_center_shift": 1.1236938283130691e-16,
+      "affine_ball_volume_ratio": 0.9604000000000001,
+      "hull_volume": 0.09377267322915657,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9603999999999991,
+      "hull_relative_to_true_body": 0.9305925183392314,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.010534298238434719,
+      "centroid_shift": 0.0006176301794641226,
+      "covariance_axis_ratios": [
+        0.9853256192949682,
+        0.9841920334434223,
+        0.9956260191986678
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.6822916666666666,
+      "minimum_nominal_eigenvalue": -0.0315704501194981,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007283604499548921,
+      "affine_singular_values": [
+        0.9991342977706201,
+        0.9832112957089465,
+        0.979919267989227
+      ],
+      "affine_center_shift": 0.0009503975546169686,
+      "affine_ball_volume_ratio": 0.9626336170399378,
+      "hull_volume": 0.09801717169466433,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0038712607191207,
+      "hull_relative_to_true_body": 0.9727145820501732,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "14_phase_flip_moment_all_0.01.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.05,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 7.495531175068342e-17,
+      "diagonal_rms": 0.09500000000000086,
+      "repeated_rms": 0.05484827557301458,
+      "closure_rms": 0.08956685895029545,
+      "center_min_eigenvalue": 0.143333333333334,
+      "max_vertex_trace": 1.6199999999999934,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03878358759406719,
+      "tensor_max_error": 0.09500000000000153
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.013447556170480816,
+      "diagonal_rms": 0.09047707949227886,
+      "repeated_rms": 0.051253204168005766,
+      "closure_rms": 0.08292774003494836,
+      "center_min_eigenvalue": 0.13001445450311935,
+      "max_vertex_trace": 1.70556640625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.041897585860476906,
+      "tensor_max_error": 0.09619140625000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0020403381363286355,
+      "radial_rmse": 0.0418575123813301,
+      "max_radial_error": 0.05497520257315633,
+      "relative_volume": 0.6569489761987082,
+      "jaccard": 0.6569489761987082,
+      "relative_radius_min": 0.8095603119738042,
+      "relative_radius_max": 0.9997965804969107
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0023719215368838563,
+      "radial_rmse": 0.041615263445900975,
+      "max_radial_error": 0.07579175102965843,
+      "relative_volume": 0.673059829730935,
+      "jaccard": 0.6715110524063357,
+      "relative_radius_min": 0.7374496728440421,
+      "relative_radius_max": 1.0247635701660713
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0202310894742757,
+      "centroid_shift": 0.0017899544442796676,
+      "covariance_axis_ratios": [
+        0.90935552367157,
+        0.9024357625225357,
+        0.987040589158267
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.00039902749591930946,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.3082190817911088e-16,
+      "affine_singular_values": [
+        1.0,
+        0.9000000000000005,
+        0.9000000000000001
+      ],
+      "affine_center_shift": 7.016522229951154e-17,
+      "affine_ball_volume_ratio": 0.8100000000000009,
+      "hull_volume": 0.07908773981217919,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.81,
+      "hull_relative_to_true_body": 0.7848604121769868,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.022176397864720934,
+      "centroid_shift": 0.0019873661622208556,
+      "covariance_axis_ratios": [
+        0.912392011402229,
+        0.9039924517080579,
+        0.9900180528311364
+      ],
+      "triple_acceptance_fraction": 0.10677083333333333,
+      "nominal_physical_fraction": 0.9348958333333334,
+      "minimum_nominal_eigenvalue": -0.014492177675799498,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007231402280810615,
+      "affine_singular_values": [
+        1.0021703334542933,
+        0.902224239785849,
+        0.9001109836750364
+      ],
+      "affine_center_shift": 0.00028895795877879074,
+      "affine_ball_volume_ratio": 0.8138644799950768,
+      "hull_volume": 0.08279513208738844,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8479703320647564,
+      "hull_relative_to_true_body": 0.821652276960742,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "15_phase_flip_preparation_0.05.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.05,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.010795786081036467,
+      "diagonal_rms": 0.37765270000000295,
+      "repeated_rms": 0.21333881527822832,
+      "closure_rms": 0.37694064506221486,
+      "center_min_eigenvalue": -0.15097206666666707,
+      "max_vertex_trace": -0.05261080000003071,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.12652912978173414,
+      "tensor_max_error": 0.3776527000000034
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.01810895360215549,
+      "diagonal_rms": 0.37979658467171873,
+      "repeated_rms": 0.21485922786561595,
+      "closure_rms": 0.3673905359132693,
+      "center_min_eigenvalue": -0.1603785676348479,
+      "max_vertex_trace": 0.1015625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.12587057874788687,
+      "tensor_max_error": 0.40869140625000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0202310894742757,
+      "centroid_shift": 0.0017899544442796398,
+      "covariance_axis_ratios": [
+        0.9093555236715701,
+        0.9024357625225358,
+        0.9870405891582674
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.00039902749591931596,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.268716382103077e-16,
+      "affine_singular_values": [
+        1.0000000000000004,
+        0.9000000000000005,
+        0.8999999999999999
+      ],
+      "affine_center_shift": 4.5102810375396984e-17,
+      "affine_ball_volume_ratio": 0.8100000000000008,
+      "hull_volume": 0.07908773981217919,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.81,
+      "hull_relative_to_true_body": 0.7848604121769868,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.022547517374672792,
+      "centroid_shift": 0.0016939711867866576,
+      "covariance_axis_ratios": [
+        0.9081176501860545,
+        0.9027538614259555,
+        0.9862229647130398
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9609375,
+      "minimum_nominal_eigenvalue": -0.017757859601864018,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0074366261973266914,
+      "affine_singular_values": [
+        0.9980404000328674,
+        0.9003035287695147,
+        0.8966809892949288
+      ],
+      "affine_center_shift": 0.00020692568312225598,
+      "affine_ball_volume_ratio": 0.8057031030679889,
+      "hull_volume": 0.08203316960619612,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.840166472563505,
+      "hull_relative_to_true_body": 0.8140906221647871,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "16_phase_flip_moment_all_0.05.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.15,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 5.836513162098518e-17,
+      "diagonal_rms": 0.2549999999999999,
+      "repeated_rms": 0.14722431864335425,
+      "closure_rms": 0.24041630560342567,
+      "center_min_eigenvalue": -0.17666666666666586,
+      "max_vertex_trace": 0.9800000000000026,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10410331406828534,
+      "tensor_max_error": 0.25500000000000034
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.01213528210097377,
+      "diagonal_rms": 0.25695310755608125,
+      "repeated_rms": 0.1479373671146038,
+      "closure_rms": 0.2391636877395006,
+      "center_min_eigenvalue": -0.18656782423436746,
+      "max_vertex_trace": 1.0634765625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.1057697874251307,
+      "tensor_max_error": 0.26708984375000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.06069326842282702,
+      "centroid_shift": 0.005369863332840156,
+      "covariance_axis_ratios": [
+        0.7099157716618297,
+        0.7022305791364936,
+        0.9829004143490061
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.0010717951618039272,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 8.822554994184885e-17,
+      "affine_singular_values": [
+        0.9999999999999997,
+        0.6999999999999998,
+        0.6999999999999996
+      ],
+      "affine_center_shift": 5.2845041577819695e-17,
+      "affine_ball_volume_ratio": 0.4899999999999995,
+      "hull_volume": 0.04784320062712071,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.4899999999999997,
+      "hull_relative_to_true_body": 0.4747921011934855,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.061790639309682725,
+      "centroid_shift": 0.005597565022253066,
+      "covariance_axis_ratios": [
+        0.706924175671861,
+        0.7032199364628982,
+        0.9850095857261463
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9791666666666666,
+      "minimum_nominal_eigenvalue": -0.024079455816200725,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007303351645115021,
+      "affine_singular_values": [
+        1.0011278418847476,
+        0.6997360990847539,
+        0.6955599467467553
+      ],
+      "affine_center_shift": 0.0002685007693683963,
+      "affine_ball_volume_ratio": 0.4872573339396563,
+      "hull_volume": 0.050421263091266134,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.5164039736236866,
+      "hull_relative_to_true_body": 0.5003765871458278,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "17_phase_flip_preparation_0.15.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.15,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.008247997078129534,
+      "diagonal_rms": 0.7730368999999995,
+      "repeated_rms": 0.43914054619802906,
+      "closure_rms": 0.8165399399265273,
+      "center_min_eigenvalue": -0.9709999999999925,
+      "max_vertex_trace": -2.4061475999999926,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.26262956554699324,
+      "tensor_max_error": 0.7730368999999999
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.016712881377354567,
+      "diagonal_rms": 0.7761372159640688,
+      "repeated_rms": 0.44475287134988745,
+      "closure_rms": 0.8148851201889531,
+      "center_min_eigenvalue": -0.978172860117003,
+      "max_vertex_trace": -2.390625,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.2645276416841163,
+      "tensor_max_error": 0.7797851562500004
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.06069326842282702,
+      "centroid_shift": 0.005369863332840156,
+      "covariance_axis_ratios": [
+        0.7099157716618297,
+        0.7022305791364933,
+        0.9829004143490058
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.0010717951618037088,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 8.907870665658646e-17,
+      "affine_singular_values": [
+        0.9999999999999999,
+        0.6999999999999998,
+        0.6999999999999996
+      ],
+      "affine_center_shift": 5.2845041577819695e-17,
+      "affine_ball_volume_ratio": 0.4899999999999994,
+      "hull_volume": 0.04784320062712071,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.4899999999999997,
+      "hull_relative_to_true_body": 0.4747921011934855,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.06118140262666877,
+      "centroid_shift": 0.0049991093104334765,
+      "covariance_axis_ratios": [
+        0.7122672116383696,
+        0.7036553873137819,
+        0.9799238721427862
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9895833333333334,
+      "minimum_nominal_eigenvalue": -0.010653369540372225,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007535814734429827,
+      "affine_singular_values": [
+        0.9957666740932428,
+        0.7008046089655507,
+        0.7000255734253239
+      ],
+      "affine_center_shift": 0.00037368669510441047,
+      "affine_ball_volume_ratio": 0.488504358365965,
+      "hull_volume": 0.05087524748523721,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.5210535863195339,
+      "hull_relative_to_true_body": 0.5048818920062302,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "18_phase_flip_moment_all_0.15.npz"
+  },
+  {
+    "name": "phase_damping",
+    "rate": 0.01,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 7.931817024644225e-17,
+      "diagonal_rms": 0.004999999999999893,
+      "repeated_rms": 0.0028867513459477547,
+      "closure_rms": 0.004714045207909523,
+      "center_min_eigenvalue": 0.3233333333333347,
+      "max_vertex_trace": 1.9800000000000002,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.0020412414523193665,
+      "tensor_max_error": 0.0050000000000003375
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.013643280280650281,
+      "diagonal_rms": 0.0052872089423114535,
+      "repeated_rms": 0.01315077476104719,
+      "closure_rms": 0.03601577637393059,
+      "center_min_eigenvalue": 0.3023306816949327,
+      "max_vertex_trace": 2.02587890625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.01595568411162699,
+      "tensor_max_error": 0.05126953125
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 7.282612009529574e-05,
+      "radial_rmse": 0.001089764095028932,
+      "max_radial_error": 0.00149126069850114,
+      "relative_volume": 0.9897333119837783,
+      "jaccard": 0.9897333119837783,
+      "relative_radius_min": 0.9948341214057308,
+      "relative_radius_max": 0.9999959706032803
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0015757920033116822,
+      "radial_rmse": 0.009782440273939156,
+      "max_radial_error": 0.022439344268287975,
+      "relative_volume": 1.004045716481366,
+      "jaccard": 0.9190909486428812,
+      "relative_radius_min": 0.9222678312775916,
+      "relative_radius_max": 1.0636306287066
+    },
+    "tomography": {
+      "paired_tv_mean": 0.001014096083914101,
+      "centroid_shift": 8.972259228195764e-05,
+      "covariance_axis_ratios": [
+        0.9960623102029029,
+        0.9954477979390137,
+        0.9984589106407422
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 2.0993507727886176e-05,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.281675524575551e-16,
+      "affine_singular_values": [
+        0.9999999999999999,
+        0.9949874371066197,
+        0.9949874371066197
+      ],
+      "affine_center_shift": 5.564820138878016e-17,
+      "affine_ball_volume_ratio": 0.9899999999999994,
+      "hull_volume": 0.09666279310377442,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9899999999999985,
+      "hull_relative_to_true_body": 0.9592738371052046,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.009717030184660577,
+      "centroid_shift": 8.882182840644938e-05,
+      "covariance_axis_ratios": [
+        1.001241604991012,
+        0.9977389548699128,
+        0.9984901534340715
+      ],
+      "triple_acceptance_fraction": 0.5130208333333334,
+      "nominal_physical_fraction": 0.5364583333333334,
+      "minimum_nominal_eigenvalue": -0.03187950087546934,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007322696620717746,
+      "affine_singular_values": [
+        1.0013053625923074,
+        0.9967173989477678,
+        0.9965275180462355
+      ],
+      "affine_center_shift": 0.00010524467888618431,
+      "affine_ball_volume_ratio": 0.9945528754060943,
+      "hull_volume": 0.10048421754133116,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0291382254919894,
+      "hull_relative_to_true_body": 0.9971973479589327,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "19_phase_damping_preparation_0.01.npz"
+  },
+  {
+    "name": "phase_damping",
+    "rate": 0.01,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.0009383743083119587,
+      "diagonal_rms": 0.02313824903515105,
+      "repeated_rms": 0.013065668967443923,
+      "closure_rms": 0.02267690982877005,
+      "center_min_eigenvalue": 0.30201927252747773,
+      "max_vertex_trace": 1.877522129330506,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.007771348483794656,
+      "tensor_max_error": 0.023138249035151492
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012221213685073734,
+      "diagonal_rms": 0.025013395535338167,
+      "repeated_rms": 0.019160632621087616,
+      "closure_rms": 0.04210104619913749,
+      "center_min_eigenvalue": 0.2960434237632476,
+      "max_vertex_trace": 1.92138671875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.01609843948089288,
+      "tensor_max_error": 0.043782552083333925
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.00012235065064259605,
+      "radial_rmse": 0.01058652035289032,
+      "max_radial_error": 0.011450611960261925,
+      "relative_volume": 0.8942892264529301,
+      "jaccard": 0.8942892264529301,
+      "relative_radius_min": 0.960333916614141,
+      "relative_radius_max": 0.9696132831450394
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.000886683732508391,
+      "radial_rmse": 0.01586595057578765,
+      "max_radial_error": 0.027155585278096972,
+      "relative_volume": 0.8563089520736145,
+      "jaccard": 0.8563089520736145,
+      "relative_radius_min": 0.9059302931781332,
+      "relative_radius_max": 0.9997285811743647
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0010140960839141006,
+      "centroid_shift": 8.972259228191639e-05,
+      "covariance_axis_ratios": [
+        0.996062310202903,
+        0.9954477979390138,
+        0.9984589106407422
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 2.099350772788791e-05,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.2957075504018506e-16,
+      "affine_singular_values": [
+        0.9999999999999998,
+        0.99498743710662,
+        0.9949874371066197
+      ],
+      "affine_center_shift": 5.577522092999843e-17,
+      "affine_ball_volume_ratio": 0.9899999999999995,
+      "hull_volume": 0.09666279310377443,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9899999999999988,
+      "hull_relative_to_true_body": 0.9592738371052048,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.010313016439920183,
+      "centroid_shift": 0.0005364444750481328,
+      "covariance_axis_ratios": [
+        0.996817197280406,
+        0.9997813803118316,
+        1.0019695538789655
+      ],
+      "triple_acceptance_fraction": 0.052083333333333336,
+      "nominal_physical_fraction": 0.5338541666666666,
+      "minimum_nominal_eigenvalue": -0.037232651868426,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.00760751785171055,
+      "affine_singular_values": [
+        1.0049446820021872,
+        0.9981244024279687,
+        0.9923860310860789
+      ],
+      "affine_center_shift": 0.00048252473066011674,
+      "affine_ball_volume_ratio": 0.9954225439829579,
+      "hull_volume": 0.10056611585120362,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0299770107595192,
+      "hull_relative_to_true_body": 0.9980101002438727,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "20_phase_damping_moment_all_0.01.npz"
+  },
+  {
+    "name": "phase_damping",
+    "rate": 0.05,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 1.0614510923360245e-16,
+      "diagonal_rms": 0.025000000000000244,
+      "repeated_rms": 0.014433756729740498,
+      "closure_rms": 0.023570226039550734,
+      "center_min_eigenvalue": 0.2833333333333345,
+      "max_vertex_trace": 1.8999999999999975,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.010206207261596677,
+      "tensor_max_error": 0.025000000000001243
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012212574018308098,
+      "diagonal_rms": 0.024824431963949622,
+      "repeated_rms": 0.021054799416361965,
+      "closure_rms": 0.029984272437013834,
+      "center_min_eigenvalue": 0.25887614095041583,
+      "max_vertex_trace": 1.93896484375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.01840666234105626,
+      "tensor_max_error": 0.039388020833333814
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0004025318602570589,
+      "radial_rmse": 0.006259896307324727,
+      "max_radial_error": 0.008522162247876552,
+      "relative_volume": 0.9420526012899584,
+      "jaccard": 0.9420526012899584,
+      "relative_radius_min": 0.9704783639926648,
+      "relative_radius_max": 0.9999760989037207
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.001445123438747042,
+      "radial_rmse": 0.01125830532452061,
+      "max_radial_error": 0.027570691122524082,
+      "relative_volume": 0.9383986289082689,
+      "jaccard": 0.9101271841659075,
+      "relative_radius_min": 0.9044923243520004,
+      "relative_radius_max": 1.0514219882585574
+    },
+    "tomography": {
+      "paired_tv_mean": 0.005122626265562485,
+      "centroid_shift": 0.00045322658782618507,
+      "covariance_axis_ratios": [
+        0.9790779833949947,
+        0.9762121455098633,
+        0.9939444522333242
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.0001049763550304175,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.1229933150656347e-16,
+      "affine_singular_values": [
+        0.9999999999999999,
+        0.9746794344808966,
+        0.9746794344808959
+      ],
+      "affine_center_shift": 5.647850449853784e-17,
+      "affine_ball_volume_ratio": 0.9499999999999993,
+      "hull_volume": 0.09275722570564204,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9499999999999978,
+      "hull_relative_to_true_body": 0.9205152982322663,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.011369946645436696,
+      "centroid_shift": 0.0010210639129928853,
+      "covariance_axis_ratios": [
+        0.977557440918169,
+        0.975586960666516,
+        0.9957545121154641
+      ],
+      "triple_acceptance_fraction": 0.4427083333333333,
+      "nominal_physical_fraction": 0.7864583333333334,
+      "minimum_nominal_eigenvalue": -0.03145270126909541,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007372274375497759,
+      "affine_singular_values": [
+        1.0014725452351145,
+        0.9739356990553407,
+        0.9706264486438688
+      ],
+      "affine_center_shift": 0.0005700064382080411,
+      "affine_ball_volume_ratio": 0.946719786653659,
+      "hull_volume": 0.09589178721944334,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9821035198655139,
+      "hull_relative_to_true_body": 0.9516224362989095,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "21_phase_damping_preparation_0.05.npz"
+  },
+  {
+    "name": "phase_damping",
+    "rate": 0.05,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.004232209325572521,
+      "diagonal_rms": 0.11186397697238848,
+      "repeated_rms": 0.06316379821482279,
+      "closure_rms": 0.10997586427042452,
+      "center_min_eigenvalue": 0.18365991663170902,
+      "max_vertex_trace": 1.4044350176241445,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03752785573096823,
+      "tensor_max_error": 0.11186397697238992
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.013315249848558931,
+      "diagonal_rms": 0.1103996239711052,
+      "repeated_rms": 0.06428915417010612,
+      "closure_rms": 0.11505492294811358,
+      "center_min_eigenvalue": 0.1780373158490043,
+      "max_vertex_trace": 1.42529296875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.04040893046414583,
+      "tensor_max_error": 0.11523437500000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0006252523209018124,
+      "radial_rmse": 0.06027279302810003,
+      "max_radial_error": 0.06642830849889098,
+      "relative_volume": 0.49830617478931943,
+      "jaccard": 0.49830617478931943,
+      "relative_radius_min": 0.769885589238123,
+      "relative_radius_max": 0.8399836315567167
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0011728242694658542,
+      "radial_rmse": 0.06250862392964095,
+      "max_radial_error": 0.08226401614556528,
+      "relative_volume": 0.49146833429156167,
+      "jaccard": 0.49146833429156167,
+      "relative_radius_min": 0.7150290888024294,
+      "relative_radius_max": 0.8766721364982645
+    },
+    "tomography": {
+      "paired_tv_mean": 0.005122626265562483,
+      "centroid_shift": 0.0004532265878261709,
+      "covariance_axis_ratios": [
+        0.9790779833949949,
+        0.9762121455098635,
+        0.9939444522333241
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.00010497635503042011,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.155534001298619e-16,
+      "affine_singular_values": [
+        0.9999999999999996,
+        0.9746794344808964,
+        0.9746794344808959
+      ],
+      "affine_center_shift": 8.326672684688674e-17,
+      "affine_ball_volume_ratio": 0.9499999999999993,
+      "hull_volume": 0.09275722570564207,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9499999999999982,
+      "hull_relative_to_true_body": 0.9205152982322666,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.011309134059299888,
+      "centroid_shift": 0.0004032003240412066,
+      "covariance_axis_ratios": [
+        0.9803766785740272,
+        0.9739556336973654,
+        0.9930402402639646
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.7916666666666666,
+      "minimum_nominal_eigenvalue": -0.03462482435086647,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007403419730209927,
+      "affine_singular_values": [
+        0.9981637817522852,
+        0.9744380664356013,
+        0.9718349170187199
+      ],
+      "affine_center_shift": 0.000314264421776792,
+      "affine_ball_volume_ratio": 0.9452540517221502,
+      "hull_volume": 0.09624873209395446,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9857592742092418,
+      "hull_relative_to_true_body": 0.9551647287199417,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "22_phase_damping_moment_all_0.05.npz"
+  },
+  {
+    "name": "phase_damping",
+    "rate": 0.15,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 9.805024771952964e-17,
+      "diagonal_rms": 0.07499999999999984,
+      "repeated_rms": 0.04330127018922156,
+      "closure_rms": 0.07071067811865413,
+      "center_min_eigenvalue": 0.18333333333333432,
+      "max_vertex_trace": 1.700000000000004,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.030618621784789874,
+      "tensor_max_error": 0.07500000000000062
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.013104093112749236,
+      "diagonal_rms": 0.07600423509944533,
+      "repeated_rms": 0.04412544912338426,
+      "closure_rms": 0.07445738725180365,
+      "center_min_eigenvalue": 0.1771905062111285,
+      "max_vertex_trace": 1.76513671875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03270146110446442,
+      "tensor_max_error": 0.08154296875000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0015081767101661292,
+      "radial_rmse": 0.027623333328817543,
+      "max_radial_error": 0.03680782905931912,
+      "relative_volume": 0.7622746985739246,
+      "jaccard": 0.7622746985739246,
+      "relative_radius_min": 0.8724939399058984,
+      "relative_radius_max": 0.9998786498365185
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0017065648492152312,
+      "radial_rmse": 0.027962516149035884,
+      "max_radial_error": 0.05471109580568198,
+      "relative_volume": 0.7682949352587521,
+      "jaccard": 0.7678192579371196,
+      "relative_radius_min": 0.8104752046535809,
+      "relative_radius_max": 1.0138214238624719
+    },
+    "tomography": {
+      "paired_tv_mean": 0.01578946591520201,
+      "centroid_shift": 0.0013969798672314579,
+      "covariance_axis_ratios": [
+        0.9305200854136584,
+        0.9242953588753813,
+        0.9882854499365404
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.00031499522697527407,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.1906267886345547e-16,
+      "affine_singular_values": [
+        1.0,
+        0.9219544457292892,
+        0.9219544457292883
+      ],
+      "affine_center_shift": 6.992893892674703e-17,
+      "affine_ball_volume_ratio": 0.85,
+      "hull_volume": 0.0829933072103115,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8500000000000002,
+      "hull_relative_to_true_body": 0.8236189510499246,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.018290015819547274,
+      "centroid_shift": 0.0016198470259702227,
+      "covariance_axis_ratios": [
+        0.9349072412122863,
+        0.9247652256614262,
+        0.9904719264829293
+      ],
+      "triple_acceptance_fraction": 0.20572916666666666,
+      "nominal_physical_fraction": 0.9270833333333334,
+      "minimum_nominal_eigenvalue": -0.026010820850419933,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007602729397956828,
+      "affine_singular_values": [
+        1.0007514535462207,
+        0.9262547991902258,
+        0.9205718182480274
+      ],
+      "affine_center_shift": 0.0005714576802699447,
+      "affine_ball_volume_ratio": 0.8533248171156963,
+      "hull_volume": 0.08681916587617405,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8891836399258366,
+      "hull_relative_to_true_body": 0.8615864668311425,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "23_phase_damping_preparation_0.15.npz"
+  },
+  {
+    "name": "phase_damping",
+    "rate": 0.15,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.009614499819066726,
+      "diagonal_rms": 0.308418921397317,
+      "repeated_rms": 0.17418618584175297,
+      "closure_rms": 0.3063036806886242,
+      "center_min_eigenvalue": -0.06716578833119581,
+      "max_vertex_trace": 0.3336468721505297,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10332452063300739,
+      "tensor_max_error": 0.3084189213973183
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.015381626332047888,
+      "diagonal_rms": 0.3127125970565451,
+      "repeated_rms": 0.17534399396822395,
+      "closure_rms": 0.31307714731144654,
+      "center_min_eigenvalue": -0.06197803492363632,
+      "max_vertex_trace": 0.35986328125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10461898787082691,
+      "tensor_max_error": 0.32324218750000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.01578946591520201,
+      "centroid_shift": 0.0013969798672314301,
+      "covariance_axis_ratios": [
+        0.9305200854136582,
+        0.9242953588753812,
+        0.9882854499365403
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.000314995226975049,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.5372138019158765e-16,
+      "affine_singular_values": [
+        1.0000000000000004,
+        0.9219544457292893,
+        0.9219544457292882
+      ],
+      "affine_center_shift": 1.2456232622454378e-16,
+      "affine_ball_volume_ratio": 0.85,
+      "hull_volume": 0.08299330721031148,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8499999999999999,
+      "hull_relative_to_true_body": 0.8236189510499242,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.018773970949166514,
+      "centroid_shift": 0.0013728832647855994,
+      "covariance_axis_ratios": [
+        0.9304974399974375,
+        0.9229929864863041,
+        0.9892720423756467
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9322916666666666,
+      "minimum_nominal_eigenvalue": -0.02960162521614177,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007458781039215531,
+      "affine_singular_values": [
+        0.9998995381204087,
+        0.925014120976585,
+        0.9154584367878317
+      ],
+      "affine_center_shift": 0.00040363327954504404,
+      "affine_ball_volume_ratio": 0.8467269088726039,
+      "hull_volume": 0.08629276123732171,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8837923143109815,
+      "hull_relative_to_true_body": 0.856362469245642,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "24_phase_damping_moment_all_0.15.npz"
+  },
+  {
+    "name": "amplitude_damping",
+    "rate": 0.01,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 1.212488398307735e-16,
+      "diagonal_rms": 0.013096468989769258,
+      "repeated_rms": 0.008243532818720988,
+      "closure_rms": 0.01810174945504753,
+      "center_min_eigenvalue": 0.3117267667644608,
+      "max_vertex_trace": 1.9952946059898633,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.006076594440967554,
+      "tensor_max_error": 0.018473651497465715
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.011549065534832105,
+      "diagonal_rms": 0.01528562093993997,
+      "repeated_rms": 0.01377683044752199,
+      "closure_rms": 0.037877482333948456,
+      "center_min_eigenvalue": 0.31150137697512914,
+      "max_vertex_trace": 2.03125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.014327106441013022,
+      "tensor_max_error": 0.03841145833333237
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0013569826811909757,
+      "radial_rmse": 0.008826928038524416,
+      "max_radial_error": 0.017786546447250473,
+      "relative_volume": 0.9786102644690584,
+      "jaccard": 0.9260461703917868,
+      "relative_radius_min": 0.9383855957243569,
+      "relative_radius_max": 1.0401481591907962
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0013989471984586182,
+      "radial_rmse": 0.009943178116962888,
+      "max_radial_error": 0.02448603321005355,
+      "relative_volume": 0.9575836615388941,
+      "jaccard": 0.9224798280008047,
+      "relative_radius_min": 0.9151778928087367,
+      "relative_radius_max": 1.0526129309862575
+    },
+    "tomography": {
+      "paired_tv_mean": 0.0028816639895676405,
+      "centroid_shift": 0.0028195403092640113,
+      "covariance_axis_ratios": [
+        0.99379327618279,
+        0.9943969924203364,
+        0.9917781430804092
+      ],
+      "triple_acceptance_fraction": 0.46875,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 4.381433433816098e-08,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.957057628730763e-16,
+      "affine_singular_values": [
+        0.9949874371066206,
+        0.9949874371066203,
+        0.9900000000000004
+      ],
+      "affine_center_shift": 0.002886751345948199,
+      "affine_ball_volume_ratio": 0.9801000000000015,
+      "hull_volume": 0.09569616517273674,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9800999999999993,
+      "hull_relative_to_true_body": 0.9496810987341533,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.010341784264090334,
+      "centroid_shift": 0.00300249314233225,
+      "covariance_axis_ratios": [
+        0.9957495679930187,
+        0.9941604942836159,
+        0.991651927077337
+      ],
+      "triple_acceptance_fraction": 0.3932291666666667,
+      "nominal_physical_fraction": 0.6276041666666666,
+      "minimum_nominal_eigenvalue": -0.0321974440142333,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007446135016696005,
+      "affine_singular_values": [
+        0.9951450672318541,
+        0.9938100098294304,
+        0.9895626734110154
+      ],
+      "affine_center_shift": 0.003070585607689523,
+      "affine_ball_volume_ratio": 0.9786627682638817,
+      "hull_volume": 0.09884741312028687,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0123744188110237,
+      "hull_relative_to_true_body": 0.9809538316363673,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "25_amplitude_damping_preparation_0.01.npz"
+  },
+  {
+    "name": "amplitude_damping",
+    "rate": 0.01,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.0016930058943261832,
+      "diagonal_rms": 0.03363497091460956,
+      "repeated_rms": 0.018171417711125987,
+      "closure_rms": 0.040911105348282885,
+      "center_min_eigenvalue": 0.27338853342164865,
+      "max_vertex_trace": 1.9675505121282877,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.01439008960920138,
+      "tensor_max_error": 0.0444463701644735
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.016164870472880816,
+      "diagonal_rms": 0.03891037884600582,
+      "repeated_rms": 0.027633404392600494,
+      "closure_rms": 0.06643036797067423,
+      "center_min_eigenvalue": 0.24800961569717977,
+      "max_vertex_trace": 2.029296875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.02442354653841952,
+      "tensor_max_error": 0.055664062500000444
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.001923598356883648,
+      "radial_rmse": 0.012291826006990926,
+      "max_radial_error": 0.024577034787326424,
+      "relative_volume": 0.9824438393518123,
+      "jaccard": 0.8982271170662872,
+      "relative_radius_min": 0.9148626540979257,
+      "relative_radius_max": 1.0591083003002828
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0026868257456354513,
+      "radial_rmse": 0.016837366446084422,
+      "max_radial_error": 0.03428034592920037,
+      "relative_volume": 1.001945595887982,
+      "jaccard": 0.8647489276114656,
+      "relative_radius_min": 0.8812493982991759,
+      "relative_radius_max": 1.1108488767947282
+    },
+    "tomography": {
+      "paired_tv_mean": 0.009254193645729762,
+      "centroid_shift": 0.009203090841122238,
+      "covariance_axis_ratios": [
+        0.9819519930872748,
+        0.98224754794783,
+        0.9761126886881463
+      ],
+      "triple_acceptance_fraction": 0.546875,
+      "nominal_physical_fraction": 0.765625,
+      "minimum_nominal_eigenvalue": -0.00797426084524816,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.2604945699436727e-16,
+      "affine_singular_values": [
+        0.9876715869125778,
+        0.9818058597917906,
+        0.9708966162702874
+      ],
+      "affine_center_shift": 0.00931410290681391,
+      "affine_ball_volume_ratio": 0.9414801494010003,
+      "hull_volume": 0.0919253544372318,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9414801494009984,
+      "hull_relative_to_true_body": 0.9122598742164428,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.01326047017989293,
+      "centroid_shift": 0.009236056958834178,
+      "covariance_axis_ratios": [
+        0.9809890483870943,
+        0.9844553636082135,
+        0.9767532878762283
+      ],
+      "triple_acceptance_fraction": 0.5520833333333334,
+      "nominal_physical_fraction": 0.7369791666666666,
+      "minimum_nominal_eigenvalue": -0.03293980394869418,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007156131332171043,
+      "affine_singular_values": [
+        0.9883968138854468,
+        0.9821623421087812,
+        0.9688862924833878
+      ],
+      "affine_center_shift": 0.009269526744990863,
+      "affine_ball_volume_ratio": 0.9405619962333563,
+      "hull_volume": 0.09497596835717556,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9727238956633482,
+      "hull_relative_to_true_body": 0.9425339230675798,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "26_amplitude_damping_moment_all_0.01.npz"
+  },
+  {
+    "name": "amplitude_damping",
+    "rate": 0.05,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 7.982555841920216e-17,
+      "diagonal_rms": 0.06283659363778424,
+      "repeated_rms": 0.03944273274846317,
+      "closure_rms": 0.08766254743174133,
+      "center_min_eigenvalue": 0.20280284185138783,
+      "max_vertex_trace": 1.9895448267190408,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.029492230615310765,
+      "tensor_max_error": 0.08863620667976169
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.013208836067070684,
+      "diagonal_rms": 0.06108494063375198,
+      "repeated_rms": 0.04135067647175353,
+      "closure_rms": 0.09930970736066794,
+      "center_min_eigenvalue": 0.2111090650929279,
+      "max_vertex_trace": 2.01220703125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.032667305792099866,
+      "tensor_max_error": 0.08642578125000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.006551776741176827,
+      "radial_rmse": 0.0511082039567643,
+      "max_radial_error": 0.09960046858900196,
+      "relative_volume": 0.8553846715324378,
+      "jaccard": 0.6574667834038963,
+      "relative_radius_min": 0.6549738558923607,
+      "relative_radius_max": 1.2036884665188363
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.007152822383001699,
+      "radial_rmse": 0.05347473091056017,
+      "max_radial_error": 0.1001439654962813,
+      "relative_volume": 0.8720656339766643,
+      "jaccard": 0.6407005518244053,
+      "relative_radius_min": 0.6530911273780322,
+      "relative_radius_max": 1.2461581638064867
+    },
+    "tomography": {
+      "paired_tv_mean": 0.014419233922723132,
+      "centroid_shift": 0.01409784911395699,
+      "covariance_axis_ratios": [
+        0.9672074711891137,
+        0.9696164460128832,
+        0.9623379107145545
+      ],
+      "triple_acceptance_fraction": 0.3802083333333333,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 2.1022031905385333e-07,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.0703204812694638e-16,
+      "affine_singular_values": [
+        0.9746794344808968,
+        0.9746794344808963,
+        0.9500000000000001
+      ],
+      "affine_center_shift": 0.014433756729740593,
+      "affine_ball_volume_ratio": 0.9025000000000001,
+      "hull_volume": 0.08811936442036002,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9024999999999987,
+      "hull_relative_to_true_body": 0.8744895333206538,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.017632011525160755,
+      "centroid_shift": 0.014359110204034471,
+      "covariance_axis_ratios": [
+        0.9672063147914293,
+        0.9720068921625141,
+        0.9606105405014633
+      ],
+      "triple_acceptance_fraction": 0.3828125,
+      "nominal_physical_fraction": 0.7890625,
+      "minimum_nominal_eigenvalue": -0.02537576306959491,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007182823863070205,
+      "affine_singular_values": [
+        0.9762768629776677,
+        0.972969857822996,
+        0.9478986086507026
+      ],
+      "affine_center_shift": 0.014611668158135827,
+      "affine_ball_volume_ratio": 0.9003974761957614,
+      "hull_volume": 0.09142895647285817,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9363961458361285,
+      "hull_relative_to_true_body": 0.9073336604714637,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "27_amplitude_damping_preparation_0.05.npz"
+  },
+  {
+    "name": "amplitude_damping",
+    "rate": 0.05,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.0072993618877028555,
+      "diagonal_rms": 0.14691236204152847,
+      "repeated_rms": 0.07858678409525252,
+      "closure_rms": 0.19058203876644914,
+      "center_min_eigenvalue": 0.044432521098061124,
+      "max_vertex_trace": 1.8856211864060886,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.06601714302614918,
+      "tensor_max_error": 0.1920822831089155
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.01563872291032869,
+      "diagonal_rms": 0.15335257609877434,
+      "repeated_rms": 0.08244594325011069,
+      "closure_rms": 0.19627783950428349,
+      "center_min_eigenvalue": 0.039405450781025246,
+      "max_vertex_trace": 1.85205078125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.06832527945224409,
+      "tensor_max_error": 0.20361328125000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.007698960215446956,
+      "radial_rmse": 0.11558280228239483,
+      "max_radial_error": 0.2058236283717857,
+      "relative_volume": 0.5511993349567522,
+      "jaccard": 0.45362501971274255,
+      "relative_radius_min": 0.28700603652378337,
+      "relative_radius_max": 1.112464573224129
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.008525472533186074,
+      "radial_rmse": 0.12925157133210846,
+      "max_radial_error": 0.218746209209329,
+      "relative_volume": 0.5297873077586639,
+      "jaccard": 0.4040592607734507,
+      "relative_radius_min": 0.24224090337270207,
+      "relative_radius_max": 1.1992642256453203
+    },
+    "tomography": {
+      "paired_tv_mean": 0.045530689058546486,
+      "centroid_shift": 0.04551942134876948,
+      "covariance_axis_ratios": [
+        0.9022312380396786,
+        0.8882478054559875,
+        0.9172540308224484
+      ],
+      "triple_acceptance_fraction": 0.2942708333333333,
+      "nominal_physical_fraction": 0.7421875,
+      "minimum_nominal_eigenvalue": -0.040085162621826306,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.1606875440773244e-16,
+      "affine_singular_values": [
+        0.9385808216226686,
+        0.910427258623538,
+        0.8602500442675638
+      ],
+      "affine_center_shift": 0.04612343047401195,
+      "affine_ball_volume_ratio": 0.735091890625,
+      "hull_volume": 0.07177377306641097,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.7350918906250001,
+      "hull_relative_to_true_body": 0.7122771904492569,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.04645262847930298,
+      "centroid_shift": 0.04596543827328059,
+      "covariance_axis_ratios": [
+        0.906036163828274,
+        0.8897105576524104,
+        0.9200349770912141
+      ],
+      "triple_acceptance_fraction": 0.2786458333333333,
+      "nominal_physical_fraction": 0.7447916666666666,
+      "minimum_nominal_eigenvalue": -0.06902188101130222,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007566661135025999,
+      "affine_singular_values": [
+        0.9405432280614238,
+        0.9138279682557466,
+        0.8596266678453217
+      ],
+      "affine_center_shift": 0.04649461590788779,
+      "affine_ball_volume_ratio": 0.7388445711432651,
+      "hull_volume": 0.07515740313586627,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.7697463182615417,
+      "hull_relative_to_true_body": 0.7458560649660144,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "28_amplitude_damping_moment_all_0.05.npz"
+  },
+  {
+    "name": "amplitude_damping",
+    "rate": 0.15,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 8.536135157276464e-17,
+      "diagonal_rms": 0.16866664608036713,
+      "repeated_rms": 0.10554175713905824,
+      "closure_rms": 0.24791631652636292,
+      "center_min_eigenvalue": -0.09456402296250258,
+      "max_vertex_trace": 2.066672955930063,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.08300978857941982,
+      "tensor_max_error": 0.23791823898251563
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.011454706990895765,
+      "diagonal_rms": 0.17268907053810031,
+      "repeated_rms": 0.10711264752063883,
+      "closure_rms": 0.2451881113575511,
+      "center_min_eigenvalue": -0.08767364528510363,
+      "max_vertex_trace": 2.10009765625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.08326238602255948,
+      "tensor_max_error": 0.24365234375000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.043348208825733925,
+      "centroid_shift": 0.04229476291988466,
+      "covariance_axis_ratios": [
+        0.8850488628874139,
+        0.9016147260440122,
+        0.9054190057556433
+      ],
+      "triple_acceptance_fraction": 0.0859375,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 5.642757911533593e-07,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.0908776875693023e-16,
+      "affine_singular_values": [
+        0.9219544457292885,
+        0.9219544457292881,
+        0.8499999999999995
+      ],
+      "affine_center_shift": 0.043301270189221815,
+      "affine_ball_volume_ratio": 0.7224999999999994,
+      "hull_volume": 0.07054431112876473,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.7224999999999997,
+      "hull_relative_to_true_body": 0.7000761083924354,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.04476607181825346,
+      "centroid_shift": 0.04249329198202311,
+      "covariance_axis_ratios": [
+        0.8885336257284436,
+        0.9058336478156749,
+        0.905818928322814
+      ],
+      "triple_acceptance_fraction": 0.0859375,
+      "nominal_physical_fraction": 0.8723958333333334,
+      "minimum_nominal_eigenvalue": -0.027813172687216975,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007443144607054536,
+      "affine_singular_values": [
+        0.925783480437563,
+        0.9207438762363829,
+        0.8521124763186562
+      ],
+      "affine_center_shift": 0.043418134192463965,
+      "affine_ball_volume_ratio": 0.7263487446035155,
+      "hull_volume": 0.07443088604971612,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.7623054830425917,
+      "hull_relative_to_true_body": 0.7386461674389944,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "29_amplitude_damping_preparation_0.15.npz"
+  },
+  {
+    "name": "amplitude_damping",
+    "rate": 0.15,
+    "placement": "moment_all",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 0.015037984492029212,
+      "diagonal_rms": 0.31733527838435227,
+      "repeated_rms": 0.16879299631799827,
+      "closure_rms": 0.5120611654540428,
+      "center_min_eigenvalue": -0.31888221589577526,
+      "max_vertex_trace": 1.93323072966817,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.1676670918206977,
+      "tensor_max_error": 0.40174826920453266
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.018951948386724544,
+      "diagonal_rms": 0.3164125606708154,
+      "repeated_rms": 0.16870000887597345,
+      "closure_rms": 0.5118243227470599,
+      "center_min_eigenvalue": -0.3013601012507982,
+      "max_vertex_trace": 2.03466796875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.16760692882415312,
+      "tensor_max_error": 0.41845703125000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.1313900254547513,
+      "centroid_shift": 0.13354565875569158,
+      "covariance_axis_ratios": [
+        0.6625572158563884,
+        0.7162248528898636,
+        0.7947687439797645
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.6536458333333334,
+      "minimum_nominal_eigenvalue": -0.1220477764054031,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.1124579827392863e-16,
+      "affine_singular_values": [
+        0.8174253321748747,
+        0.7419927626628229,
+        0.6218215838162802
+      ],
+      "affine_center_shift": 0.13567189442449432,
+      "affine_ball_volume_ratio": 0.37714951562499993,
+      "hull_volume": 0.036824571311159696,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.3771495156249993,
+      "hull_relative_to_true_body": 0.3654441040565282,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.13174950545046032,
+      "centroid_shift": 0.13335743192956873,
+      "covariance_axis_ratios": [
+        0.6599885608158764,
+        0.7201887207740937,
+        0.8011153778527201
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.65625,
+      "minimum_nominal_eigenvalue": -0.14862397970993074,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0076318921387738695,
+      "affine_singular_values": [
+        0.8225010691898842,
+        0.7440785579282814,
+        0.6185536580107542
+      ],
+      "affine_center_shift": 0.1353966363772703,
+      "affine_ball_volume_ratio": 0.37855818474216907,
+      "hull_volume": 0.039372006159586206,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.4032398076490953,
+      "hull_relative_to_true_body": 0.3907246439970837,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "30_amplitude_damping_moment_all_0.15.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.01,
+    "placement": "readout",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 8.562463870966977e-17,
+      "diagonal_rms": 0.020000000000000018,
+      "repeated_rms": 0.011547005383792582,
+      "closure_rms": 0.02309401076758533,
+      "center_min_eigenvalue": 0.31333333333333024,
+      "max_vertex_trace": 1.8799999999999994,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.007071067811865701,
+      "tensor_max_error": 0.020000000000000462
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012321268243352076,
+      "diagonal_rms": 0.01972257366076241,
+      "repeated_rms": 0.014434954244032188,
+      "closure_rms": 0.03117488734987937,
+      "center_min_eigenvalue": 0.28966065523346984,
+      "max_vertex_trace": 1.9833984375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.015207841377488325,
+      "tensor_max_error": 0.0467122395833342
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 2.5017546358050348e-17,
+      "radial_rmse": 0.011782658554890649,
+      "max_radial_error": 0.011782658554891301,
+      "relative_volume": 0.8824809390645023,
+      "jaccard": 0.8824809390645023,
+      "relative_radius_min": 0.9591836734693844,
+      "relative_radius_max": 0.9591836734693886
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0007287931760102818,
+      "radial_rmse": 0.01011320402203046,
+      "max_radial_error": 0.01975176956965735,
+      "relative_volume": 0.9110541008763376,
+      "jaccard": 0.9106070551141918,
+      "relative_radius_min": 0.9315778631319214,
+      "relative_radius_max": 1.0058545563841883
+    },
+    "tomography": {
+      "paired_tv_mean": 0.007082974573839309,
+      "centroid_shift": 0.000721989283476097,
+      "covariance_axis_ratios": [
+        0.977901851722074,
+        0.9651418074679554,
+        0.9772775127404784
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.01000011058941394,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.236974036243988e-16,
+      "affine_singular_values": [
+        0.9800000000000001,
+        0.9799999999999996,
+        0.9603999999999999
+      ],
+      "affine_center_shift": 6.958382176060062e-17,
+      "affine_ball_volume_ratio": 0.9223681599999994,
+      "hull_volume": 0.09005927536928188,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9223681599999983,
+      "hull_relative_to_true_body": 0.8937410546129969,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.012117148016992476,
+      "centroid_shift": 0.000393054360938441,
+      "covariance_axis_ratios": [
+        0.9781290410465893,
+        0.9664038276519464,
+        0.9806606181736128
+      ],
+      "triple_acceptance_fraction": 0.4114583333333333,
+      "nominal_physical_fraction": 0.8723958333333334,
+      "minimum_nominal_eigenvalue": -0.0276478208637308,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007310124202524737,
+      "affine_singular_values": [
+        0.985716799113994,
+        0.9774806469404668,
+        0.9591390857295697
+      ],
+      "affine_center_shift": 0.000555370861659658,
+      "affine_ball_volume_ratio": 0.924148823379826,
+      "hull_volume": 0.09358709510221769,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9584993478486357,
+      "hull_relative_to_true_body": 0.9287508558319175,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 0,
+      "volume_percentiles_conditional_on_valid_center": [
+        0.837369228891973,
+        0.9097192302117016,
+        0.9690442262818155
+      ]
+    },
+    "data": "31_bit_flip_readout_0.01.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.05,
+    "placement": "readout",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 7.55798135420599e-17,
+      "diagonal_rms": 0.09999999999999998,
+      "repeated_rms": 0.05773502691896261,
+      "closure_rms": 0.11547005383792545,
+      "center_min_eigenvalue": 0.23333333333333048,
+      "max_vertex_trace": 1.3999999999999997,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03535533905932758,
+      "tensor_max_error": 0.10000000000000042
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.011309497689513347,
+      "diagonal_rms": 0.10349863740696723,
+      "repeated_rms": 0.060336249094877205,
+      "closure_rms": 0.12565654946808325,
+      "center_min_eigenvalue": 0.20533568822867754,
+      "max_vertex_trace": 1.3896484375,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.04020328493329878,
+      "tensor_max_error": 0.10986328125000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 1.688051744025169e-17,
+      "radial_rmse": 0.0641500299099588,
+      "max_radial_error": 0.06415002990995936,
+      "relative_volume": 0.4705075445816165,
+      "jaccard": 0.4705075445816165,
+      "relative_radius_min": 0.7777777777777746,
+      "relative_radius_max": 0.7777777777777789
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0007099992194092553,
+      "radial_rmse": 0.07066110340481238,
+      "max_radial_error": 0.08449828146322941,
+      "relative_volume": 0.43478544251202844,
+      "jaccard": 0.43478544251202844,
+      "relative_radius_min": 0.7072893667068622,
+      "relative_radius_max": 0.8157278006544452
+    },
+    "tomography": {
+      "paired_tv_mean": 0.03447811860898993,
+      "centroid_shift": 0.0034694704396093594,
+      "covariance_axis_ratios": [
+        0.8522823519443987,
+        0.8595110899159611,
+        0.8956432506193374
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.05000048729122393,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 9.410442141550815e-17,
+      "affine_singular_values": [
+        0.9,
+        0.8999999999999996,
+        0.8099999999999999
+      ],
+      "affine_center_shift": 2.943923360032078e-17,
+      "affine_ball_volume_ratio": 0.6560999999999996,
+      "hull_volume": 0.06406106924786507,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.6560999999999994,
+      "hull_relative_to_true_body": 0.6357369338633586,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.03545443022482681,
+      "centroid_shift": 0.0038419670608692926,
+      "covariance_axis_ratios": [
+        0.8541010556967905,
+        0.8630587602054245,
+        0.8971144585032753
+      ],
+      "triple_acceptance_fraction": 0.005208333333333333,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.0139959104969051,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007357318608305949,
+      "affine_singular_values": [
+        0.9036223593876517,
+        0.8987865775716719,
+        0.8110755500195301
+      ],
+      "affine_center_shift": 0.0006166813261140943,
+      "affine_ball_volume_ratio": 0.6587260773543911,
+      "hull_volume": 0.06736989218916276,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.6899882687609482,
+      "hull_relative_to_true_body": 0.6685734284160535,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 0,
+      "volume_percentiles_conditional_on_valid_center": [
+        0.38729906606277026,
+        0.42656795519762986,
+        0.4724416570131449
+      ]
+    },
+    "data": "32_bit_flip_readout_0.05.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.15,
+    "placement": "readout",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 6.917813905764028e-17,
+      "diagonal_rms": 0.30000000000000004,
+      "repeated_rms": 0.17320508075688779,
+      "closure_rms": 0.34641016151377574,
+      "center_min_eigenvalue": 0.033333333333331036,
+      "max_vertex_trace": 0.1999999999999994,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10606601717798235,
+      "tensor_max_error": 0.3000000000000005
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.011396698196527812,
+      "diagonal_rms": 0.29392391900060644,
+      "repeated_rms": 0.1682120785926593,
+      "closure_rms": 0.3455120571602452,
+      "center_min_eigenvalue": 0.026499818090938217,
+      "max_vertex_trace": 0.27392578125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.10485955305429703,
+      "tensor_max_error": 0.30175781250000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 1.935011180274549e-18,
+      "radial_rmse": 0.24743582965269711,
+      "max_radial_error": 0.2474358296526982,
+      "relative_volume": 0.0029154518950436936,
+      "jaccard": 0.0029154518950436936,
+      "relative_radius_min": 0.14285714285713783,
+      "relative_radius_max": 0.14285714285714532
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 4.755190102209338e-05,
+      "radial_rmse": 0.24396273683378436,
+      "max_radial_error": 0.25931626216080894,
+      "relative_volume": 0.00443742440614139,
+      "jaccard": 0.00443742440614139,
+      "relative_radius_min": 0.10170211741725652,
+      "relative_radius_max": 0.23768228615493525
+    },
+    "tomography": {
+      "paired_tv_mean": 0.09657874844670362,
+      "centroid_shift": 0.009358087813216842,
+      "covariance_axis_ratios": [
+        0.517511068202579,
+        0.6664096427385717,
+        0.696195552986927
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.15000101732821977,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.0296436549645904e-16,
+      "affine_singular_values": [
+        0.7000000000000003,
+        0.7,
+        0.4900000000000001
+      ],
+      "affine_center_shift": 5.898059818321144e-17,
+      "affine_ball_volume_ratio": 0.2401000000000002,
+      "hull_volume": 0.023443168307289153,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.2400999999999999,
+      "hull_relative_to_true_body": 0.23264812958480796,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.09689245935896067,
+      "centroid_shift": 0.009649489915226217,
+      "covariance_axis_ratios": [
+        0.5196838568191465,
+        0.6654201930644965,
+        0.6992710506823627
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.11338807627815796,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007475923624134936,
+      "affine_singular_values": [
+        0.7015786824455615,
+        0.6971267811799449,
+        0.49042298897380626
+      ],
+      "affine_center_shift": 0.000588066641127059,
+      "affine_ball_volume_ratio": 0.23986063080879372,
+      "hull_volume": 0.025681010699675735,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.2630195111927321,
+      "hull_relative_to_true_body": 0.25485629872261395,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 13,
+      "volume_percentiles_conditional_on_valid_center": [
+        0.0013830630827979017,
+        0.003755093947610599,
+        0.006948594905914513
+      ]
+    },
+    "data": "33_bit_flip_readout_0.15.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.2,
+    "placement": "readout",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 5.067768326236292e-17,
+      "diagonal_rms": 0.4,
+      "repeated_rms": 0.23094010767585035,
+      "closure_rms": 0.4618802153517008,
+      "center_min_eigenvalue": -0.20000000000000068,
+      "max_vertex_trace": -0.4000000000000006,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.1414213562373097,
+      "tensor_max_error": 0.40000000000000047
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.012592116328027774,
+      "diagonal_rms": 0.3999382627050391,
+      "repeated_rms": 0.233919007389392,
+      "closure_rms": 0.4579497939765495,
+      "center_min_eigenvalue": -0.17913841691697774,
+      "max_vertex_trace": -0.3505859375,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.14361063846484345,
+      "tensor_max_error": 0.40722656250000044
+    },
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "sampled_geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "tomography": {
+      "paired_tv_mean": 0.12429705160662746,
+      "centroid_shift": 0.011780077265654382,
+      "covariance_axis_ratios": [
+        0.38033423930718574,
+        0.5710702377668505,
+        0.5966917737546279
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.2000010942694149,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 7.381075440663048e-17,
+      "affine_singular_values": [
+        0.6000000000000001,
+        0.6,
+        0.36000000000000004
+      ],
+      "affine_center_shift": 6.13071990641655e-17,
+      "affine_ball_volume_ratio": 0.1296,
+      "hull_volume": 0.012654038369948661,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.1295999999999999,
+      "hull_relative_to_true_body": 0.1255776659483178,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.12466726480720386,
+      "centroid_shift": 0.012282132358065096,
+      "covariance_axis_ratios": [
+        0.38133857598991033,
+        0.5739706761666526,
+        0.6005128326036728
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.16900365212602741,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007816846520471,
+      "affine_singular_values": [
+        0.6027380646924693,
+        0.6003766234170896,
+        0.35786548136779345
+      ],
+      "affine_center_shift": 0.0008596874481853635,
+      "affine_ball_volume_ratio": 0.12950072594597253,
+      "hull_volume": 0.01458868202947391,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.14941421352964399,
+      "hull_relative_to_true_body": 0.1447769150814527,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "bootstrap": {
+      "replicates": 100,
+      "invalid_center": 100,
+      "volume_percentiles_conditional_on_valid_center": null
+    },
+    "data": "34_bit_flip_readout_0.2.npz"
+  },
+  {
+    "name": "coherent_z",
+    "rate": 0.4,
+    "placement": "preparation",
+    "paired_tomography": true,
+    "diagnostics": {
+      "permutation_rms": 5.099024833164444e-17,
+      "diagonal_rms": 0.0,
+      "repeated_rms": 6.632363072827397e-16,
+      "closure_rms": 1.456043846448818e-15,
+      "center_min_eigenvalue": 0.33333333333333043,
+      "max_vertex_trace": 1.9999999999999991,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 2.6715586349546337e-16,
+      "tensor_max_error": 4.996003610813204e-16
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.01165547773855755,
+      "diagonal_rms": 0.0,
+      "repeated_rms": 0.010646043022663641,
+      "closure_rms": 0.019152724405751765,
+      "center_min_eigenvalue": 0.3265079737099163,
+      "max_vertex_trace": 2.01123046875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.01231206844109254,
+      "tensor_max_error": 0.03173828125
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 3.507186083056853e-17,
+      "radial_rmse": 5.680504261963471e-16,
+      "max_radial_error": 1.1102230246251565e-15,
+      "relative_volume": 0.9999999999999944,
+      "jaccard": 0.9999999999999944,
+      "relative_radius_min": 0.9999999999999961,
+      "relative_radius_max": 1.0000000000000004
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0004669404706161513,
+      "radial_rmse": 0.0029133099056510353,
+      "max_radial_error": 0.007618808056164883,
+      "relative_volume": 0.9958113526965287,
+      "jaccard": 0.9756361117250342,
+      "relative_radius_min": 0.9736076747072147,
+      "relative_radius_max": 1.0255488899483198
+    },
+    "tomography": {
+      "paired_tv_mean": 0.08006257642378907,
+      "centroid_shift": 0.0071121810319756855,
+      "covariance_axis_ratios": [
+        0.9999999999999997,
+        0.9999999999999997,
+        1.0
+      ],
+      "triple_acceptance_fraction": 1.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": -1.0269562977782698e-15,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 1.363623005053601e-16,
+      "affine_singular_values": [
+        1.0000000000000007,
+        1.0000000000000002,
+        0.9999999999999998
+      ],
+      "affine_center_shift": 4.163336342344337e-17,
+      "affine_ball_volume_ratio": 1.0000000000000009,
+      "hull_volume": 0.09763918495330753,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.999999999999999,
+      "hull_relative_to_true_body": 0.9689634718234394,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "sampled_tomography": {
+      "paired_tv_mean": 0.07951458150916414,
+      "centroid_shift": 0.007928101045039063,
+      "covariance_axis_ratios": [
+        1.0041717875050875,
+        1.0046244606127308,
+        0.9978333069231395
+      ],
+      "triple_acceptance_fraction": 0.4010416666666667,
+      "nominal_physical_fraction": 0.4765625,
+      "minimum_nominal_eigenvalue": -0.03716108593402542,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.007416076145132729,
+      "affine_singular_values": [
+        1.0048049335885412,
+        1.0020332032829449,
+        0.9968025882493465
+      ],
+      "affine_center_shift": 0.0009573683582783541,
+      "affine_ball_volume_ratio": 1.0036285989515772,
+      "hull_volume": 0.1012908377645848,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0373994601964718,
+      "hull_relative_to_true_body": 1.0052021826197364,
+      "ideal_cloud_coverage": 0.9689634718234404
+    },
+    "data": "35_coherent_z_preparation_0.4.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.05,
+    "placement": "moment_control",
+    "paired_tomography": false,
+    "diagnostics": {
+      "permutation_rms": 5.3449004519957147e-17,
+      "diagonal_rms": 0.10000000000000142,
+      "repeated_rms": 0.057735026918963595,
+      "closure_rms": 0.11547005383792845,
+      "center_min_eigenvalue": 0.2333333333333295,
+      "max_vertex_trace": 1.3999999999999875,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.035355339059328285,
+      "tensor_max_error": 0.10000000000000187
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.014554058789638747,
+      "diagonal_rms": 0.09733988060769322,
+      "repeated_rms": 0.06064048831422677,
+      "closure_rms": 0.12365096020801977,
+      "center_min_eigenvalue": 0.22993797485605103,
+      "max_vertex_trace": 1.42236328125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.03944824805505402,
+      "tensor_max_error": 0.10156250000000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 1.9845583806617587e-17,
+      "radial_rmse": 0.0641500299099606,
+      "max_radial_error": 0.06415002990996121,
+      "relative_volume": 0.47050754458160526,
+      "jaccard": 0.47050754458160526,
+      "relative_radius_min": 0.7777777777777681,
+      "relative_radius_max": 0.7777777777777726
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0005015341591957887,
+      "radial_rmse": 0.06848929109442436,
+      "max_radial_error": 0.07835636199134671,
+      "relative_volume": 0.4457758376729784,
+      "jaccard": 0.4457758376729784,
+      "relative_radius_min": 0.7285655998694579,
+      "relative_radius_max": 0.8011591327666945
+    },
+    "data": "36_bit_flip_moment_control_0.05.npz"
+  },
+  {
+    "name": "phase_flip",
+    "rate": 0.05,
+    "placement": "moment_control",
+    "paired_tomography": false,
+    "diagnostics": {
+      "permutation_rms": 7.574738472484473e-17,
+      "diagonal_rms": 0.27100000000000146,
+      "repeated_rms": 0.15646192295038958,
+      "closure_rms": 0.31292384590078015,
+      "center_min_eigenvalue": 0.062333333333329154,
+      "max_vertex_trace": 0.3739999999999877,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.09581296885077806,
+      "tensor_max_error": 0.2710000000000019
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.010882729817788584,
+      "diagonal_rms": 0.2673872663797126,
+      "repeated_rms": 0.15346075214582652,
+      "closure_rms": 0.3036424860216338,
+      "center_min_eigenvalue": 0.04137581754231732,
+      "max_vertex_trace": 0.462890625,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.09489590952954287,
+      "tensor_max_error": 0.27783203125000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 7.443889997600545e-18,
+      "radial_rmse": 0.214625408711098,
+      "max_radial_error": 0.2146254087110994,
+      "relative_volume": 0.016878825941493668,
+      "jaccard": 0.016878825941493668,
+      "relative_radius_min": 0.25651577503427986,
+      "relative_radius_max": 0.2565157750342892
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.00013403209107421587,
+      "radial_rmse": 0.21319543613384664,
+      "max_radial_error": 0.22876159111605182,
+      "relative_volume": 0.019160389597986043,
+      "jaccard": 0.019160389597986043,
+      "relative_radius_min": 0.20754660273340342,
+      "relative_radius_max": 0.3680625081207245
+    },
+    "data": "37_phase_flip_moment_control_0.05.npz"
+  },
+  {
+    "name": "bit_flip",
+    "rate": 0.05,
+    "placement": "moment_register1",
+    "paired_tomography": false,
+    "diagnostics": {
+      "permutation_rms": 0.008660254037844359,
+      "diagonal_rms": 0.06500000000000039,
+      "repeated_rms": 0.03947573094109056,
+      "closure_rms": 0.047140452079103584,
+      "center_min_eigenvalue": 0.20333333333333048,
+      "max_vertex_trace": 1.739999999999993,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.02791355704074045,
+      "tensor_max_error": 0.06500000000000083
+    },
+    "sampled_diagnostics": {
+      "permutation_rms": 0.014627972188074132,
+      "diagonal_rms": 0.06840208626627271,
+      "repeated_rms": 0.041675050209959486,
+      "closure_rms": 0.05660106110246529,
+      "center_min_eigenvalue": 0.18706226000546267,
+      "max_vertex_trace": 1.78173828125,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.030711905701678116,
+      "tensor_max_error": 0.07226562500000044
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.0012266302026542734,
+      "radial_rmse": 0.022240165700015992,
+      "max_radial_error": 0.029522849854453415,
+      "relative_volume": 0.8038175323428047,
+      "jaccard": 0.8038175323428047,
+      "relative_radius_min": 0.8977298481357184,
+      "relative_radius_max": 0.9999358706862604
+    },
+    "sampled_geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.001736834917522803,
+      "radial_rmse": 0.02656485104398208,
+      "max_radial_error": 0.04300807932509218,
+      "relative_volume": 0.7783867684502626,
+      "jaccard": 0.7690175428194543,
+      "relative_radius_min": 0.8510156429459756,
+      "relative_radius_max": 1.0532412740701054
+    },
+    "data": "38_bit_flip_moment_register1_0.05.npz"
+  }
+]

@@ -190,7 +190,10 @@ class OutcomeData:
             raise ValueError("Invalid physical outcome count.")
         object.__setattr__(self, "num_outcomes", int(self.num_outcomes))
         p = np.maximum(p, 0)
-        p /= p.sum()
+        # Avoid changing already-normalized data by an ulp on every JSON
+        # round trip. Correct meaningful normalization errors only.
+        if abs(p.sum() - 1.0) > 8 * np.finfo(float).eps:
+            p /= p.sum()
         p.setflags(write=False)
         object.__setattr__(self, "probabilities", p)
         if self.counts is not None:

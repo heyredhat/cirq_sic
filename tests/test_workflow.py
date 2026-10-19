@@ -198,3 +198,12 @@ def test_direct_mixed_wh_entropy(d):
         stabilizer_renyi_entropy(rho, basis="wh", mixed=True),
         atol=1e-9,
     )
+
+
+def test_outcome_normalization_is_idempotent_at_roundoff():
+    probabilities = np.array([.1, .2, .3, .4]) * (1 + np.finfo(float).eps)
+    first = OutcomeData(probabilities, 4)
+    second = OutcomeData(first.probabilities.tolist(), 4)
+    np.testing.assert_array_equal(first.probabilities, second.probabilities)
+    corrected = OutcomeData(probabilities * (1 + 1e-6), 4)
+    assert abs(corrected.probabilities.sum() - 1) < 1e-15

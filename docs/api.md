@@ -406,3 +406,11 @@ integer `a*2**n+b` and interleaved padding. Its `aux` argument is retained
 but no longer needed. The unified measurement API uses contiguous `a*d+b`
 outcomes instead. Keep the circuit's recorded layout with its data; do not
 mix these two decoding conventions.
+
+## Noise and state-space comparisons
+
+`cirq_sic.noise` exports `LocalMomentNoise`, `TripleNoiseResult`,
+`simulate_triple_tensor`, `simulate_sic_tomography`, `triple_tensor_diagnostics`,
+`compare_state_spaces`, and `tomography_cloud_metrics`. These are also lazy
+package-level exports. See [noise studies](noise_state_space.md) for complete
+usage, statistical conventions, failure handling, resource limits and examples.

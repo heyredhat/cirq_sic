@@ -9,6 +9,13 @@ from importlib import import_module
 __version__ = "0.2.0"
 
 _EXPORTS = {
+    "LocalMomentNoise": "noise",
+    "TripleNoiseResult": "noise",
+    "simulate_triple_tensor": "noise",
+    "simulate_sic_tomography": "noise",
+    "triple_tensor_diagnostics": "noise",
+    "compare_state_spaces": "noise",
+    "tomography_cloud_metrics": "noise",
     "BasisMeasurementAfterWHPOVMOnBasisStatesTask": "experiments.sky_ground",
     "BasisMeasurementOnBasisStatesTask": "experiments.sky_ground",
     "BasisMeasurementOnWHStatesTask": "experiments.sky_ground",

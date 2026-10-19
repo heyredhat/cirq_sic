@@ -1,0 +1,55 @@
+[
+  {
+    "rate": 0.001,
+    "ordered": false,
+    "mean_moments_before_after": [
+      4.0,
+      43.0
+    ],
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.00022862444591376682,
+      "radial_rmse": 0.08158317375666853,
+      "max_radial_error": 0.08639844361357121,
+      "relative_volume": 0.36941958030899186,
+      "jaccard": 0.36941958030899186,
+      "relative_radius_min": 0.7007070119328402,
+      "relative_radius_max": 0.7319628788081829
+    },
+    "diagnostics": {
+      "permutation_rms": 0.0,
+      "diagonal_rms": 0.12987375278734706,
+      "repeated_rms": 0.07427969206878753,
+      "closure_rms": 0.1400093653810223,
+      "center_min_eigenvalue": 0.18876410274498348,
+      "max_vertex_trace": 1.2442400149960455,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.045324245725264556,
+      "tensor_max_error": 0.13031704880841144
+    }
+  },
+  {
+    "rate": 0.01,
+    "ordered": false,
+    "mean_moments_before_after": [
+      4.0,
+      43.0
+    ],
+    "geometry": {
+      "status": "center_not_strictly_feasible",
+      "estimate_center_valid": false,
+      "reference_center_valid": true
+    },
+    "diagnostics": {
+      "permutation_rms": 0.0,
+      "diagonal_rms": 0.746625845490723,
+      "repeated_rms": 0.428687129647867,
+      "closure_rms": 0.8303137897922506,
+      "center_min_eigenvalue": -1.0945362217820525,
+      "max_vertex_trace": -2.4107600483141938,
+      "empty_by_trace_certificate": true,
+      "tensor_rmse": 0.2614663290243331,
+      "tensor_max_error": 0.747900981990699
+    }
+  }
+]

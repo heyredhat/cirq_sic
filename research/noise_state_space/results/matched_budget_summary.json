@@ -1,0 +1,1154 @@
+[
+  {
+    "data": "00_ideal_none_0.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.02425403885682059,
+      "centroid_shift": 0.0017686951146761534,
+      "covariance_axis_ratios": [
+        1.0181833823918893,
+        0.9996902545945354,
+        0.9996021060888782
+      ],
+      "triple_acceptance_fraction": 0.5703125,
+      "nominal_physical_fraction": 0.4661458333333333,
+      "minimum_nominal_eigenvalue": -0.08940451576015182,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018242415899341214,
+      "affine_singular_values": [
+        1.0152266591638979,
+        0.9958186622255926,
+        0.9884452733581229
+      ],
+      "affine_center_shift": 0.00164903513219467,
+      "affine_ball_volume_ratio": 0.9993000369372305,
+      "hull_volume": 0.11112794163980519,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.138149009467337,
+      "hull_relative_to_true_body": 1.1028248156658806,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "01_depolarizing_preparation_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.024727292214990006,
+      "centroid_shift": 0.001538421977758,
+      "covariance_axis_ratios": [
+        0.981755560213251,
+        1.0054924443285402,
+        0.9859014387253756
+      ],
+      "triple_acceptance_fraction": 0.3776041666666667,
+      "nominal_physical_fraction": 0.5859375,
+      "minimum_nominal_eigenvalue": -0.08012840241381836,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01792194551807795,
+      "affine_singular_values": [
+        1.0011751016469506,
+        0.9793769495322182,
+        0.975001856346481
+      ],
+      "affine_center_shift": 0.0015962673214226272,
+      "affine_ball_volume_ratio": 0.956016441772996,
+      "hull_volume": 0.10696050903521766,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0954670410897798,
+      "hull_relative_to_true_body": 1.0614675474025044,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "02_depolarizing_moment_all_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.026823805449363757,
+      "centroid_shift": 0.0010817632194948935,
+      "covariance_axis_ratios": [
+        0.9725650694733999,
+        0.9684233741697325,
+        0.9792075159634225
+      ],
+      "triple_acceptance_fraction": 0.0390625,
+      "nominal_physical_fraction": 0.6848958333333334,
+      "minimum_nominal_eigenvalue": -0.08602435883884893,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01864585775787321,
+      "affine_singular_values": [
+        0.9802370592554933,
+        0.9661567026119844,
+        0.9544553309596389
+      ],
+      "affine_center_shift": 0.0013106034141221292,
+      "affine_ball_volume_ratio": 0.9039289520454806,
+      "hull_volume": 0.10195686430979635,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.044220764015528,
+      "hull_relative_to_true_body": 1.0118117768506116,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "03_depolarizing_preparation_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.02968238639468528,
+      "centroid_shift": 0.0022048719758019485,
+      "covariance_axis_ratios": [
+        0.9339813089803954,
+        0.9423635231145948,
+        0.9417229819795421
+      ],
+      "triple_acceptance_fraction": 0.22916666666666666,
+      "nominal_physical_fraction": 0.875,
+      "minimum_nominal_eigenvalue": -0.048925904010587544,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018172136520805224,
+      "affine_singular_values": [
+        0.9407783894789253,
+        0.9353906686650264,
+        0.9228059519729612
+      ],
+      "affine_center_shift": 0.0013870338174582749,
+      "affine_ball_volume_ratio": 0.8120649252797068,
+      "hull_volume": 0.0930845626652725,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9533525163056901,
+      "hull_relative_to_true_body": 0.9237637640711746,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "04_depolarizing_moment_all_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.05022486034664997,
+      "centroid_shift": 0.005310060998153704,
+      "covariance_axis_ratios": [
+        0.8128816349956673,
+        0.8310396358110004,
+        0.858798739717919
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9973958333333334,
+      "minimum_nominal_eigenvalue": -0.007862942582783028,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018070307462373494,
+      "affine_singular_values": [
+        0.8617154873220969,
+        0.8271253472366602,
+        0.7931082321503865
+      ],
+      "affine_center_shift": 0.0016931588711990512,
+      "affine_ball_volume_ratio": 0.5652852923950715,
+      "hull_volume": 0.06731970666197988,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.689474279144926,
+      "hull_relative_to_true_body": 0.6680753912532313,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "05_depolarizing_preparation_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.0551094622239918,
+      "centroid_shift": 0.0044926033838432735,
+      "covariance_axis_ratios": [
+        0.8098535995087481,
+        0.8101432393240273,
+        0.8127898972425888
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9947916666666666,
+      "minimum_nominal_eigenvalue": -0.01591446152986946,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0189069486225197,
+      "affine_singular_values": [
+        0.8134265715148986,
+        0.8016971222828034,
+        0.7937322453254777
+      ],
+      "affine_center_shift": 0.0008870384300169083,
+      "affine_ball_volume_ratio": 0.5176100541633941,
+      "hull_volume": 0.0625156734079544,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.6402723807849301,
+      "hull_relative_to_true_body": 0.6204005489980258,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "06_depolarizing_moment_all_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.11761225306358059,
+      "centroid_shift": 0.009869256663904646,
+      "covariance_axis_ratios": [
+        0.49941922315860504,
+        0.5378157427354334,
+        0.6265892517329421
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.11988942192469348,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018466187026508454,
+      "affine_singular_values": [
+        0.6218913986599627,
+        0.5336631394013108,
+        0.47597945010744447
+      ],
+      "affine_center_shift": 0.0018859879539101796,
+      "affine_ball_volume_ratio": 0.15796830559061206,
+      "hull_volume": 0.023408334344426036,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.23974323787749985,
+      "hull_relative_to_true_body": 0.2323024401199752,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "07_bit_flip_preparation_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.025125901880560315,
+      "centroid_shift": 0.003096276189543087,
+      "covariance_axis_ratios": [
+        1.0042061639619395,
+        0.9946221634236485,
+        0.9802594567383655
+      ],
+      "triple_acceptance_fraction": 0.4661458333333333,
+      "nominal_physical_fraction": 0.5625,
+      "minimum_nominal_eigenvalue": -0.09820273298267164,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01826764476955838,
+      "affine_singular_values": [
+        1.0005408608518207,
+        0.9885906129229114,
+        0.9717389016091513
+      ],
+      "affine_center_shift": 0.0028013890645867717,
+      "affine_ball_volume_ratio": 0.9611715353782382,
+      "hull_volume": 0.10885180510793355,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.1148372977507743,
+      "hull_relative_to_true_body": 1.0802366185468528,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "08_bit_flip_moment_all_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.026573865809146457,
+      "centroid_shift": 0.001570557888791492,
+      "covariance_axis_ratios": [
+        0.9580421797836546,
+        0.9484500827288738,
+        0.9718131787650359
+      ],
+      "triple_acceptance_fraction": 0.2734375,
+      "nominal_physical_fraction": 0.7916666666666666,
+      "minimum_nominal_eigenvalue": -0.055048768926068525,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.017529094059972758,
+      "affine_singular_values": [
+        0.9728655109936504,
+        0.9499021553545013,
+        0.9382565677239526
+      ],
+      "affine_center_shift": 0.001160028691834209,
+      "affine_ball_volume_ratio": 0.8670682700983999,
+      "hull_volume": 0.09777346354408288,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0013752530896225,
+      "hull_relative_to_true_body": 0.9702960418317969,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "09_bit_flip_preparation_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.03270430847999809,
+      "centroid_shift": 0.003388671819430966,
+      "covariance_axis_ratios": [
+        0.9384785866643681,
+        0.9230068862788896,
+        0.9616084835768229
+      ],
+      "triple_acceptance_fraction": 0.11979166666666667,
+      "nominal_physical_fraction": 0.8229166666666666,
+      "minimum_nominal_eigenvalue": -0.07097271233981522,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018502398374096705,
+      "affine_singular_values": [
+        1.0075114415178923,
+        0.9078552778592612,
+        0.8916399627949634
+      ],
+      "affine_center_shift": 0.0016239802188968955,
+      "affine_ball_volume_ratio": 0.8155604082003771,
+      "hull_volume": 0.09332067309090296,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9557707096339462,
+      "hull_relative_to_true_body": 0.9261069050740619,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "10_bit_flip_moment_all_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.06392881576085711,
+      "centroid_shift": 0.005689928626877969,
+      "covariance_axis_ratios": [
+        0.743688570598236,
+        0.7609073755441141,
+        0.8391257941722811
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9973958333333334,
+      "minimum_nominal_eigenvalue": -0.015263954445438072,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0182967407940378,
+      "affine_singular_values": [
+        0.8562099111981477,
+        0.7592286986428124,
+        0.7081157993480216
+      ],
+      "affine_center_shift": 0.0015909311820138832,
+      "affine_ball_volume_ratio": 0.46031714516818456,
+      "hull_volume": 0.056206811199583144,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.5756583407211151,
+      "hull_relative_to_true_body": 0.5577919044092527,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "11_bit_flip_preparation_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.0662484276217906,
+      "centroid_shift": 0.006868018267829604,
+      "covariance_axis_ratios": [
+        0.7365905079137534,
+        0.7250002322532386,
+        0.9507189096008531
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9505208333333334,
+      "minimum_nominal_eigenvalue": -0.055791977435454276,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018364177463448813,
+      "affine_singular_values": [
+        1.0004505304001177,
+        0.7043048774907372,
+        0.6987964362343833
+      ],
+      "affine_center_shift": 0.0013749559634458016,
+      "affine_ball_volume_ratio": 0.4923874740400726,
+      "hull_volume": 0.060903147634337705,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.623757230905424,
+      "hull_relative_to_true_body": 0.604397972033095,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "12_bit_flip_moment_all_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.14667018834117926,
+      "centroid_shift": 0.012666354986063093,
+      "covariance_axis_ratios": [
+        0.34593917000644947,
+        0.4193690771937401,
+        0.5855263437915234
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.12436146674163925,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01871198649141032,
+      "affine_singular_values": [
+        0.5941889322752407,
+        0.40874590326252996,
+        0.31229854882438746
+      ],
+      "affine_center_shift": 0.001607209566042582,
+      "affine_ball_volume_ratio": 0.0758486642886123,
+      "hull_volume": 0.014201681725201637,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.14545063779458087,
+      "hull_relative_to_true_body": 0.14093635497637078,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "13_phase_flip_preparation_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.024635252537283908,
+      "centroid_shift": 0.0023768618070755016,
+      "covariance_axis_ratios": [
+        0.9920343752793209,
+        0.9832455039455597,
+        0.9954722421053697
+      ],
+      "triple_acceptance_fraction": 0.5677083333333334,
+      "nominal_physical_fraction": 0.5833333333333334,
+      "minimum_nominal_eigenvalue": -0.0791380511979447,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018035680656077996,
+      "affine_singular_values": [
+        1.0019144399453335,
+        0.9806683400925156,
+        0.9704872246277543
+      ],
+      "affine_center_shift": 0.002243292445858497,
+      "affine_ball_volume_ratio": 0.9535481181112337,
+      "hull_volume": 0.10662020730397229,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.091981742319536,
+      "hull_relative_to_true_body": 1.058090420205747,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "14_phase_flip_moment_all_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.023884158065288763,
+      "centroid_shift": 0.002495998896994569,
+      "covariance_axis_ratios": [
+        0.9863541206985084,
+        0.9901242041232301,
+        1.0003553711004345
+      ],
+      "triple_acceptance_fraction": 0.0078125,
+      "nominal_physical_fraction": 0.5911458333333334,
+      "minimum_nominal_eigenvalue": -0.08379687598345799,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.017749222643183394,
+      "affine_singular_values": [
+        1.004826972042551,
+        0.983204475927004,
+        0.9716999451320648
+      ],
+      "affine_center_shift": 0.002355707148144035,
+      "affine_ball_volume_ratio": 0.9599913265842405,
+      "hull_volume": 0.10680360682552255,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0938600816526425,
+      "hull_relative_to_true_body": 1.0599104624072164,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "15_phase_flip_preparation_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.031547086623223405,
+      "centroid_shift": 0.0024348269973240083,
+      "covariance_axis_ratios": [
+        0.920802365583151,
+        0.9113796482733344,
+        0.9929771386340874
+      ],
+      "triple_acceptance_fraction": 0.19010416666666666,
+      "nominal_physical_fraction": 0.8307291666666666,
+      "minimum_nominal_eigenvalue": -0.06789179997759932,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01832476935315784,
+      "affine_singular_values": [
+        1.001729276278736,
+        0.9037608424167175,
+        0.901294483565499
+      ],
+      "affine_center_shift": 0.0012095309798625213,
+      "affine_ball_volume_ratio": 0.8159632517869634,
+      "hull_volume": 0.09354989123114091,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9581183136245732,
+      "hull_relative_to_true_body": 0.9283816475872864,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "16_phase_flip_moment_all_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.03199054645883346,
+      "centroid_shift": 0.001794880597468794,
+      "covariance_axis_ratios": [
+        0.917197152585918,
+        0.9078831953380727,
+        0.998784778325295
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.828125,
+      "minimum_nominal_eigenvalue": -0.06618559554466255,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018453374865147615,
+      "affine_singular_values": [
+        1.0059771093604577,
+        0.9027158793698374,
+        0.8965377110809458
+      ],
+      "affine_center_shift": 0.00036220234593924123,
+      "affine_ball_volume_ratio": 0.8141562153905648,
+      "hull_volume": 0.09336312700493639,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9562055136939528,
+      "hull_relative_to_true_body": 0.9265282143256088,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "17_phase_flip_preparation_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.06426529348719283,
+      "centroid_shift": 0.006662907170599795,
+      "covariance_axis_ratios": [
+        0.7196125257612965,
+        0.7158459725293722,
+        0.9932350245009925
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9296875,
+      "minimum_nominal_eigenvalue": -0.05653419344805602,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01819367948061805,
+      "affine_singular_values": [
+        1.005456619343581,
+        0.7055619864210865,
+        0.6994916484566357
+      ],
+      "affine_center_shift": 0.0013237333160931884,
+      "affine_ball_volume_ratio": 0.4962277480533716,
+      "hull_volume": 0.060852494222984936,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.6232384493181238,
+      "hull_relative_to_true_body": 0.6038952916251465,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "18_phase_flip_moment_all_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.06543313373653546,
+      "centroid_shift": 0.005520029226402749,
+      "covariance_axis_ratios": [
+        0.7212379106771191,
+        0.7037656603799622,
+        0.98155349497741
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.9583333333333334,
+      "minimum_nominal_eigenvalue": -0.037227474184110744,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01819062439853562,
+      "affine_singular_values": [
+        0.9919854234127471,
+        0.7045829945754969,
+        0.6911738505745394
+      ],
+      "affine_center_shift": 0.00017164424878857995,
+      "affine_ball_volume_ratio": 0.48308632803617896,
+      "hull_volume": 0.05894383030563297,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.6036903148446057,
+      "hull_relative_to_true_body": 0.584953863378015,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "19_phase_damping_preparation_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.023920980230699874,
+      "centroid_shift": 0.000921515265201085,
+      "covariance_axis_ratios": [
+        1.0026807343036501,
+        0.9966508208542335,
+        1.0121330358914529
+      ],
+      "triple_acceptance_fraction": 0.4791666666666667,
+      "nominal_physical_fraction": 0.4713541666666667,
+      "minimum_nominal_eigenvalue": -0.10618219226259501,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.017753213939817106,
+      "affine_singular_values": [
+        1.0091637635308286,
+        0.9972611285228145,
+        0.9880087685244838
+      ],
+      "affine_center_shift": 0.0008831500350759524,
+      "affine_ball_volume_ratio": 0.9943318208001192,
+      "hull_volume": 0.11117603001553615,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.1386415204991933,
+      "hull_relative_to_true_body": 1.1033020408652194,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "20_phase_damping_moment_all_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.024203807479162193,
+      "centroid_shift": 0.0005969305099290163,
+      "covariance_axis_ratios": [
+        0.991107096281042,
+        1.0023110695479038,
+        1.007713394444989
+      ],
+      "triple_acceptance_fraction": 0.17708333333333334,
+      "nominal_physical_fraction": 0.5078125,
+      "minimum_nominal_eigenvalue": -0.10039825621340964,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.017833375041743323,
+      "affine_singular_values": [
+        1.006374728662748,
+        0.9945431997744845,
+        0.9829212195696772
+      ],
+      "affine_center_shift": 0.0005056581738120927,
+      "affine_ball_volume_ratio": 0.9837892793838545,
+      "hull_volume": 0.11101937895025474,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.1370371332303286,
+      "hull_relative_to_true_body": 1.1017474482070309,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "21_phase_damping_preparation_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.024001700315424312,
+      "centroid_shift": 0.0019257677205496008,
+      "covariance_axis_ratios": [
+        0.9800967934589108,
+        0.9759436988717808,
+        0.9925508788094196
+      ],
+      "triple_acceptance_fraction": 0.484375,
+      "nominal_physical_fraction": 0.6536458333333334,
+      "minimum_nominal_eigenvalue": -0.07664913951013605,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01716817474507638,
+      "affine_singular_values": [
+        0.9942496820541277,
+        0.971447792324484,
+        0.9666981073703861
+      ],
+      "affine_center_shift": 0.0017007234562156316,
+      "affine_ball_volume_ratio": 0.9336966373993525,
+      "hull_volume": 0.10508518953013533,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.076260413074817,
+      "hull_relative_to_true_body": 1.0428570264391048,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "22_phase_damping_moment_all_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.024662676768383917,
+      "centroid_shift": 0.0010744738500854747,
+      "covariance_axis_ratios": [
+        0.9830852557380358,
+        0.9739912843052784,
+        1.0071679661864774
+      ],
+      "triple_acceptance_fraction": 0.0026041666666666665,
+      "nominal_physical_fraction": 0.5989583333333334,
+      "minimum_nominal_eigenvalue": -0.09773892206866083,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01824884300513112,
+      "affine_singular_values": [
+        1.0043481009832356,
+        0.9762317791929149,
+        0.9653097583373151
+      ],
+      "affine_center_shift": 0.0012640814482926179,
+      "affine_ball_volume_ratio": 0.9464635656583829,
+      "hull_volume": 0.106967912015945,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0955428608616355,
+      "hull_relative_to_true_body": 1.0615410139918746,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "23_phase_damping_preparation_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.029483468676771513,
+      "centroid_shift": 0.002139350467294088,
+      "covariance_axis_ratios": [
+        0.9461394670424768,
+        0.9194616666530311,
+        0.9941831448183496
+      ],
+      "triple_acceptance_fraction": 0.2708333333333333,
+      "nominal_physical_fraction": 0.7994791666666666,
+      "minimum_nominal_eigenvalue": -0.07061111546222999,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018334394667604476,
+      "affine_singular_values": [
+        1.0004014443699454,
+        0.9313466799006459,
+        0.9094389237643613
+      ],
+      "affine_center_shift": 0.0017885317494892637,
+      "affine_ball_volume_ratio": 0.8473429467748075,
+      "hull_volume": 0.09702835064413978,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9937439634562706,
+      "hull_relative_to_true_body": 0.962901600934174,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "24_phase_damping_moment_all_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.029275119390023956,
+      "centroid_shift": 0.0008193923685677847,
+      "covariance_axis_ratios": [
+        0.9383344276811505,
+        0.9289381733488815,
+        0.9849408339172913
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.8333333333333334,
+      "minimum_nominal_eigenvalue": -0.04668884091388459,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01841638713630464,
+      "affine_singular_values": [
+        0.9915449296498978,
+        0.9233120052464107,
+        0.9186019207962189
+      ],
+      "affine_center_shift": 0.0008360552389341237,
+      "affine_ball_volume_ratio": 0.8409849613309899,
+      "hull_volume": 0.09447366028073881,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.9675793619735497,
+      "hull_relative_to_true_body": 0.9375490578426,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "25_amplitude_damping_preparation_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.024410503691260865,
+      "centroid_shift": 0.0035443922497091765,
+      "covariance_axis_ratios": [
+        1.0119225990440333,
+        0.997567803650264,
+        0.9977835977778119
+      ],
+      "triple_acceptance_fraction": 0.3515625,
+      "nominal_physical_fraction": 0.4869791666666667,
+      "minimum_nominal_eigenvalue": -0.09406968576763836,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018164733103471532,
+      "affine_singular_values": [
+        1.0083271292997802,
+        0.9999441603679128,
+        0.9811749577736165
+      ],
+      "affine_center_shift": 0.0036927643154319027,
+      "affine_ball_volume_ratio": 0.9892900838335527,
+      "hull_volume": 0.11111817853207799,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.1380490177710536,
+      "hull_relative_to_true_body": 1.1027279273646964,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "26_amplitude_damping_moment_all_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.02504123057318038,
+      "centroid_shift": 0.007913574272898643,
+      "covariance_axis_ratios": [
+        0.9899925538224855,
+        0.9897134072264288,
+        0.9868864386931511
+      ],
+      "triple_acceptance_fraction": 0.5390625,
+      "nominal_physical_fraction": 0.6067708333333334,
+      "minimum_nominal_eigenvalue": -0.08394048465941428,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.017722407286874183,
+      "affine_singular_values": [
+        0.9905641441802121,
+        0.9862350984694133,
+        0.9725599836486101
+      ],
+      "affine_center_shift": 0.008012320131319276,
+      "affine_ball_volume_ratio": 0.9501221750766835,
+      "hull_volume": 0.10610968745504358,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0867531053827073,
+      "hull_relative_to_true_body": 1.0530240620065332,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "27_amplitude_damping_preparation_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.028174390591546684,
+      "centroid_shift": 0.012974866983219395,
+      "covariance_axis_ratios": [
+        0.9669562436930819,
+        0.980469922702286,
+        0.9762010173912987
+      ],
+      "triple_acceptance_fraction": 0.3802083333333333,
+      "nominal_physical_fraction": 0.6822916666666666,
+      "minimum_nominal_eigenvalue": -0.08464696691211868,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01805385802089451,
+      "affine_singular_values": [
+        0.9909780497280963,
+        0.9712655269620717,
+        0.9437179489335366
+      ],
+      "affine_center_shift": 0.013117931396529286,
+      "affine_ball_volume_ratio": 0.9083311849408937,
+      "hull_volume": 0.10307860766344126,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0557094235550495,
+      "hull_relative_to_true_body": 1.0229438682846237,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "28_amplitude_damping_moment_all_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.05053828159239714,
+      "centroid_shift": 0.04523918969302712,
+      "covariance_axis_ratios": [
+        0.9137130960955453,
+        0.8926437360827768,
+        0.934544443901219
+      ],
+      "triple_acceptance_fraction": 0.2734375,
+      "nominal_physical_fraction": 0.7109375,
+      "minimum_nominal_eigenvalue": -0.12317060547604555,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01830114237797378,
+      "affine_singular_values": [
+        0.9468275213358367,
+        0.9194268905733489,
+        0.8566564051566418
+      ],
+      "affine_center_shift": 0.04567123033090463,
+      "affine_ball_volume_ratio": 0.7457525394576606,
+      "hull_volume": 0.08628168153151572,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8836788382940391,
+      "hull_relative_to_true_body": 0.8562525151302968,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "29_amplitude_damping_preparation_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.04984907388035012,
+      "centroid_shift": 0.04218159935497457,
+      "covariance_axis_ratios": [
+        0.9008729604561213,
+        0.9061704529161774,
+        0.9088590044361045
+      ],
+      "triple_acceptance_fraction": 0.08854166666666667,
+      "nominal_physical_fraction": 0.8046875,
+      "minimum_nominal_eigenvalue": -0.0882982277945767,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01840429602015938,
+      "affine_singular_values": [
+        0.9201064179197949,
+        0.9186490681610974,
+        0.8580857817514406
+      ],
+      "affine_center_shift": 0.04311083140078259,
+      "affine_ball_volume_ratio": 0.7253012145898837,
+      "hull_volume": 0.08423524020918655,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.8627196166115988,
+      "hull_relative_to_true_body": 0.8359437949221622,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "30_amplitude_damping_moment_all_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.13322222757528376,
+      "centroid_shift": 0.13379829087776432,
+      "covariance_axis_ratios": [
+        0.6781357578790889,
+        0.720032430595314,
+        0.8019812151256633
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 0.6380208333333334,
+      "minimum_nominal_eigenvalue": -0.1911293083415243,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018640742961730794,
+      "affine_singular_values": [
+        0.8134143311827307,
+        0.7380210543730468,
+        0.630171431672061
+      ],
+      "affine_center_shift": 0.1359776108227167,
+      "affine_ball_volume_ratio": 0.3783025618055589,
+      "hull_volume": 0.04686630596360253,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.4799948502848997,
+      "hull_relative_to_true_body": 0.4650974765894289,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "31_bit_flip_readout_0.01.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.025302419838908918,
+      "centroid_shift": 0.0015244396536596733,
+      "covariance_axis_ratios": [
+        0.9855210212869572,
+        0.9703054239023963,
+        0.9843319932005034
+      ],
+      "triple_acceptance_fraction": 0.4296875,
+      "nominal_physical_fraction": 0.6744791666666666,
+      "minimum_nominal_eigenvalue": -0.09006073445898076,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01835664668441027,
+      "affine_singular_values": [
+        0.9869109510366465,
+        0.9765549211707021,
+        0.958099222337895
+      ],
+      "affine_center_shift": 0.0012282392858335137,
+      "affine_ball_volume_ratio": 0.9233899184454839,
+      "hull_volume": 0.10437736999939215,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.0690110742864847,
+      "hull_relative_to_true_body": 1.0358326819583379,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "32_bit_flip_readout_0.05.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.040598403528665734,
+      "centroid_shift": 0.00381543825242893,
+      "covariance_axis_ratios": [
+        0.8694034690529238,
+        0.8686052354945468,
+        0.8986173214038733
+      ],
+      "triple_acceptance_fraction": 0.03125,
+      "nominal_physical_fraction": 0.9739583333333334,
+      "minimum_nominal_eigenvalue": -0.020891203574294276,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.017561068394535407,
+      "affine_singular_values": [
+        0.9027208177878047,
+        0.8974253689115351,
+        0.8195025093574694
+      ],
+      "affine_center_shift": 0.0012384698781502143,
+      "affine_ball_volume_ratio": 0.6638991122110807,
+      "hull_volume": 0.07557483404524268,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.7740215578549081,
+      "hull_relative_to_true_body": 0.7499986159652797,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "33_bit_flip_readout_0.15.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.10021141422872994,
+      "centroid_shift": 0.00961266067219695,
+      "covariance_axis_ratios": [
+        0.5269147014344582,
+        0.6769517555255805,
+        0.7015341700013401
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.059860778609845365,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.01902483170832669,
+      "affine_singular_values": [
+        0.7019471778408949,
+        0.6960750873496414,
+        0.48507331941022663
+      ],
+      "affine_center_shift": 0.0003398198230541255,
+      "affine_ball_volume_ratio": 0.23701067686448332,
+      "hull_volume": 0.03309496281814313,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.33895164972925146,
+      "hull_relative_to_true_body": 0.3284317673019382,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "34_bit_flip_readout_0.2.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.12820339070311554,
+      "centroid_shift": 0.00976140028878013,
+      "covariance_axis_ratios": [
+        0.39137670802349356,
+        0.5759735185786896,
+        0.5950198267220611
+      ],
+      "triple_acceptance_fraction": 0.0,
+      "nominal_physical_fraction": 1.0,
+      "minimum_nominal_eigenvalue": 0.12795006758652278,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.0185809417348251,
+      "affine_singular_values": [
+        0.5944366738991641,
+        0.5874726862518066,
+        0.35398113064745307
+      ],
+      "affine_center_shift": 0.0025139808772280305,
+      "affine_ball_volume_ratio": 0.12361563013944236,
+      "hull_volume": 0.019586656142055455,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 0.20060241337964935,
+      "hull_relative_to_true_body": 0.194376410924506,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  },
+  {
+    "data": "35_coherent_z_preparation_0.4.npz",
+    "shots_per_state": 682,
+    "total_tomography_shots": 261888,
+    "total_triple_shots": 262144,
+    "metrics": {
+      "paired_tv_mean": 0.08310483269685105,
+      "centroid_shift": 0.006612551900608332,
+      "covariance_axis_ratios": [
+        1.0007646739192269,
+        0.9997432287012119,
+        1.0135074546816265
+      ],
+      "triple_acceptance_fraction": 0.4322916666666667,
+      "nominal_physical_fraction": 0.4348958333333333,
+      "minimum_nominal_eigenvalue": -0.07399214354215503,
+      "affine_design_rank": 4,
+      "affine_fit_rmse": 0.018056114498068918,
+      "affine_singular_values": [
+        1.0093671319124156,
+        1.0003189160057184,
+        0.9866211862482795
+      ],
+      "affine_center_shift": 0.00202139618958755,
+      "affine_ball_volume_ratio": 0.9961805936967123,
+      "hull_volume": 0.11097264507305558,
+      "ideal_cloud_hull_volume": 0.09763918495330763,
+      "hull_relative_to_ideal_cloud": 1.136558494687601,
+      "hull_relative_to_true_body": 1.1012836649429212,
+      "ideal_cloud_coverage": 0.9689634718234404
+    }
+  }
+]

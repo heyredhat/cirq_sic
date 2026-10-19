@@ -16,3 +16,8 @@ No original research output has been discarded. The repository's separate
 
 `readme_0_1/` preserves the original generated HTML README and its assets. The
 maintained documentation starts at the repository-root README.
+
+[`noise_state_space/`](noise_state_space/README.md) is the maintained noise study:
+circuit-level SIC triple estimation, tomography comparisons, saved simulation
+results, and a running LaTeX report. Its validated pipeline lives in
+`cirq_sic.noise`; see [`docs/noise_state_space.md`](../docs/noise_state_space.md).

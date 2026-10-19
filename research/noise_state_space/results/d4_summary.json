@@ -1,0 +1,74 @@
+[
+  {
+    "name": "ideal",
+    "diagnostics": {
+      "permutation_rms": 0.0,
+      "diagonal_rms": 0.0,
+      "repeated_rms": 9.465424502519379e-16,
+      "closure_rms": 1.3594598343896524e-14,
+      "center_min_eigenvalue": 0.1999999999999993,
+      "max_vertex_trace": 4.00000000000008,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 9.194132974685342e-16,
+      "tensor_max_error": 1.6375789613221059e-15
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 7.633989122996144e-15,
+      "radial_rmse": 1.8332127650259247e-15,
+      "max_radial_error": 3.2751579226442118e-15,
+      "relative_volume": 1.0000000000003126,
+      "jaccard": 0.9999999999996875,
+      "relative_radius_min": 1.0000000000000102,
+      "relative_radius_max": 1.0000000000000295
+    }
+  },
+  {
+    "name": "readout",
+    "diagnostics": {
+      "permutation_rms": 0.0,
+      "diagonal_rms": 0.01999999999999825,
+      "repeated_rms": 0.006324555320335866,
+      "closure_rms": 0.025298221281336204,
+      "center_min_eigenvalue": 0.1799999999999998,
+      "max_vertex_trace": 3.600000000000089,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.0023452078799111094,
+      "tensor_max_error": 0.019999999999998463
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 1.8403508880255043e-15,
+      "radial_rmse": 0.007007109446095336,
+      "max_radial_error": 0.011332538662068126,
+      "relative_volume": 0.2787703024094353,
+      "jaccard": 0.2787703024094353,
+      "relative_radius_min": 0.9183673469387864,
+      "relative_radius_max": 0.9183673469388062
+    }
+  },
+  {
+    "name": "preparation_depolarizing",
+    "diagnostics": {
+      "permutation_rms": 0.0,
+      "diagonal_rms": 0.04735416787653545,
+      "repeated_rms": 0.013017365052116182,
+      "closure_rms": 0.033944129775240986,
+      "center_min_eigenvalue": 0.14772388345678975,
+      "max_vertex_trace": 3.370581617777831,
+      "empty_by_trace_certificate": false,
+      "tensor_rmse": 0.004984992118422781,
+      "tensor_max_error": 0.05297360524485972
+    },
+    "geometry": {
+      "status": "ok",
+      "relative_volume_mc_se": 0.005422586655833251,
+      "radial_rmse": 0.010648089965819863,
+      "max_radial_error": 0.018532417780629584,
+      "relative_volume": 0.14034280070672026,
+      "jaccard": 0.14034280070672026,
+      "relative_radius_min": 0.8434024218909602,
+      "relative_radius_max": 0.90389257134697
+    }
+  }
+]

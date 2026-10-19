@@ -93,3 +93,13 @@ The research archive is preserved historical material. Its exploratory
 notebooks, external-data assumptions, animation workloads, and old APIs are
 not part of the maintained fresh-kernel suite. CI configuration was added
 locally; no remote CI run has occurred because nothing has been pushed.
+
+## Noise reconstruction pipeline
+
+`tests/test_noise.py` validates the noise API against independent Kraus maps,
+analytic qubit radial/volume formulas, amplitude-damping affine parameters and
+common-unitary invariance. It also checks compiled circuits, raw register
+asymmetry, readout confusion, seeded finite shots, setting-aware bootstrap,
+center failure, singular clouds and input/resource guards. All 283 repository
+tests passed after this addition. The accompanying study records exact-channel,
+finite-shot and Monte Carlo uncertainty separately; it is not hardware validation.

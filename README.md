@@ -145,3 +145,12 @@ The original exploratory notebooks and their data are preserved in
 external-data and old-API assumptions; they are not the maintained demonstration
 suite. The separate Bell-inequality studies and triple-product notes remain
 research material.
+
+### Noise and reconstructed state spaces
+
+Use [`cirq_sic.noise`](docs/noise_state_space.md) to simulate noisy real SIC
+triple circuits, compare their inferred geometry with an ideal SIC, and contrast
+it with random-state SIC tomography. The module preserves raw ordered estimates,
+separates channel bias from shot noise, and reports inconsistent or infeasible
+reconstructions. A reproducible [research study and LaTeX report](research/noise_state_space/README.md)
+cover depolarization, bit/phase flips, damping, readout and coherent errors.
