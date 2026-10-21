@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{microtype}
+
+\title{An Analytic Geodesic from a Computational Basis State\\to the Dimension-Four SIC Fiducial}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+We derive the geodesic from $|0\rangle=(1,0,0,0)^T$ to the analytic
+dimension-four SIC fiducial. The target is returned by
+\texttt{d4\_sic\_fiducial\_ket()} in \texttt{sics.py}.
+We follow the construction in \texttt{utils.py}, implemented by
+\texttt{geodesic\_interpolator}.
+Throughout, we use the default cyclic Weyl--Heisenberg basis
+(\texttt{monomial=False}).
+
+\paragraph{The fiducial.}
+Introduce the constants
+\begin{equation}
+ a=\sqrt{2+\sqrt5},\qquad q=e^{i\pi/4}=\frac{1+i}{\sqrt2},
+ \qquad L=\sqrt{2(5+\sqrt5)}.
+\end{equation}
+The function constructs
+\begin{equation}
+ |\phi\rangle
+ =(H\otimes I_2)\operatorname{diag}(1,\bar q,q,i)
+ \frac{(a,1,1,1)^T}{\sqrt{5+\sqrt5}}
+ =\frac1L
+ \begin{pmatrix}
+ a+q\\ \bar q+i\\ a-q\\ \bar q-i
+ \end{pmatrix},
+ \qquad H=\frac1{\sqrt2}\begin{pmatrix}1&1\\1&-1\end{pmatrix}.
+\end{equation}
+In particular, its first component is not real. Write
+\begin{equation}
+ \langle0|\phi\rangle=\frac{a+q}{L}=r e^{i\gamma},
+ \quad
+ C=|a+q|=\sqrt{a^2+1+\sqrt2\,a},\quad r=\frac CL,
+ \quad
+ \gamma=\arctan\!\left(\frac1{\sqrt2\,a+1}\right).
+\end{equation}
+
+\paragraph{Phase alignment and the orthogonal direction.}
+The library first replaces the target by
+$|\widetilde\phi\rangle=e^{-i\gamma}|\phi\rangle$, so that
+$\langle0|\widetilde\phi\rangle=r>0$. Define
+\begin{equation}
+ R=\sqrt{L^2-C^2}=\sqrt{7+\sqrt5-\sqrt2\,a},
+ \qquad \omega=\arccos r,
+ \qquad \sin\omega=\frac RL.
+\end{equation}
+The normalized component of the aligned target orthogonal to $|0\rangle$ is
+\begin{equation}
+ |\eta\rangle
+ =\frac{|\widetilde\phi\rangle-r|0\rangle}{\sqrt{1-r^2}}
+ =\frac{e^{-i\gamma}}R
+ \begin{pmatrix}0\\\bar q+i\\a-q\\\bar q-i\end{pmatrix}.
+\end{equation}
+Thus $\langle0|\eta\rangle=0$ and $\langle\eta|\eta\rangle=1$.
+
+\paragraph{The geodesic used by the library.}
+For $0\leq t\leq1$, the normalized horizontal lift of the
+Fubini--Study geodesic is
+\begin{equation}
+ \boxed{
+ |g(t)\rangle=\cos(t\omega)|0\rangle+\sin(t\omega)|\eta\rangle
+ =\begin{pmatrix}
+ \cos(t\omega)\\[2pt]
+ \dfrac{e^{-i\gamma}(\bar q+i)}R\sin(t\omega)\\[5pt]
+ \dfrac{e^{-i\gamma}(a-q)}R\sin(t\omega)\\[5pt]
+ \dfrac{e^{-i\gamma}(\bar q-i)}R\sin(t\omega)
+ \end{pmatrix}.}
+\end{equation}
+This is the analytic expression returned by
+\texttt{geodesic\_interpolator} for these endpoints, apart from numerical
+roundoff. It satisfies
+\begin{equation}
+ |g(0)\rangle=|0\rangle,\qquad
+ |g(1)\rangle=e^{-i\gamma}|\phi\rangle,\qquad
+ \langle g(t)|g(t)\rangle=1.
+\end{equation}
+The parameter $t\omega$ is linear in $t$, giving constant speed along the
+shortest projective geodesic. The curve lies in
+$\operatorname{span}\{|0\rangle,|\phi\rangle\}$; its intermediate states
+are not required to be SIC fiducials.
+
+\paragraph{Exact ket endpoints.}
+To require equality to the supplied ket at $t=1$, including its global
+phase, choose the phase-adjusted lift
+\begin{equation}
+ \boxed{
+ |f(t)\rangle=e^{it\gamma}|g(t)\rangle
+ =e^{it\gamma}\left[
+ \cos(t\omega)|0\rangle+
+ \frac{e^{-i\gamma}\sin(t\omega)}R
+ \big((\bar q+i)|1\rangle+(a-q)|2\rangle+(\bar q-i)|3\rangle\big)
+ \right].}
+\end{equation}
+It obeys exactly
+\begin{equation}
+ |f(0)\rangle=|0\rangle,\qquad |f(1)\rangle=|\phi\rangle,
+ \qquad \langle f(t)|f(t)\rangle=1.
+\end{equation}
+Since $|f(t)\rangle\langle f(t)|=|g(t)\rangle\langle g(t)|$,
+the two expressions describe the same geodesic of physical states.
+The additional phase changes the lift in Hilbert space, not the
+Fubini--Study path.
+
+\end{document}
